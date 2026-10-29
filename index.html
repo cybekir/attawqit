@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tawqit</title>
+<style>
+:root{--bg:#0f2a26;--card:#17403a;--ink:#f3ecd8;--mute:#9db8ae;--gold:#e0b84c}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:480px;margin:0 auto;padding:20px}
+h1{font-size:1.4rem;margin:0 0 4px}
+.mute{color:var(--mute);font-size:.9rem}
+.next{margin:20px 0;padding:22px;background:var(--card);border-left:6px solid var(--gold)}
+.next b{display:block;font-size:2.2rem}
+.row{display:flex;justify-content:space-between;padding:14px 4px;border-bottom:1px solid #ffffff22;font-size:1.2rem}
+.row.on{color:var(--gold);font-weight:bold}
+.note{margin-top:18px;padding:12px;background:#ffffff12}
+nav{margin-top:26px;display:flex;gap:16px}
+a{color:var(--gold)}
+label{display:block;margin:14px 0 4px;color:var(--mute)}
+input,textarea{width:100%;padding:10px;font:inherit;background:#ffffff14;color:var(--ink);border:1px solid #ffffff33}
+button{margin-top:18px;padding:12px 20px;font:inherit;background:var(--gold);border:0;color:#2a2200;font-weight:bold}
+/* Affichage TV */
+.tv{width:100%;height:100vh;height:100dvh;padding:2vh 3vw;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:1.5vh;text-align:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,#17403a,#08171a)}
+.tv h1{font-size:min(3.8vw,7vh);color:var(--gold);margin:0;overflow-wrap:anywhere}
+.tv .top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr) minmax(0,1fr);gap:1.5vw;align-items:center}
+.tv .side span{font-size:min(2.4vw,4vh)}.tv .side b{display:block;font-size:min(4.6vw,9vh)}
+.tv .clock{background:#24574d;border-radius:2vw;padding:1.5vh 1vw}
+.tv .clock b{display:block;font-size:min(8.5vw,16vh);line-height:1}.tv .clock span{font-size:min(2.6vw,4.5vh)}
+.tv .cd{font-size:min(3vw,5.5vh);font-weight:bold}
+.tv .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1vw;align-items:center}
+.tv .cell{padding:1.5vh 0;border-radius:1.5vw}
+.tv .cell.on{background:#24574d}
+.tv .cell span{display:block;font-size:min(2.8vw,5vh)}.tv .cell b{display:block;font-size:min(5.6vw,11vh)}.tv .cell i{display:block;font-style:normal;font-size:min(4vw,8vh)}
+.tv footer{display:flex;justify-content:space-between;align-items:end;gap:2vw;font-size:min(2vw,3.6vh)}
+.tv .brand{color:var(--gold);font-weight:bold}
+.ph{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2vh;padding:4vh 6vw}
+.ph h2{font-size:min(5.5vw,9vh);margin:0;color:var(--gold)}.ph .big{font-size:min(14vw,28vh);font-weight:bold;line-height:1}
+.ph p{font-size:3.4vw;margin:0;max-width:85vw}.ph .ar{font-size:4.4vw;direction:rtl;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const R=Math.PI/180,sin=x=>Math.sin(x*R),cos=x=>Math.cos(x*R),tan=x=>Math.tan(x*R),asin=x=>Math.asin(x)/R,acos=x=>Math.acos(x)/R,atan2=(y,x)=>Math.atan2(y,x)/R,fix=(a,b)=>{a-=b*Math.floor(a/b);return a<0?a+b:a};
+const ANG={12:[12,12],21:[19,17],18:[18,18],19:[18,17],13:[18,17],4:[18.5,null],5:[19.5,17.5],3:[18,17],2:[15,15],1:[18,18]};
+function tzOff(tz,y,m,d){const p={};new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'}).formatToParts(new Date(Date.UTC(y,m-1,d,12))).forEach(x=>p[x.type]=+x.value);return (Date.UTC(p.year,p.month-1,p.day,p.hour,p.minute)-Date.UTC(y,m-1,d,12))/36e5}
+function sun(jd){const D=jd-2451545,g=fix(357.529+0.98560028*D,360),q=fix(280.459+0.98564736*D,360),L=fix(q+1.915*sin(g)+0.02*sin(2*g),360),e=23.439-3.6e-7*D,ra=fix(atan2(cos(e)*sin(L),cos(L))/15,24);return{decl:asin(sin(e)*sin(L)),eqt:((q/15-ra+12)%24+24)%24-12}}
+function calcDay(y,m,d,lat,lng,tz,method,opt){
+  const jd=Date.UTC(y,m-1,d)/864e5+2440587.5-lng/360, off=tzOff(tz,y,m,d)-lng/15, o=opt||{}, P0=ANG[method]||ANG[12], fa=o.fa??P0[0], ia=o.ia===undefined?P0[1]:o.ia;
+  const at=(ang,t,ccw)=>{const s=sun(jd+t),v=acos((-sin(ang)-sin(s.decl)*sin(lat))/(cos(s.decl)*cos(lat)))/15;return 12-s.eqt+(ccw?-v:v)};
+  const noon=12-sun(jd+.5).eqt,sd=sun(jd+13/24).decl;
+  const rise=at(.833,6/24,1),set=at(.833,18/24,0);
+  let fajr=at(fa,5/24,1),asr=at(-Math.atan(1/((o.asr||1)+tan(Math.abs(lat-sd))))/R,13/24,0),isha=ia==null?set+(o.imin||90)/60:at(ia,18/24,0);
+  const night=rise+24-set; if(isNaN(fajr))fajr=rise-night/7; if(isNaN(isha))isha=set+night/7;
+  const f=h=>{h=fix(h+off+.5/60,24);return String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0')};
+  return{fajr:f(fajr),sunrise:f(rise),dhuhr:f(noon),asr:f(asr),maghrib:f(set),isha:f(isha)};
+}
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const KEY='mosque_v1', P=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
+const FR={Fajr:'Fajr',Sunrise:'Chourouq',Dhuhr:'Dhor',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'};
+const $=s=>document.querySelector(s);
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}};
+const def={name:'Ma mosquée',city:'Paris',country:'France',method:12,manual:{},note:'',assoc:'',jumua:'13:30',iqama:{Fajr:10,Dhuhr:10,Asr:10,Maghrib:5,Isha:10}};
+let M=Object.assign({},def,load()), T=null;
+
+async function getTimes(){
+  const now=new Date(), day=iso(now), row=(M.cal||{})[day]; let t=null;
+  if(row) t={Fajr:row.fajr,Sunrise:row.sunrise,Dhuhr:row.dhuhr,Asr:row.asr,Maghrib:row.maghrib,Isha:row.isha};
+  else if(M.lat!=null){try{const c=calcDay(now.getFullYear(),now.getMonth()+1,now.getDate(),+M.lat,+M.lng,M.tz||Intl.DateTimeFormat().resolvedOptions().timeZone,M.method,M.calc);t={Fajr:c.fajr,Sunrise:c.sunrise,Dhuhr:c.dhuhr,Asr:c.asr,Maghrib:c.maghrib,Isha:c.isha}}catch(e){}}
+  else { // mode démo sans mosquée : service externe
+    const ck='times_'+day+M.city+M.country+M.method;
+    try{const r=await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(M.city)}&country=${encodeURIComponent(M.country)}&method=${M.method}`);t=(await r.json()).data.timings;localStorage.setItem(ck,JSON.stringify(t))}catch(e){try{t=JSON.parse(localStorage.getItem(ck))}catch(_){}}
+  }
+  if(!t) return null;
+  const out={}; P.forEach(p=>out[p]=(M.manual[p]||t[p]||'').slice(0,5)); return out;
+}
+function nextPrayer(){
+  const now=new Date(), list=P.filter(p=>p!=='Sunrise').map(p=>{
+    const [h,m]=T[p].split(':'), d=new Date(); d.setHours(+h,+m,0,0); return {p,d};});
+  let n=list.find(x=>x.d>now);
+  if(!n){n={p:'Fajr',d:new Date(list[0].d.getTime()+864e5)};}
+  const s=Math.max(0,Math.floor((n.d-now)/1000));
+  const f=[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(v=>String(v).padStart(2,'0')).join(':');
+  return {p:n.p,left:f};
+}
+const DUR={phones:10,athkar:5}; // minutes
+const ATHKAR=[
+ {ar:'أَسْتَغْفِرُ الله، أَسْتَغْفِرُ الله، أَسْتَغْفِرُ الله',fr:'Astaghfiru Allah (x3)'},
+ {ar:'اللّهُمَّ أَنْتَ السَّلامُ، وَمِنْكَ السَّلام، تَبارَكْتَ يا ذا الجَلالِ وَالإِكْرام',fr:'Allahumma anta Essalam wa mineka Essalam, tabarakta ya dhal djalali wel ikram'},
+ {ar:'سُبْحانَ اللهِ، والحَمْدُ لله، واللهُ أكْبَر (٣٣)',fr:'Subhan Allah, wal hamdu lillah, wallahu akbar (33 fois)'}];
+function phase(){
+  const f=location.hash.slice(3), now=new Date(), pr=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+  if(f.startsWith('-')) return {k:f.slice(1),p:'Fajr',left:'04:32'};
+  for(const p of pr){
+    const [h,m]=T[p].split(':'), d=new Date(); d.setHours(+h,+m,0,0); const t=+d;
+    const q=((M.iqama||{})[p]??10)*6e4, ad=t+Math.min(2,q/6e4)*6e4, iq=t+q, ph=iq+DUR.phones*6e4, at=ph+DUR.athkar*6e4, n=+now;
+    if(n>=t&&n<ad) return {k:'adhan',p};
+    if(n>=ad&&n<iq){const s=Math.floor((iq-n)/1000);return {k:'iqama',p,left:String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}}
+    if(n>=iq&&n<ph) return {k:'phones',p};
+    if(n>=ph&&n<at) return {k:'athkar',p};
+  }
+  return {k:'main'};
+}
+function showPhase(x){
+  let c='';
+  if(x.k==='adhan') c=`<h2>Adhan</h2><div class="big">${FR[x.p]}</div>${x.p==='Fajr'?'<div class="ar">الصَّلاةُ خَيْرٌ مِنَ النَّوْم</div><p>Essalatu khayrun mina ennawm</p>':''}`;
+  else if(x.k==='iqama') c=`<h2>Iqama de ${FR[x.p]} dans</h2><div class="big">${x.left}</div>`;
+  else if(x.k==='phones') c=`<div class="big">📵</div><h2>Éteignez vos portables SVP</h2><p>${FR[x.p]}</p>`;
+  else {const a=ATHKAR[Math.floor(Date.now()/15000)%ATHKAR.length]; c=`<h2>Invocations après la prière</h2><div class="ar">${a.ar}</div><p>${a.fr}</p>`;}
+  $('#app').innerHTML=`<div class="tv ph"><h1>${M.name}</h1>${c}</div>`;
+}
+function view(){
+  const h=location.hash;
+  if(h==='#admin') return admin();
+  if(!T) return $('#app').innerHTML='<main><p>Chargement des horaires… Vérifie ta connexion.</p><nav><a href="#admin">Régler la mosquée</a></nav></main>';
+  const n=nextPrayer();
+  if(h.startsWith('#tv')){ const xp=phase(); if(xp.k!=='main') return showPhase(xp);
+    const now=new Date(), d=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
+    $('#app').innerHTML=`<div class="tv"><h1>${M.name}</h1>
+    <section class="top"><div class="side"><span>Chourouq</span><b>${T.Sunrise}</b></div>
+    <div class="clock"><b>${now.toLocaleTimeString('fr-FR')}</b><span>${d.charAt(0).toUpperCase()+d.slice(1)}</span></div>
+    <div class="side"><span>Jumua</span><b>${M.jumua||'⊘'}</b></div></section>
+    <div class="cd">${FR[n.p]} dans ${n.left.slice(0,5)}</div>
+    <div class="grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="cell ${p===n.p?'on':''}"><span>${FR[p]}</span><b>${T[p]}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</div>
+    <footer><span>${M.assoc||''}${M.note?' — '+M.note:''}</span><span class="brand">Tawqit</span></footer></div>`;
+  } else {
+    $('#app').innerHTML=`<main><div class="mute">Tawqit</div><h1>${M.name}</h1><div class="mute">${M.city}, ${M.country}</div>
+    <div class="next">Prochaine prière<b>${FR[n.p]} · ${T[n.p]}</b>dans ${n.left}</div>
+    ${P.map(p=>`<div class="row ${p===n.p?'on':''}"><span>${FR[p]}</span><span>${T[p]}</span></div>`).join('')}
+    ${M.note?`<div class="note">${M.note}</div>`:''}
+    <nav><a href="#tv">Mode télé</a><a href="#admin">Espace mosquée</a></nav></main>`;
+  }
+}
+function admin(){
+  $('#app').innerHTML=`<main><h1>Espace mosquée</h1>
+  <label>Nom</label><input id="n" value="${M.name}">
+  <label>Ville</label><input id="c" value="${M.city}">
+  <label>Pays</label><input id="y" value="${M.country}">
+  <label>Horaires fixés par la mosquée (laisse vide pour le calcul automatique)</label>
+  ${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<label>${FR[p]}</label><input type="time" data-p="${p}" value="${M.manual[p]||''}">`).join('')}
+  <label>Prière du vendredi (Jumua)</label><input type="time" id="j" value="${M.jumua||''}">
+  <label>Délai avant l'iqama, en minutes</label>
+  ${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<label>${FR[p]}</label><input type="number" data-q="${p}" value="${(M.iqama||{})[p]??10}">`).join('')}
+  <label>Association</label><input id="as" value="${M.assoc||''}">
+  <label>Annonce</label><textarea id="a" rows="3">${M.note}</textarea>
+  <button id="s">Enregistrer</button><nav><a href="#">Retour</a></nav></main>`;
+  $('#s').onclick=async()=>{
+    M.name=$('#n').value;M.city=$('#c').value;M.country=$('#y').value;M.note=$('#a').value;M.jumua=$('#j').value;M.assoc=$('#as').value;M.iqama={};document.querySelectorAll('[data-q]').forEach(i=>{M.iqama[i.dataset.q]=+i.value});M.manual={};
+    document.querySelectorAll('[data-p]').forEach(i=>{if(i.value)M.manual[i.dataset.p]=i.value});
+    localStorage.setItem(KEY,JSON.stringify(M)); T=await getTimes(); location.hash='';
+  };
+}
+const SB='https://obnesncbmmfthxmkulof.supabase.co/rest/v1', KEYSB='sb_publishable_urKZCjcq3EpnhS9Ou074ew_69KYE-b9';
+async function loadRemote(slug){
+  const H={headers:{apikey:KEYSB}}, ls=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+  let m; try{const r=await fetch(`${SB}/mosques?slug=eq.${encodeURIComponent(slug)}&select=*,mosque_settings(*),announcements(*)`,H);m=(await r.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){m=ls('m_'+slug)}
+  if(!m) return;
+  const st=[].concat(m.mosque_settings||{})[0]||{}, wait={};
+  Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
+  let cal; try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
+    cal={};(await rc.json()).forEach(r=>cal[r.day]=r);localStorage.setItem('cal_'+slug,JSON.stringify(cal))}catch(e){cal=ls('cal_'+slug)}
+  Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',method:st.calc_method||12,
+    iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
+    note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
+}
+const SLUG=new URLSearchParams(location.search).get('m');
+addEventListener('hashchange',view);
+(async()=>{if(SLUG)await loadRemote(SLUG);T=await getTimes();view();setInterval(()=>{if(location.hash!=='#admin'&&T)view()},1000)})();
+setInterval(async()=>{if(SLUG)await loadRemote(SLUG);const t=await getTimes();if(t)T=t},3600000);
+</script>
+</body>
+</html>
