@@ -205,21 +205,42 @@ function pick(s){try{localStorage.setItem('fav_slug',s)}catch(e){}location.href=
 function removeMosque(){try{localStorage.removeItem('fav_slug')}catch(e){}location.href=location.pathname+'#reglages'}
 const gbtn='class="opt on" style="text-decoration:none;display:inline-block"';
 function onboardHTML(){return `<div class="glass"><b style="font-size:1.4rem">${tx('welcome')}</b><p>${tx('onb')}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button> <a class="opt" style="text-decoration:none;display:inline-block" href="#proche">${tx('findm')}</a></div>`}
-function nearHTML(){return `<div class="glass"><b style="font-size:1.4rem">${tx('nearT')}</b><p>${tx('nearP')}</p><button class="opt on" onclick="findNear()">${tx('find')}</button></div><div id="nl"></div>`}
-async function findNear(){
-  const nl=$('#nl'); nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;
-  let p; try{p=PR.pos=await getPos();savePR()}catch(e){nl.innerHTML=`<div class="glass">${tx('noloc')}</div>`;return}
-  let rows=[];
-  for(const d of [.3,1,4,15]){
-    try{const r=await fetch(`${SB}/mosques?select=slug,name,city,address,lat,lng&show_on_map=eq.true&lat=gte.${p.lat-d}&lat=lte.${p.lat+d}&lng=gte.${p.lng-d}&lng=lte.${p.lng+d}&limit=500`,{headers:{apikey:KEYSB}});rows=await r.json()}catch(e){break}
-    if(Array.isArray(rows)&&rows.length>=3)break;
+const CTRY=['FR','PT','DE','IT','ES','BE','NL','GB','CH','AT','TR','MA','DZ','TN'];
+const cname=c=>{try{return new Intl.DisplayNames([LG()],{type:'region'}).of(c)}catch(e){return c}};
+const inpStyle='width:100%;padding:12px;border-radius:12px;background:#ffffff1f;color:#fff;border:1px solid #ffffff33;font:inherit';
+function nearHTML(){const cc=PR.cc||'FR';
+  return `<div class="glass"><b style="font-size:1.4rem">${tx('nearT')}</b>
+  <p><input id="qc" placeholder="${esc(tx('cityPh'))}" value="${esc(PR.city||'')}" style="${inpStyle}" onkeydown="if(event.key==='Enter')searchCity()"></p>
+  <p><select id="qk">${CTRY.map(c=>`<option value="${c}" ${c===cc?'selected':''}>${esc(cname(c))}</option>`).join('')}</select></p>
+  <button class="opt on" onclick="searchCity()">${tx('goSearch')}</button><button class="opt" onclick="findNear()">${tx('orGps')}</button></div><div id="nl"></div>`}
+async function nearRows(p){
+  const H={headers:{apikey:KEYSB}};let reg=[],dir=[];
+  for(const d of [.15,.4,1.2,4]){
+    const bb=`lat=gte.${p.lat-d}&lat=lte.${p.lat+d}&lng=gte.${p.lng-d}&lng=lte.${p.lng+d}`;
+    try{const [a,b]=await Promise.all([
+      fetch(`${SB}/mosques?select=slug,name,city,address,lat,lng&show_on_map=eq.true&${bb}&limit=500`,H).then(r=>r.json()),
+      fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng&claimed_mosque_id=is.null&${bb}&limit=500`,H).then(r=>r.json())]);
+      reg=Array.isArray(a)?a:[];dir=Array.isArray(b)?b:[]}catch(e){break}
+    if(reg.length+dir.length>=10)break;
   }
-  if(!Array.isArray(rows)||!rows.length){nl.innerHTML=`<div class="glass">${tx('none')}</div>`;return}
-  rows.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng)); rows.sort((a,b)=>a.d-b.d);
-  nl.innerHTML=rows.slice(0,10).map(m=>`<div class="glass"><b>${esc(m.name)}</b><p>${esc(m.address||'')} ${esc(m.city||'')}</p><p>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km</p>
-    <button class="opt on" data-s="${esc(m.slug)}">${tx('choose')}</button> <a class="opt" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${+m.lat},${+m.lng}">${tx('route')}</a></div>`).join('');
-  nl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(b.dataset.s));
-}
+  reg.forEach(m=>m.reg=1);dir.forEach(m=>m.reg=0);
+  const all=reg.concat(dir.filter(x=>!reg.some(r=>km(r.lat,r.lng,x.lat,x.lng)<.08)));   // pas de doublon avec une mosquée inscrite
+  all.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng));all.sort((a,b)=>a.d-b.d);return all.slice(0,10)}
+function renderRows(rows){const nl=$('#nl');
+  if(!rows.length){nl.innerHTML=`<div class="glass">${tx('none')}</div>`;return}
+  nl.innerHTML=rows.map(m=>`<div class="glass"><b>${esc(m.name)}</b><p>${esc([m.address,m.city].filter(Boolean).join(', '))}</p><p>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km</p>
+    ${m.reg?`<button class="opt on" data-s="${esc(m.slug)}">${tx('choose')}</button>`:`<p style="font-size:.85rem;opacity:.75">${tx('notOpen')}</p>`}
+    <a class="opt" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${+m.lat},${+m.lng}">${tx('route')}</a></div>`).join('')
+    +`<p style="font-size:.8rem;opacity:.7;text-align:center">${tx('osmCredit')}</p>`;
+  nl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(b.dataset.s))}
+async function searchCity(){const city=$('#qc').value.trim(),cc=$('#qk').value,nl=$('#nl');if(!city)return;PR.city=city;PR.cc=cc;savePR();
+  nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(city)}&countrycodes=${cc.toLowerCase()}&accept-language=${LG()}`);
+    const j=await r.json();if(!j[0])throw 0;p={lat:+j[0].lat,lng:+j[0].lon}}catch(e){nl.innerHTML=`<div class="glass">${tx('cityNF')}</div>`;return}
+  renderRows(await nearRows(p))}
+async function findNear(){const nl=$('#nl');nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
+  try{p=PR.pos=await getPos();savePR()}catch(e){nl.innerHTML=`<div class="glass">${tx('noloc')}</div>`;return}
+  renderRows(await nearRows(p))}
 function settingsHTML(){
   const o=(on,lab,js)=>`<button class="opt ${on?'on':''}" onclick="${js}">${lab}</button>`;
   const ANGS=[12,13,14,15,16,17,17.5,18,18.5,19,19.5,20];
@@ -238,6 +259,8 @@ function settingsHTML(){
 }
 const NX={"fr": {"notifT": "Notifications", "notifOn": "Activer les notifications", "colNotif": "Notif", "colAdhan": "Adhan", "notifBlocked": "Notifications bloquées : autorise-les dans les réglages du navigateur.", "notifNote": "Les notifications et l’adhan sonnent quand l’app est ouverte (au premier plan ou en arrière-plan). App fermée, il faudra une application installée : étape suivante.", "soundT": "Son de l’appel à la prière", "soundDef": "Son par défaut (bip)", "soundFile": "Mon fichier", "chooseFile": "Choisir un fichier son", "removeFile": "Supprimer le fichier", "testAdhan": "Tester l’adhan (5 s)", "tooBig": "Fichier trop lourd (10 Mo maximum).", "stopSound": "⏹ Arrêter"}, "en": {"notifT": "Notifications", "notifOn": "Enable notifications", "colNotif": "Notif", "colAdhan": "Adhan", "notifBlocked": "Notifications blocked: allow them in your browser settings.", "notifNote": "Notifications and the adhan play while the app is open (in the foreground or background). With the app closed, an installed app will be needed: that is a next step.", "soundT": "Call to prayer sound", "soundDef": "Default sound (beep)", "soundFile": "My file", "chooseFile": "Choose a sound file", "removeFile": "Remove the file", "testAdhan": "Test the adhan (5 s)", "tooBig": "File too large (10 MB maximum).", "stopSound": "⏹ Stop"}, "ar": {"notifT": "الإشعارات", "notifOn": "تفعيل الإشعارات", "colNotif": "إشعار", "colAdhan": "الأذان", "notifBlocked": "الإشعارات محظورة: اسمح بها من إعدادات المتصفح.", "notifNote": "تعمل الإشعارات والأذان عندما يكون التطبيق مفتوحًا (في الواجهة أو الخلفية). عند إغلاق التطبيق نحتاج إلى تطبيق مثبّت، وهي خطوة لاحقة.", "soundT": "صوت الأذان", "soundDef": "الصوت الافتراضي (صافرة)", "soundFile": "ملفي", "chooseFile": "اختر ملفًا صوتيًا", "removeFile": "حذف الملف", "testAdhan": "تجربة الأذان (5 ث)", "tooBig": "الملف كبير جدًا (الحد الأقصى 10 ميغابايت).", "stopSound": "⏹ إيقاف"}, "de": {"notifT": "Benachrichtigungen", "notifOn": "Benachrichtigungen aktivieren", "colNotif": "Hinweis", "colAdhan": "Adhan", "notifBlocked": "Benachrichtigungen blockiert: Erlaube sie in den Browser-Einstellungen.", "notifNote": "Benachrichtigungen und Adhan ertönen, solange die App geöffnet ist (im Vorder- oder Hintergrund). Bei geschlossener App ist eine installierte App nötig – das ist der nächste Schritt.", "soundT": "Ton des Gebetsrufs", "soundDef": "Standardton (Piepton)", "soundFile": "Meine Datei", "chooseFile": "Audiodatei wählen", "removeFile": "Datei entfernen", "testAdhan": "Adhan testen (5 s)", "tooBig": "Datei zu groß (maximal 10 MB).", "stopSound": "⏹ Stopp"}, "es": {"notifT": "Notificaciones", "notifOn": "Activar las notificaciones", "colNotif": "Notif.", "colAdhan": "Adhan", "notifBlocked": "Notificaciones bloqueadas: permítelas en los ajustes del navegador.", "notifNote": "Las notificaciones y el adhan suenan con la app abierta (en primer o segundo plano). Con la app cerrada hará falta una app instalada: es un paso posterior.", "soundT": "Sonido del llamado a la oración", "soundDef": "Sonido predeterminado (pitido)", "soundFile": "Mi archivo", "chooseFile": "Elegir un archivo de sonido", "removeFile": "Quitar el archivo", "testAdhan": "Probar el adhan (5 s)", "tooBig": "Archivo demasiado grande (máximo 10 MB).", "stopSound": "⏹ Detener"}, "pt": {"notifT": "Notificações", "notifOn": "Ativar as notificações", "colNotif": "Notif.", "colAdhan": "Adhan", "notifBlocked": "Notificações bloqueadas: permite-as nas definições do navegador.", "notifNote": "As notificações e o adhan tocam com a app aberta (em primeiro ou segundo plano). Com a app fechada será preciso uma app instalada: é um passo seguinte.", "soundT": "Som do chamamento à oração", "soundDef": "Som predefinido (bip)", "soundFile": "O meu ficheiro", "chooseFile": "Escolher um ficheiro de som", "removeFile": "Remover o ficheiro", "testAdhan": "Testar o adhan (5 s)", "tooBig": "Ficheiro demasiado grande (máximo 10 MB).", "stopSound": "⏹ Parar"}, "tr": {"notifT": "Bildirimler", "notifOn": "Bildirimleri etkinleştir", "colNotif": "Bildirim", "colAdhan": "Ezan", "notifBlocked": "Bildirimler engellendi: tarayıcı ayarlarından izin verin.", "notifNote": "Bildirimler ve ezan uygulama açıkken (ön planda veya arka planda) çalar. Uygulama kapalıyken yüklü bir uygulama gerekir: bu sonraki adımdır.", "soundT": "Ezan sesi", "soundDef": "Varsayılan ses (bip)", "soundFile": "Dosyam", "chooseFile": "Ses dosyası seç", "removeFile": "Dosyayı kaldır", "testAdhan": "Ezanı dene (5 sn)", "tooBig": "Dosya çok büyük (en fazla 10 MB).", "stopSound": "⏹ Durdur"}};
 Object.keys(NX).forEach(l=>Object.assign(TX[l],NX[l]));
+const NX2={"fr": {"cityPh": "Ville (ex. Lyon)", "goSearch": "Chercher", "cityNF": "Ville introuvable. Vérifie l’orthographe et le pays.", "notOpen": "Pas encore sur Attawqit : horaires indisponibles.", "osmCredit": "Données des mosquées : © contributeurs OpenStreetMap", "orGps": "ou autour de moi"}, "en": {"cityPh": "City (e.g. Lyon)", "goSearch": "Search", "cityNF": "City not found. Check the spelling and the country.", "notOpen": "Not on Attawqit yet: no prayer times.", "osmCredit": "Mosque data: © OpenStreetMap contributors", "orGps": "or around me"}, "ar": {"cityPh": "المدينة (مثال: ليون)", "goSearch": "بحث", "cityNF": "لم يتم العثور على المدينة. تحقق من الإملاء والبلد.", "notOpen": "ليس على Attawqit بعد: لا توجد مواقيت.", "osmCredit": "بيانات المساجد: © مساهمو OpenStreetMap", "orGps": "أو حولي"}, "de": {"cityPh": "Stadt (z. B. Lyon)", "goSearch": "Suchen", "cityNF": "Stadt nicht gefunden. Prüfe die Schreibweise und das Land.", "notOpen": "Noch nicht auf Attawqit: keine Gebetszeiten.", "osmCredit": "Moscheedaten: © OpenStreetMap-Mitwirkende", "orGps": "oder in meiner Nähe"}, "es": {"cityPh": "Ciudad (p. ej. Lyon)", "goSearch": "Buscar", "cityNF": "Ciudad no encontrada. Revisa la ortografía y el país.", "notOpen": "Aún no está en Attawqit: sin horarios.", "osmCredit": "Datos de mezquitas: © colaboradores de OpenStreetMap", "orGps": "o cerca de mí"}, "pt": {"cityPh": "Cidade (ex.: Lyon)", "goSearch": "Pesquisar", "cityNF": "Cidade não encontrada. Verifica a ortografia e o país.", "notOpen": "Ainda não está no Attawqit: sem horários.", "osmCredit": "Dados das mesquitas: © colaboradores do OpenStreetMap", "orGps": "ou à minha volta"}, "tr": {"cityPh": "Şehir (örn. Lyon)", "goSearch": "Ara", "cityNF": "Şehir bulunamadı. Yazımı ve ülkeyi kontrol edin.", "notOpen": "Henüz Attawqit’te yok: namaz vakti bulunmuyor.", "osmCredit": "Cami verileri: © OpenStreetMap katkıda bulunanlar", "orGps": "veya yakınımda"}};
+Object.keys(NX2).forEach(l=>Object.assign(TX[l],NX2[l]));
 // ---- notifications + son de l’adhan ----
 const idb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('attawqit',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
 const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})};
