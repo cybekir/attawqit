@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#062f3a">
 <title>Attawqit</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -69,6 +70,8 @@ body.app{background:linear-gradient(165deg,#062f3a 0%,#0b5a63 45%,#14a5a3 100%) 
 .tv .brand,.tv h1,.ph h2{color:#ffe7b3}
 .tv .clock span,.tv .side span{color:#d9f6f3}
 button{background:#fff;color:#0b4a52;border-radius:20px}
+.sw{display:inline-block;width:52px;height:30px;border-radius:15px;background:#ffffff33;position:relative;cursor:pointer;justify-self:center}.sw:after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:#2ec4b6}.sw.on:after{left:25px}
+.nrow{display:grid;grid-template-columns:1fr 64px 64px;align-items:center;gap:6px;margin:10px 0}
 </style>
 </head>
 <body>
@@ -159,7 +162,7 @@ function bindQibla(){const bt=$('#cmp');if(!bt)return;bt.onclick=async()=>{try{
   const fn=e=>{const a=$('#arr');if(!a)return;const h=e.webkitCompassHeading??(e.absolute?360-e.alpha:null);if(h!=null)a.style.transform=`rotate(${-h}deg)`};
   addEventListener('deviceorientationabsolute',fn,true);addEventListener('deviceorientation',fn,true);bt.remove()}catch(e){alert(tx('nocompass'))}}}
 const PK='prefs_v1';
-let PR=Object.assign({lang:'fr',h12:false,method:12,fa:12,ia:12,imin:null,asr:1,pos:null},(()=>{try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return {}}})());
+let PR=Object.assign({lang:'fr',h12:false,method:12,fa:12,ia:12,imin:null,asr:1,pos:null,snd:'beep',sndName:'',nf:{on:false,n:{Fajr:true,Sunrise:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true},a:{Fajr:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true}}},(()=>{try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return {}}})());
 const savePR=()=>{try{localStorage.setItem(PK,JSON.stringify(PR))}catch(e){}};
 const TX={
 fr:{pray:'Prière',near:'Mosquées',ann:'Annonces',set:'Réglages',remaining:'Temps restant avant',myloc:'Ma position',welcome:'Bienvenue',onb:'Pour afficher les horaires de prière, utilise ta position ou choisis une mosquée près de chez toi.',usepos:'Utiliser ma position',findm:'Chercher une mosquée',noloc:'Position indisponible. Autorise la localisation dans ton navigateur.',nearT:'Mosquées proches',nearP:'Trouve les mosquées autour de toi grâce à ta position.',find:'Trouver les mosquées proches',searching:'Recherche en cours…',none:'Aucune mosquée trouvée autour de toi.',choose:'Choisir',route:'Itinéraire',needpos:'Active ta position pour calculer la Qibla.',fromMecca:'de la Mecque',flat:'Tiens ton téléphone à plat, ou active la boussole :',compass:'Activer la boussole',qdir:'Direction de la Qibla',lang:'Langue',hfmt:'Format de l’heure',h24:'24 h',h12:'12 h (AM/PM)',mosq:'Mosquée choisie',nomosq:'Aucune : horaires calculés selon ta position.',remove:'Retirer la mosquée',pos:'Position',calc:'Méthode de calcul',calcnote:'S’applique quand aucune mosquée n’est choisie.',org:'Organisme',fajrA:'Angle du Fajr',ishaA:'Angle de l’Isha',ishaMin:'90 min après le Maghrib',asr:'Début du Asr',asr1:'Maliki, Chafi’i, Hanbali',asr2:'Hanafi',custom:'Personnalisé',noann:'Aucune annonce pour le moment.',qibla:'Qibla',iqama:'Iqama'},
@@ -224,14 +227,65 @@ function settingsHTML(){
   const sel=(opts,cur,js)=>`<select onchange="${js}">${opts.map(([v,l])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${l}</option>`).join('')}</select>`;
   return `<div class="glass"><b>${tx('mosq')}</b><p>${SLUG?esc(M.name):tx('nomosq')}</p>${SLUG?`<button class="opt" onclick="removeMosque()">${tx('remove')}</button>`:`<a ${gbtn} href="#proche">${tx('findm')}</a>`}</div>
   <div class="glass"><b>${tx('pos')}</b><p>${PR.pos?PR.pos.lat.toFixed(4)+', '+PR.pos.lng.toFixed(4):'—'}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button></div>
-  <div class="glass"><b>${tx('lang')}</b><p>${LANGS.map(([c,n])=>o(LG()===c,n,`setPref('lang','${c}')`)).join('')}</p></div>
+  ${notifHTML()}<div class="glass"><b>${tx('lang')}</b><p>${LANGS.map(([c,n])=>o(LG()===c,n,`setPref('lang','${c}')`)).join('')}</p></div>
   <div class="glass"><b>${tx('hfmt')}</b><p>${o(!PR.h12,tx('h24'),"setPref('h12',false)")}${o(PR.h12,tx('h12'),"setPref('h12',true)")}</p></div>
   <div class="glass"><b>${tx('calc')}</b><p style="font-size:.9rem;opacity:.8">${tx('calcnote')}</p>
   <p>${tx('org')}</p>${sel(MET,PR.method,'applyPreset(this.value)')}
   <p>${tx('fajrA')}</p>${sel(ANGS.map(x=>[x,x+'°']),PR.fa,"setAngle('fa',this.value)")}
   <p>${tx('ishaA')}</p>${sel([['',tx('ishaMin')]].concat(ANGS.map(x=>[x,x+'°'])),PR.ia==null?'':PR.ia,"setAngle('ia',this.value)")}
-  <p>${tx('asr')}</p><p>${o(PR.asr==1,tx('asr1'),"setPref('asr',1)")}${o(PR.asr==2,tx('asr2'),"setPref('asr',2)")}</p></div>`;
+  <p>${tx('asr')}</p><p>${o(PR.asr==1,tx('asr1'),"setPref('asr',1)")}${o(PR.asr==2,tx('asr2'),"setPref('asr',2)")}</p></div>
+  <p style="text-align:center;opacity:.55;font-size:.8rem">Attawqit · v31.10-notif</p>`;
 }
+const NX={"fr": {"notifT": "Notifications", "notifOn": "Activer les notifications", "colNotif": "Notif", "colAdhan": "Adhan", "notifBlocked": "Notifications bloquées : autorise-les dans les réglages du navigateur.", "notifNote": "Les notifications et l’adhan sonnent quand l’app est ouverte (au premier plan ou en arrière-plan). App fermée, il faudra une application installée : étape suivante.", "soundT": "Son de l’appel à la prière", "soundDef": "Son par défaut (bip)", "soundFile": "Mon fichier", "chooseFile": "Choisir un fichier son", "removeFile": "Supprimer le fichier", "testAdhan": "Tester l’adhan (5 s)", "tooBig": "Fichier trop lourd (10 Mo maximum).", "stopSound": "⏹ Arrêter"}, "en": {"notifT": "Notifications", "notifOn": "Enable notifications", "colNotif": "Notif", "colAdhan": "Adhan", "notifBlocked": "Notifications blocked: allow them in your browser settings.", "notifNote": "Notifications and the adhan play while the app is open (in the foreground or background). With the app closed, an installed app will be needed: that is a next step.", "soundT": "Call to prayer sound", "soundDef": "Default sound (beep)", "soundFile": "My file", "chooseFile": "Choose a sound file", "removeFile": "Remove the file", "testAdhan": "Test the adhan (5 s)", "tooBig": "File too large (10 MB maximum).", "stopSound": "⏹ Stop"}, "ar": {"notifT": "الإشعارات", "notifOn": "تفعيل الإشعارات", "colNotif": "إشعار", "colAdhan": "الأذان", "notifBlocked": "الإشعارات محظورة: اسمح بها من إعدادات المتصفح.", "notifNote": "تعمل الإشعارات والأذان عندما يكون التطبيق مفتوحًا (في الواجهة أو الخلفية). عند إغلاق التطبيق نحتاج إلى تطبيق مثبّت، وهي خطوة لاحقة.", "soundT": "صوت الأذان", "soundDef": "الصوت الافتراضي (صافرة)", "soundFile": "ملفي", "chooseFile": "اختر ملفًا صوتيًا", "removeFile": "حذف الملف", "testAdhan": "تجربة الأذان (5 ث)", "tooBig": "الملف كبير جدًا (الحد الأقصى 10 ميغابايت).", "stopSound": "⏹ إيقاف"}, "de": {"notifT": "Benachrichtigungen", "notifOn": "Benachrichtigungen aktivieren", "colNotif": "Hinweis", "colAdhan": "Adhan", "notifBlocked": "Benachrichtigungen blockiert: Erlaube sie in den Browser-Einstellungen.", "notifNote": "Benachrichtigungen und Adhan ertönen, solange die App geöffnet ist (im Vorder- oder Hintergrund). Bei geschlossener App ist eine installierte App nötig – das ist der nächste Schritt.", "soundT": "Ton des Gebetsrufs", "soundDef": "Standardton (Piepton)", "soundFile": "Meine Datei", "chooseFile": "Audiodatei wählen", "removeFile": "Datei entfernen", "testAdhan": "Adhan testen (5 s)", "tooBig": "Datei zu groß (maximal 10 MB).", "stopSound": "⏹ Stopp"}, "es": {"notifT": "Notificaciones", "notifOn": "Activar las notificaciones", "colNotif": "Notif.", "colAdhan": "Adhan", "notifBlocked": "Notificaciones bloqueadas: permítelas en los ajustes del navegador.", "notifNote": "Las notificaciones y el adhan suenan con la app abierta (en primer o segundo plano). Con la app cerrada hará falta una app instalada: es un paso posterior.", "soundT": "Sonido del llamado a la oración", "soundDef": "Sonido predeterminado (pitido)", "soundFile": "Mi archivo", "chooseFile": "Elegir un archivo de sonido", "removeFile": "Quitar el archivo", "testAdhan": "Probar el adhan (5 s)", "tooBig": "Archivo demasiado grande (máximo 10 MB).", "stopSound": "⏹ Detener"}, "pt": {"notifT": "Notificações", "notifOn": "Ativar as notificações", "colNotif": "Notif.", "colAdhan": "Adhan", "notifBlocked": "Notificações bloqueadas: permite-as nas definições do navegador.", "notifNote": "As notificações e o adhan tocam com a app aberta (em primeiro ou segundo plano). Com a app fechada será preciso uma app instalada: é um passo seguinte.", "soundT": "Som do chamamento à oração", "soundDef": "Som predefinido (bip)", "soundFile": "O meu ficheiro", "chooseFile": "Escolher um ficheiro de som", "removeFile": "Remover o ficheiro", "testAdhan": "Testar o adhan (5 s)", "tooBig": "Ficheiro demasiado grande (máximo 10 MB).", "stopSound": "⏹ Parar"}, "tr": {"notifT": "Bildirimler", "notifOn": "Bildirimleri etkinleştir", "colNotif": "Bildirim", "colAdhan": "Ezan", "notifBlocked": "Bildirimler engellendi: tarayıcı ayarlarından izin verin.", "notifNote": "Bildirimler ve ezan uygulama açıkken (ön planda veya arka planda) çalar. Uygulama kapalıyken yüklü bir uygulama gerekir: bu sonraki adımdır.", "soundT": "Ezan sesi", "soundDef": "Varsayılan ses (bip)", "soundFile": "Dosyam", "chooseFile": "Ses dosyası seç", "removeFile": "Dosyayı kaldır", "testAdhan": "Ezanı dene (5 sn)", "tooBig": "Dosya çok büyük (en fazla 10 MB).", "stopSound": "⏹ Durdur"}};
+Object.keys(NX).forEach(l=>Object.assign(TX[l],NX[l]));
+// ---- notifications + son de l’adhan ----
+const idb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('attawqit',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
+const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})};
+const idbGet=async k=>{const d=await idb();return new Promise((ok,ko)=>{const q=d.transaction('f').objectStore('f').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ko(q.error)})};
+const idbDel=async k=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('f','readwrite');t.objectStore('f').delete(k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})};
+let ADH=null,AC=null;
+function unlockAudio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume()}catch(e){}}
+function beep(){try{unlockAudio();const t=AC.currentTime;[0,.6,1.2].forEach(d=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=880;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.4,t+d+.05);g.gain.exponentialRampToValueAtTime(.0001,t+d+.5);o.start(t+d);o.stop(t+d+.55)})}catch(e){}}
+function stopAdhan(){if(ADH){try{ADH.pause()}catch(e){}ADH=null}try{const b=document.getElementById('stopA');if(b)b.remove()}catch(e){}}
+function showStop(){try{if(document.getElementById('stopA'))return;document.body.insertAdjacentHTML('beforeend',`<button id="stopA" class="opt on" style="position:fixed;top:14px;inset-inline-end:14px;z-index:9">${tx('stopSound')}</button>`);document.getElementById('stopA').onclick=stopAdhan}catch(e){}}
+async function playAdhan(maxSec){stopAdhan();
+  if(PR.snd==='file'){try{const f=await idbGet('adhan');if(f){const u=URL.createObjectURL(f);ADH=new Audio(u);ADH.onended=stopAdhan;showStop();if(maxSec)setTimeout(()=>{if(ADH&&ADH.src===u)stopAdhan()},maxSec*1000);await ADH.play();return}}catch(e){stopAdhan()}}
+  beep()}
+async function showNotif(title,body){try{if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const reg=('serviceWorker' in navigator)?await navigator.serviceWorker.getRegistration():null;
+  if(reg)await reg.showNotification(title,{body,tag:'attawqit',renotify:true});else new Notification(title,{body})}catch(e){}}
+async function toggleMaster(){const nf=PR.nf;
+  if(!nf.on){if(!('Notification' in window)){alert(tx('notifBlocked'));return}
+    let p=Notification.permission;if(p==='default')p=await Notification.requestPermission();
+    if(p!=='granted'){alert(tx('notifBlocked'));return}unlockAudio();nf.on=true}else nf.on=false;
+  savePR();view()}
+function toggleN(g,p){PR.nf[g][p]=!PR.nf[g][p];savePR();view()}
+function setSound(m){PR.snd=m;savePR();view()}
+async function pickSound(f){if(!f)return;if(f.size>10485760){alert(tx('tooBig'));return}
+  await idbSet('adhan',f);PR.snd='file';PR.sndName=f.name;savePR();view()}
+async function removeSound(){try{await idbDel('adhan')}catch(e){}PR.snd='beep';PR.sndName='';savePR();view()}
+async function testAdhan(){unlockAudio();await playAdhan(5);if(PR.nf.on)showNotif(PN('Fajr')+' — '+fmt((T||{}).Fajr||'05:00'),M.name||'')}
+function tickNotif(){if(!PR.nf.on||!T||location.hash.startsWith('#tv'))return;
+  const now=Date.now();
+  for(const p of ['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha']){
+    const tm=T[p];if(!tm)continue;const [h,m]=tm.split(':'),d=new Date();d.setHours(+h,+m,0,0);const diff=now-d;
+    if(diff<0||diff>120000)continue;
+    const k='nf_'+iso(new Date())+p;try{if(localStorage.getItem(k))continue;localStorage.setItem(k,'1')}catch(e){}
+    if(PR.nf.n[p])showNotif(PN(p)+' — '+fmt(tm),M.name||'');
+    if(p!=='Sunrise'&&PR.nf.a[p])playAdhan();
+  }}
+setInterval(tickNotif,5000);
+try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+function notifHTML(){const nf=PR.nf,sw=(on,js)=>`<span class="sw ${on?'on':''}" onclick="${js}"></span>`;
+  const rows=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="nrow"><span>${PN(p)}</span>${sw(nf.n[p],`toggleN('n','${p}')`)}${p==='Sunrise'?'<span style="text-align:center">—</span>':sw(nf.a[p],`toggleN('a','${p}')`)}</div>`).join('');
+  const file=PR.snd==='file';
+  return `<div class="glass"><b>${tx('notifT')}</b><div class="nrow"><span>${tx('notifOn')}</span>${sw(nf.on,'toggleMaster()')}<span></span></div>
+  <div class="nrow"><span></span><small style="text-align:center">${tx('colNotif')}</small><small style="text-align:center">${tx('colAdhan')}</small></div>${rows}
+  <p style="font-size:.85rem;opacity:.8">${tx('notifNote')}</p>
+  <b>${tx('soundT')}</b><p><button class="opt ${file?'':'on'}" onclick="setSound('beep')">${tx('soundDef')}</button>
+  <label class="opt ${file?'on':''}" style="display:inline-block">${tx('soundFile')} — ${tx('chooseFile')}<input type="file" accept="audio/*" style="display:none" onchange="pickSound(this.files[0])"></label></p>
+  ${file?`<p style="font-size:.9rem">🎵 ${esc(PR.sndName)} <button class="opt" onclick="removeSound()">${tx('removeFile')}</button></p>`:''}
+  <p><button class="opt on" onclick="testAdhan()">${tx('testAdhan')}</button></p></div>`}
 function appView(n){
   const h=location.hash, now=new Date(), esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const head=`<header class="top"><a class="rnd" href="admin.html">🔑</a><div class="brand"><b>Attawqit</b><span>التوقيت</span></div><div class="rnd">${now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hour:'2-digit',minute:'2-digit',hour12:PR.h12})}</div></header>`;
@@ -295,13 +349,13 @@ function admin(){
   };
 }
 const SB='https://obnesncbmmfthxmkulof.supabase.co/rest/v1', KEYSB='sb_publishable_urKZCjcq3EpnhS9Ou074ew_69KYE-b9';
-async function loadRemote(slug){
+async function loadRemote(slug,light){
   const H={headers:{apikey:KEYSB}}, ls=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
   let m; try{const r=await fetch(`${SB}/mosques?slug=eq.${encodeURIComponent(slug)}&select=*,mosque_settings(*),announcements(*)`,H);m=(await r.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){m=ls('m_'+slug)}
   if(!m) return;
   const st=[].concat(m.mosque_settings||{})[0]||{}, wait={};
   Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
-  let cal; try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
+  let cal=light?M.cal:undefined; if(!light)try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
     cal={};(await rc.json()).forEach(r=>cal[r.day]=r);localStorage.setItem('cal_'+slug,JSON.stringify(cal))}catch(e){cal=ls('cal_'+slug)}
   Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',method:st.calc_method||12,
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
@@ -311,6 +365,7 @@ let SLUG=new URLSearchParams(location.search).get('m')||(()=>{try{return localSt
 addEventListener('hashchange',view);
 (async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();T=await getTimes();view();setInterval(()=>{if((location.hash===''||location.hash.startsWith('#tv'))&&T)view()},1000)})();
 setInterval(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();const t=await getTimes();if(t)T=t},3600000);
+setInterval(async()=>{if(SLUG){await loadRemote(SLUG,true);const t=await getTimes();if(t)T=t}},60000);
 </script>
 </body>
 </html>
