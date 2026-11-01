@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tawqit</title>
+<title>Attawqit</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0f2a26;--card:#17403a;--ink:#f3ecd8;--mute:#9db8ae;--gold:#e0b84c}
+:root{--bg:#062f3a;--card:rgba(255,255,255,.14);--ink:#fff;--mute:#bfeeea;--gold:#ffe7b3}
 *{box-sizing:border-box}
 html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif}
 body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
@@ -23,22 +24,51 @@ label{display:block;margin:14px 0 4px;color:var(--mute)}
 input,textarea{width:100%;padding:10px;font:inherit;background:#ffffff14;color:var(--ink);border:1px solid #ffffff33}
 button{margin-top:18px;padding:12px 20px;font:inherit;background:var(--gold);border:0;color:#2a2200;font-weight:bold}
 /* Affichage TV */
-.tv{width:100%;height:100vh;height:100dvh;padding:2vh 3vw;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:1.5vh;text-align:center;overflow:hidden;background:radial-gradient(circle at 50% 40%,#17403a,#08171a)}
+.tv{width:100%;height:100vh;height:100dvh;padding:2vh 3vw;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:1.5vh;text-align:center;overflow:hidden;background:linear-gradient(165deg,#062f3a 0%,#0b5a63 45%,#14a5a3 100%);color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600}
 .tv h1{font-size:min(3.8vw,7vh);color:var(--gold);margin:0;overflow-wrap:anywhere}
 .tv .top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr) minmax(0,1fr);gap:1.5vw;align-items:center}
 .tv .side span{font-size:min(2.4vw,4vh)}.tv .side b{display:block;font-size:min(4.6vw,9vh)}
-.tv .clock{background:#24574d;border-radius:2vw;padding:1.5vh 1vw}
+.tv .clock{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(6px);border-radius:2vw;padding:1.5vh 1vw}
 .tv .clock b{display:block;font-size:min(8.5vw,16vh);line-height:1}.tv .clock span{font-size:min(2.6vw,4.5vh)}
 .tv .cd{font-size:min(3vw,5.5vh);font-weight:bold}
 .tv .grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1vw;align-items:center}
 .tv .cell{padding:1.5vh 0;border-radius:1.5vw}
-.tv .cell.on{background:#24574d}
+.tv .cell.on{background:linear-gradient(160deg,rgba(255,255,255,.4),rgba(255,255,255,.14));box-shadow:0 0 0 .25vw #ffffffaa}
 .tv .cell span{display:block;font-size:min(2.8vw,5vh)}.tv .cell b{display:block;font-size:min(5.6vw,11vh)}.tv .cell i{display:block;font-style:normal;font-size:min(4vw,8vh)}
 .tv footer{display:flex;justify-content:space-between;align-items:end;gap:2vw;font-size:min(2vw,3.6vh)}
 .tv .brand{color:var(--gold);font-weight:bold}
 .ph{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2vh;padding:4vh 6vw}
 .ph h2{font-size:min(5.5vw,9vh);margin:0;color:var(--gold)}.ph .big{font-size:min(14vw,28vh);font-weight:bold;line-height:1}
 .ph p{font-size:3.4vw;margin:0;max-width:85vw}.ph .ar{font-size:4.4vw;direction:rtl;line-height:1.7}
+
+/* Application mobile (turquoise) */
+body.app{background:linear-gradient(165deg,#062f3a 0%,#0b5a63 45%,#14a5a3 100%) fixed;min-height:100vh;color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-variant-numeric:lining-nums}
+.mob{max-width:480px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px 110px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.rnd{min-width:48px;height:48px;padding:0 14px;border-radius:24px;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:1.15rem}
+.brand{text-align:center;line-height:1.05}.brand b{display:block;font-size:1.8rem;letter-spacing:.05em}.brand span{color:#bfeeea;font-size:1.05rem}
+.glass{background:rgba(255,255,255,.13);border-radius:26px;padding:18px;margin-top:18px}
+.cd2{text-align:center}.cd2 small{font-size:1.15rem}.cd2 b{display:block;font-size:2.8rem;margin:4px 0 16px}
+.bar{height:10px;border-radius:5px;background:linear-gradient(90deg,#fff3c4,#ffd9c0);position:relative;margin:0 14px 18px}.bar i{position:absolute;top:-9px;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 0 18px #fff9;transform:translateX(-50%)}
+.pills{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pill{border-radius:20px;padding:12px 8px;text-align:center;background:rgba(0,0,0,.18);font-size:1.05rem}.pill.w{background:#f1fbfa;color:#0b4a52}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.pc{background:rgba(255,255,255,.12);border-radius:24px;padding:14px 16px}
+.pc>span{font-size:1.2rem;font-variant:small-caps;letter-spacing:.04em}.pc b{display:block;font-size:2.7rem;font-weight:500;margin:2px 0 8px}
+.iq{display:flex;justify-content:space-between;font-size:1rem;opacity:.85;font-variant:small-caps}
+.pc.next{background:linear-gradient(160deg,rgba(255,255,255,.36),rgba(255,255,255,.14));box-shadow:0 0 0 2px #ffffffaa}
+.tabs{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:456px;margin:0 auto;display:flex;background:rgba(6,47,58,.88);border-radius:28px;padding:8px}
+.tabs a{flex:1;text-align:center;color:#bfeeea;text-decoration:none;padding:8px 0;border-radius:20px;font-size:.9rem}.tabs a i{display:block;font-style:normal;font-size:1.3rem}.tabs a.on{background:rgba(255,255,255,.2);color:#fff}
+.mob button{margin-top:10px;padding:12px 20px;border:0;border-radius:20px;background:#fff;color:#0b4a52;font:inherit;font-weight:700}
+.mob a{color:#fff}.mob p{margin:8px 0}
+.opt{background:#ffffff1f;border:1px solid #ffffff33;color:#fff;border-radius:14px;padding:11px 14px;font:inherit;margin:4px 6px 0 0;cursor:pointer}.opt.on{background:#ffffff40;border-color:#fff}
+.glass select{width:100%;padding:12px;border-radius:12px;background:#ffffff1f;color:#fff;border:1px solid #ffffff33;font:inherit;margin-bottom:6px}.glass select option{color:#000}
+.glass p{margin:8px 0}.tabs a{padding:8px 2px;font-size:.74rem;min-width:0}.tabs a i{font-style:normal}
+[dir=rtl] .pc b,[dir=rtl] .cd2 b,[dir=rtl] .rnd{direction:ltr;unicode-bidi:isolate}
+[dir=rtl] .tv b,[dir=rtl] .tv i,[dir=rtl] .big{direction:ltr;unicode-bidi:isolate}
+.tv .cell{background:rgba(0,0,0,.16)}
+.tv .brand,.tv h1,.ph h2{color:#ffe7b3}
+.tv .clock span,.tv .side span{color:#d9f6f3}
+button{background:#fff;color:#0b4a52;border-radius:20px}
 </style>
 </head>
 <body>
@@ -58,6 +88,7 @@ function calcDay(y,m,d,lat,lng,tz,method,opt){
   const f=h=>{h=fix(h+off+.5/60,24);return String(Math.floor(h)).padStart(2,'0')+':'+String(Math.floor((h%1)*60)).padStart(2,'0')};
   return{fajr:f(fajr),sunrise:f(rise),dhuhr:f(noon),asr:f(asr),maghrib:f(set),isha:f(isha)};
 }
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const KEY='mosque_v1', P=['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'];
 const FR={Fajr:'Fajr',Sunrise:'Chourouq',Dhuhr:'Dhor',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'};
@@ -70,6 +101,7 @@ async function getTimes(){
   const now=new Date(), day=iso(now), row=(M.cal||{})[day]; let t=null;
   if(row) t={Fajr:row.fajr,Sunrise:row.sunrise,Dhuhr:row.dhuhr,Asr:row.asr,Maghrib:row.maghrib,Isha:row.isha};
   else if(M.lat!=null){try{const c=calcDay(now.getFullYear(),now.getMonth()+1,now.getDate(),+M.lat,+M.lng,M.tz||Intl.DateTimeFormat().resolvedOptions().timeZone,M.method,M.calc);t={Fajr:c.fajr,Sunrise:c.sunrise,Dhuhr:c.dhuhr,Asr:c.asr,Maghrib:c.maghrib,Isha:c.isha}}catch(e){}}
+  else if(!SLUG&&!PR.pos&&!location.hash.startsWith('#tv')){} // pas de position : écran de bienvenue
   else { // mode démo sans mosquée : service externe
     const ck='times_'+day+M.city+M.country+M.method;
     try{const r=await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(M.city)}&country=${encodeURIComponent(M.country)}&method=${M.method}`);t=(await r.json()).data.timings;localStorage.setItem(ck,JSON.stringify(t))}catch(e){try{t=JSON.parse(localStorage.getItem(ck))}catch(_){}}
@@ -88,9 +120,9 @@ function nextPrayer(){
 }
 const DUR={phones:10,athkar:5}; // minutes
 const ATHKAR=[
- {ar:'أَسْتَغْفِرُ الله، أَسْتَغْفِرُ الله، أَسْتَغْفِرُ الله',fr:'Astaghfiru Allah (x3)'},
+ {ar:'أَسْتَغْفِرُ الله، أَسْتَغْفِرُ الله، أَسْتَغْفِرُ الله',fr:'Astaghfiru Allah (×3)'},
  {ar:'اللّهُمَّ أَنْتَ السَّلامُ، وَمِنْكَ السَّلام، تَبارَكْتَ يا ذا الجَلالِ وَالإِكْرام',fr:'Allahumma anta Essalam wa mineka Essalam, tabarakta ya dhal djalali wel ikram'},
- {ar:'سُبْحانَ اللهِ، والحَمْدُ لله، واللهُ أكْبَر (٣٣)',fr:'Subhan Allah, wal hamdu lillah, wallahu akbar (33 fois)'}];
+ {ar:'سُبْحانَ اللهِ، والحَمْدُ لله، واللهُ أكْبَر (٣٣)',fr:'Subhan Allah, wal hamdu lillah, wallahu akbar (×33)'}];
 function phase(){
   const f=location.hash.slice(3), now=new Date(), pr=['Fajr','Dhuhr','Asr','Maghrib','Isha'];
   if(f.startsWith('-')) return {k:f.slice(1),p:'Fajr',left:'04:32'};
@@ -106,33 +138,142 @@ function phase(){
 }
 function showPhase(x){
   let c='';
-  if(x.k==='adhan') c=`<h2>Adhan</h2><div class="big">${FR[x.p]}</div>${x.p==='Fajr'?'<div class="ar">الصَّلاةُ خَيْرٌ مِنَ النَّوْم</div><p>Essalatu khayrun mina ennawm</p>':''}`;
-  else if(x.k==='iqama') c=`<h2>Iqama de ${FR[x.p]} dans</h2><div class="big">${x.left}</div>`;
-  else if(x.k==='phones') c=`<div class="big">📵</div><h2>Éteignez vos portables SVP</h2><p>${FR[x.p]}</p>`;
-  else {const a=ATHKAR[Math.floor(Date.now()/15000)%ATHKAR.length]; c=`<h2>Invocations après la prière</h2><div class="ar">${a.ar}</div><p>${a.fr}</p>`;}
-  $('#app').innerHTML=`<div class="tv ph"><h1>${M.name}</h1>${c}</div>`;
+  if(x.k==='adhan') c=`<h2>${tx('adhan')}</h2><div class="big">${PN(x.p)}</div>${x.p==='Fajr'?'<div class="ar">الصَّلاةُ خَيْرٌ مِنَ النَّوْم</div><p>Essalatu khayrun mina ennawm</p>':''}`;
+  else if(x.k==='iqama') c=`<h2>${tx('iqamaIn').replace('{p}',PN(x.p))}</h2><div class="big">${x.left}</div>`;
+  else if(x.k==='phones') c=`<div class="big">📵</div><h2>${tx('phones')}</h2><p>${PN(x.p)}</p>`;
+  else {const a=ATHKAR[Math.floor(Date.now()/15000)%ATHKAR.length]; c=`<h2>${tx('athkarT')}</h2><div class="ar">${a.ar}</div><p>${a.fr}</p>`;}
+  $('#app').innerHTML=`<div class="tv ph"><h1>${esc(M.name)}</h1>${c}</div>`;
+}
+function hhmm(t,add){const [h,m]=t.split(':').map(Number),x=h*60+m+add;return String(Math.floor(x/60)%24).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
+function qiblaHTML(){
+  const qp=PR.pos||(M.lat!=null?{lat:+M.lat,lng:+M.lng}:null);
+  if(!qp) return `<div class="glass">${tx('needpos')}<br><button class="opt on" onclick="usePos()">${tx('usepos')}</button></div>`;
+  const r=Math.PI/180,f1=qp.lat*r,f2=21.4225*r,dl=(39.8262-qp.lng)*r;
+  const b=((Math.atan2(Math.sin(dl)*Math.cos(f2),Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl))/r)+360)%360;
+  return `<div class="glass" style="text-align:center"><small>${tx('qdir')}</small><b style="display:block;font-size:3rem">${Math.round(b)}°</b><small>${Math.round(km(qp.lat,qp.lng,21.4225,39.8262))} km ${tx('fromMecca')}</small>
+  <svg id="arr" viewBox="0 0 200 200" width="230" height="230" style="transition:transform .15s"><circle cx="100" cy="100" r="92" fill="none" stroke="#ffffff66" stroke-width="3"/><text x="100" y="26" text-anchor="middle" fill="#fff" font-size="20">N</text><g transform="rotate(${b} 100 100)"><path d="M100 34 L116 112 L100 102 L84 112 Z" fill="#fff3c4"/></g></svg>
+  <p>${tx('flat')}</p><button id="cmp">${tx('compass')}</button></div>`;
+}
+function bindQibla(){const bt=$('#cmp');if(!bt)return;bt.onclick=async()=>{try{
+  if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission&&await DeviceOrientationEvent.requestPermission()!=='granted')return;
+  const fn=e=>{const a=$('#arr');if(!a)return;const h=e.webkitCompassHeading??(e.absolute?360-e.alpha:null);if(h!=null)a.style.transform=`rotate(${-h}deg)`};
+  addEventListener('deviceorientationabsolute',fn,true);addEventListener('deviceorientation',fn,true);bt.remove()}catch(e){alert(tx('nocompass'))}}}
+const PK='prefs_v1';
+let PR=Object.assign({lang:'fr',h12:false,method:12,fa:12,ia:12,imin:null,asr:1,pos:null},(()=>{try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return {}}})());
+const savePR=()=>{try{localStorage.setItem(PK,JSON.stringify(PR))}catch(e){}};
+const TX={
+fr:{pray:'Prière',near:'Mosquées',ann:'Annonces',set:'Réglages',remaining:'Temps restant avant',myloc:'Ma position',welcome:'Bienvenue',onb:'Pour afficher les horaires de prière, utilise ta position ou choisis une mosquée près de chez toi.',usepos:'Utiliser ma position',findm:'Chercher une mosquée',noloc:'Position indisponible. Autorise la localisation dans ton navigateur.',nearT:'Mosquées proches',nearP:'Trouve les mosquées autour de toi grâce à ta position.',find:'Trouver les mosquées proches',searching:'Recherche en cours…',none:'Aucune mosquée trouvée autour de toi.',choose:'Choisir',route:'Itinéraire',needpos:'Active ta position pour calculer la Qibla.',fromMecca:'de la Mecque',flat:'Tiens ton téléphone à plat, ou active la boussole :',compass:'Activer la boussole',qdir:'Direction de la Qibla',lang:'Langue',hfmt:'Format de l’heure',h24:'24 h',h12:'12 h (AM/PM)',mosq:'Mosquée choisie',nomosq:'Aucune : horaires calculés selon ta position.',remove:'Retirer la mosquée',pos:'Position',calc:'Méthode de calcul',calcnote:'S’applique quand aucune mosquée n’est choisie.',org:'Organisme',fajrA:'Angle du Fajr',ishaA:'Angle de l’Isha',ishaMin:'90 min après le Maghrib',asr:'Début du Asr',asr1:'Maliki, Chafi’i, Hanbali',asr2:'Hanafi',custom:'Personnalisé',noann:'Aucune annonce pour le moment.',qibla:'Qibla',iqama:'Iqama'},
+en:{pray:'Prayer',near:'Mosques',ann:'Notices',set:'Settings',remaining:'Time until',myloc:'My location',welcome:'Welcome',onb:'To show prayer times, use your location or pick a mosque near you.',usepos:'Use my location',findm:'Find a mosque',noloc:'Location unavailable. Allow location access in your browser.',nearT:'Nearby mosques',nearP:'Find mosques around you using your location.',find:'Find nearby mosques',searching:'Searching…',none:'No mosque found near you.',choose:'Choose',route:'Directions',needpos:'Enable your location to compute the Qibla.',fromMecca:'from Mecca',flat:'Hold your phone flat, or enable the compass:',compass:'Enable compass',qdir:'Qibla direction',lang:'Language',hfmt:'Time format',h24:'24 h',h12:'12 h (AM/PM)',mosq:'Selected mosque',nomosq:'None: times are computed for your location.',remove:'Remove mosque',pos:'Location',calc:'Calculation method',calcnote:'Applies when no mosque is selected.',org:'Authority',fajrA:'Fajr angle',ishaA:'Isha angle',ishaMin:'90 min after Maghrib',asr:'Asr start',asr1:'Maliki, Shafi’i, Hanbali',asr2:'Hanafi',custom:'Custom',noann:'No notices yet.',qibla:'Qibla',iqama:'Iqama'},
+ar:{pray:'الصلاة',near:'المساجد',ann:'الإعلانات',set:'الإعدادات',remaining:'الوقت المتبقي حتى',myloc:'موقعي',welcome:'مرحبًا',onb:'لعرض مواقيت الصلاة، استخدم موقعك أو اختر مسجدًا قريبًا منك.',usepos:'استخدام موقعي',findm:'البحث عن مسجد',noloc:'الموقع غير متاح. اسمح بالوصول إلى الموقع في المتصفح.',nearT:'المساجد القريبة',nearP:'اعثر على المساجد القريبة منك باستخدام موقعك.',find:'البحث عن المساجد القريبة',searching:'جارٍ البحث…',none:'لم يتم العثور على مساجد قريبة.',choose:'اختيار',route:'الاتجاهات',needpos:'فعّل موقعك لحساب القبلة.',fromMecca:'عن مكة المكرمة',flat:'ضع هاتفك بشكل مسطح أو فعّل البوصلة:',compass:'تفعيل البوصلة',qdir:'اتجاه القبلة',lang:'اللغة',hfmt:'تنسيق الوقت',h24:'24 ساعة',h12:'12 ساعة (ص/م)',mosq:'المسجد المختار',nomosq:'لا يوجد: تُحسب المواقيت حسب موقعك.',remove:'إزالة المسجد',pos:'الموقع',calc:'طريقة الحساب',calcnote:'تُطبَّق عند عدم اختيار مسجد.',org:'الجهة',fajrA:'زاوية الفجر',ishaA:'زاوية العشاء',ishaMin:'90 دقيقة بعد المغرب',asr:'بداية العصر',asr1:'المالكي والشافعي والحنبلي',asr2:'الحنفي',custom:'مخصّص',noann:'لا توجد إعلانات حاليًا.',qibla:'القبلة',iqama:'الإقامة'},
+de:{pray:'Gebet',near:'Moscheen',ann:'Mitteilungen',set:'Einstellungen',remaining:'Noch bis',myloc:'Mein Standort',welcome:'Willkommen',onb:'Um die Gebetszeiten anzuzeigen, nutze deinen Standort oder wähle eine Moschee in deiner Nähe.',usepos:'Meinen Standort verwenden',findm:'Moschee suchen',noloc:'Standort nicht verfügbar. Erlaube den Standortzugriff im Browser.',nearT:'Moscheen in der Nähe',nearP:'Finde Moscheen in deiner Umgebung anhand deines Standorts.',find:'Moscheen in der Nähe finden',searching:'Suche läuft…',none:'Keine Moschee in deiner Nähe gefunden.',choose:'Auswählen',route:'Route',needpos:'Aktiviere deinen Standort, um die Qibla zu berechnen.',fromMecca:'von Mekka entfernt',flat:'Halte dein Telefon flach oder aktiviere den Kompass:',compass:'Kompass aktivieren',qdir:'Richtung der Qibla',lang:'Sprache',hfmt:'Zeitformat',h24:'24 Std.',h12:'12 Std. (AM/PM)',mosq:'Gewählte Moschee',nomosq:'Keine: Zeiten werden für deinen Standort berechnet.',remove:'Moschee entfernen',pos:'Standort',calc:'Berechnungsmethode',calcnote:'Gilt, wenn keine Moschee ausgewählt ist.',org:'Organisation',fajrA:'Fajr-Winkel',ishaA:'Isha-Winkel',ishaMin:'90 Min. nach Maghrib',asr:'Beginn des Asr',asr1:'Maliki, Schafi’i, Hanbali',asr2:'Hanafi',custom:'Benutzerdefiniert',noann:'Noch keine Mitteilungen.',qibla:'Qibla',iqama:'Iqama'},
+es:{pray:'Oración',near:'Mezquitas',ann:'Anuncios',set:'Ajustes',remaining:'Tiempo restante hasta',myloc:'Mi ubicación',welcome:'Bienvenido',onb:'Para mostrar los horarios de oración, usa tu ubicación o elige una mezquita cercana.',usepos:'Usar mi ubicación',findm:'Buscar una mezquita',noloc:'Ubicación no disponible. Permite el acceso a la ubicación en tu navegador.',nearT:'Mezquitas cercanas',nearP:'Encuentra las mezquitas a tu alrededor con tu ubicación.',find:'Buscar mezquitas cercanas',searching:'Buscando…',none:'No se encontró ninguna mezquita cerca de ti.',choose:'Elegir',route:'Cómo llegar',needpos:'Activa tu ubicación para calcular la Qibla.',fromMecca:'de La Meca',flat:'Sostén el teléfono en horizontal o activa la brújula:',compass:'Activar la brújula',qdir:'Dirección de la Qibla',lang:'Idioma',hfmt:'Formato de hora',h24:'24 h',h12:'12 h (AM/PM)',mosq:'Mezquita elegida',nomosq:'Ninguna: los horarios se calculan según tu ubicación.',remove:'Quitar la mezquita',pos:'Ubicación',calc:'Método de cálculo',calcnote:'Se aplica cuando no hay mezquita elegida.',org:'Organismo',fajrA:'Ángulo del Fajr',ishaA:'Ángulo del Isha',ishaMin:'90 min después del Maghrib',asr:'Inicio del Asr',asr1:'Maliki, Shafi’i, Hanbali',asr2:'Hanafi',custom:'Personalizado',noann:'Aún no hay anuncios.',qibla:'Qibla',iqama:'Iqama'},
+pt:{pray:'Oração',near:'Mesquitas',ann:'Avisos',set:'Definições',remaining:'Tempo restante até',myloc:'A minha localização',welcome:'Bem-vindo',onb:'Para mostrar os horários de oração, usa a tua localização ou escolhe uma mesquita perto de ti.',usepos:'Usar a minha localização',findm:'Procurar uma mesquita',noloc:'Localização indisponível. Permite o acesso à localização no navegador.',nearT:'Mesquitas próximas',nearP:'Encontra as mesquitas à tua volta através da tua localização.',find:'Encontrar mesquitas próximas',searching:'A pesquisar…',none:'Nenhuma mesquita encontrada perto de ti.',choose:'Escolher',route:'Direções',needpos:'Ativa a tua localização para calcular a Qibla.',fromMecca:'de Meca',flat:'Segura o telemóvel na horizontal ou ativa a bússola:',compass:'Ativar a bússola',qdir:'Direção da Qibla',lang:'Idioma',hfmt:'Formato da hora',h24:'24 h',h12:'12 h (AM/PM)',mosq:'Mesquita escolhida',nomosq:'Nenhuma: os horários são calculados para a tua localização.',remove:'Remover a mesquita',pos:'Localização',calc:'Método de cálculo',calcnote:'Aplica-se quando nenhuma mesquita está escolhida.',org:'Organismo',fajrA:'Ângulo do Fajr',ishaA:'Ângulo do Isha',ishaMin:'90 min após o Maghrib',asr:'Início do Asr',asr1:'Maliki, Shafi’i, Hanbali',asr2:'Hanafi',custom:'Personalizado',noann:'Ainda não há avisos.',qibla:'Qibla',iqama:'Iqama'},
+tr:{pray:'Namaz',near:'Camiler',ann:'Duyurular',set:'Ayarlar',remaining:'Kalan süre:',myloc:'Konumum',welcome:'Hoş geldiniz',onb:'Namaz vakitlerini göstermek için konumunuzu kullanın veya yakınınızdaki bir cami seçin.',usepos:'Konumumu kullan',findm:'Cami ara',noloc:'Konum kullanılamıyor. Tarayıcıda konum erişimine izin verin.',nearT:'Yakındaki camiler',nearP:'Konumunuzu kullanarak çevrenizdeki camileri bulun.',find:'Yakındaki camileri bul',searching:'Aranıyor…',none:'Yakınınızda cami bulunamadı.',choose:'Seç',route:'Yol tarifi',needpos:'Kıbleyi hesaplamak için konumunuzu açın.',fromMecca:'Mekke’ye uzaklık',flat:'Telefonu yatay tutun veya pusulayı etkinleştirin:',compass:'Pusulayı etkinleştir',qdir:'Kıble yönü',lang:'Dil',hfmt:'Saat biçimi',h24:'24 saat',h12:'12 saat (AM/PM)',mosq:'Seçilen cami',nomosq:'Yok: vakitler konumunuza göre hesaplanır.',remove:'Camiyi kaldır',pos:'Konum',calc:'Hesaplama yöntemi',calcnote:'Cami seçilmediğinde geçerlidir.',org:'Kurum',fajrA:'Sabah açısı',ishaA:'Yatsı açısı',ishaMin:'Akşamdan 90 dk sonra',asr:'İkindi başlangıcı',asr1:'Maliki, Şafii, Hanbeli',asr2:'Hanefi',custom:'Özel',noann:'Henüz duyuru yok.',qibla:'Kıble',iqama:'Kamet'}};
+const TX2={
+fr:{jumua:'Jumua',cdin:'{p} dans {t}',adhan:'Adhan',iqamaIn:'Iqama de {p} dans',phones:'Éteignez vos portables SVP',athkarT:'Invocations après la prière',loading:'Chargement des horaires… Vérifie ta connexion.',nocompass:'Boussole indisponible sur cet appareil.'},
+en:{jumua:'Jumu‘ah',cdin:'{p} in {t}',adhan:'Adhan',iqamaIn:'Iqama of {p} in',phones:'Please silence your phones',athkarT:'Dhikr after the prayer',loading:'Loading prayer times… Check your connection.',nocompass:'Compass not available on this device.'},
+ar:{jumua:'الجمعة',cdin:'{p} بعد {t}',adhan:'الأذان',iqamaIn:'إقامة {p} بعد',phones:'يُرجى إغلاق الهواتف المحمولة',athkarT:'أذكار بعد الصلاة',loading:'جارٍ تحميل المواقيت… تحقق من اتصالك.',nocompass:'البوصلة غير متاحة على هذا الجهاز.'},
+de:{jumua:'Freitagsgebet',cdin:'{p} in {t}',adhan:'Adhan',iqamaIn:'Iqama {p} in',phones:'Bitte Handys ausschalten',athkarT:'Bittgebete nach dem Gebet',loading:'Gebetszeiten werden geladen… Prüfe deine Verbindung.',nocompass:'Kompass auf diesem Gerät nicht verfügbar.'},
+es:{jumua:'Yumu‘a',cdin:'{p} en {t}',adhan:'Adhan',iqamaIn:'Iqama de {p} en',phones:'Por favor, apaga tu móvil',athkarT:'Invocaciones después de la oración',loading:'Cargando horarios… Comprueba tu conexión.',nocompass:'Brújula no disponible en este dispositivo.'},
+pt:{jumua:'Jumu‘a',cdin:'{p} em {t}',adhan:'Adhan',iqamaIn:'Iqama de {p} em',phones:'Por favor, desliga o telemóvel',athkarT:'Invocações após a oração',loading:'A carregar os horários… Verifica a tua ligação.',nocompass:'Bússola indisponível neste dispositivo.'},
+tr:{jumua:'Cuma',cdin:'{p} vaktine {t} kaldı',adhan:'Ezan',iqamaIn:'{p} kametine kalan süre',phones:'Lütfen telefonlarınızı kapatın',athkarT:'Namaz sonrası zikirler',loading:'Vakitler yükleniyor… Bağlantınızı kontrol edin.',nocompass:'Pusula bu cihazda kullanılamıyor.'}};
+for(const l in TX2)Object.assign(TX[l],TX2[l]);
+const TVL=(()=>{const l=new URLSearchParams(location.search).get('lang');return l&&TX[l]?l:null})();
+const H12=()=>location.hash.startsWith('#tv')?!!M.dh12:PR.h12;
+const LG=()=>{const l=location.hash.startsWith('#tv')?(TVL||M.dlang||PR.lang):PR.lang;return TX[l]?l:'fr'};
+const tx=k=>(TX[LG()]||TX.fr)[k]??TX.fr[k]??k;
+try{if(!localStorage.getItem(PK)){const l=String(navigator.language||'fr').slice(0,2);if(TX[l])PR.lang=l}}catch(e){}
+const B0={Fajr:'Fajr',Sunrise:'Sunrise',Dhuhr:'Dhuhr',Asr:'Asr',Maghrib:'Maghrib',Isha:'Isha'};
+const PNM={en:B0,de:{...B0,Sunrise:'Sonnenaufgang'},es:{...B0,Sunrise:'Amanecer'},pt:{...B0,Sunrise:'Nascer do sol'},ar:{Fajr:'الفجر',Sunrise:'الشروق',Dhuhr:'الظهر',Asr:'العصر',Maghrib:'المغرب',Isha:'العشاء'},tr:{Fajr:'Sabah',Sunrise:'Güneş',Dhuhr:'Öğle',Asr:'İkindi',Maghrib:'Akşam',Isha:'Yatsı'}};
+const PN=k=>LG()==='fr'?FR[k]:(PNM[LG()]||PNM.en)[k];
+const LOC={fr:'fr-FR',en:'en-GB',ar:'ar-u-nu-latn',de:'de-DE',es:'es-ES',pt:'pt-PT',tr:'tr-TR'};
+const LANGS=[['fr','Français'],['en','English'],['ar','العربية'],['de','Deutsch'],['es','Español'],['pt','Português'],['tr','Türkçe']];
+const fmt=s=>{if(!H12()||!s||s.indexOf(':')<0)return s;const [h,m]=s.split(':').map(Number);return ((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(LG()==='ar'?(h<12?'ص':'م'):(h<12?'AM':'PM'))};
+const km=(a,b,c,d)=>{const dl=(c-a)*R,dg=(d-b)*R,h=Math.sin(dl/2)**2+Math.cos(a*R)*Math.cos(c*R)*Math.sin(dg/2)**2;return 6371*2*Math.asin(Math.sqrt(h))};
+const getPos=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lng:p.coords.longitude}),ko,{enableHighAccuracy:true,timeout:15000}):ko(new Error('no geo')));
+function applyPersonal(){ if(SLUG||!PR.pos)return;
+  Object.assign(M,{name:tx('myloc'),city:'',country:'',address:'',lat:PR.pos.lat,lng:PR.pos.lng,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,method:PR.method,calc:{fa:PR.fa,ia:PR.ia,imin:PR.imin,asr:PR.asr},cal:{},manual:{},note:'',iqama:def.iqama}) }
+async function refresh(){applyPersonal();T=await getTimes();view()}
+async function usePos(){try{PR.pos=await getPos();savePR();await refresh()}catch(e){alert(tx('noloc'))}}
+async function setPref(k,v){PR[k]=v;savePR();await refresh()}
+async function applyPreset(v){v=+v;PR.method=v;const p=ANG[v];if(p){PR.fa=p[0];PR.ia=p[1];PR.imin=p[1]==null?90:null}savePR();await refresh()}
+async function setAngle(k,v){PR[k]=v===''?null:+v;if(k==='ia')PR.imin=v===''?90:null;PR.method=0;savePR();await refresh()}
+function pick(s){try{localStorage.setItem('fav_slug',s)}catch(e){}location.href=location.pathname+'?m='+encodeURIComponent(s)}
+function removeMosque(){try{localStorage.removeItem('fav_slug')}catch(e){}location.href=location.pathname+'#reglages'}
+const gbtn='class="opt on" style="text-decoration:none;display:inline-block"';
+function onboardHTML(){return `<div class="glass"><b style="font-size:1.4rem">${tx('welcome')}</b><p>${tx('onb')}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button> <a class="opt" style="text-decoration:none;display:inline-block" href="#proche">${tx('findm')}</a></div>`}
+function nearHTML(){return `<div class="glass"><b style="font-size:1.4rem">${tx('nearT')}</b><p>${tx('nearP')}</p><button class="opt on" onclick="findNear()">${tx('find')}</button></div><div id="nl"></div>`}
+async function findNear(){
+  const nl=$('#nl'); nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;
+  let p; try{p=PR.pos=await getPos();savePR()}catch(e){nl.innerHTML=`<div class="glass">${tx('noloc')}</div>`;return}
+  let rows=[];
+  for(const d of [.3,1,4,15]){
+    try{const r=await fetch(`${SB}/mosques?select=slug,name,city,address,lat,lng&show_on_map=eq.true&lat=gte.${p.lat-d}&lat=lte.${p.lat+d}&lng=gte.${p.lng-d}&lng=lte.${p.lng+d}&limit=500`,{headers:{apikey:KEYSB}});rows=await r.json()}catch(e){break}
+    if(Array.isArray(rows)&&rows.length>=3)break;
+  }
+  if(!Array.isArray(rows)||!rows.length){nl.innerHTML=`<div class="glass">${tx('none')}</div>`;return}
+  rows.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng)); rows.sort((a,b)=>a.d-b.d);
+  nl.innerHTML=rows.slice(0,10).map(m=>`<div class="glass"><b>${esc(m.name)}</b><p>${esc(m.address||'')} ${esc(m.city||'')}</p><p>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km</p>
+    <button class="opt on" data-s="${esc(m.slug)}">${tx('choose')}</button> <a class="opt" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${+m.lat},${+m.lng}">${tx('route')}</a></div>`).join('');
+  nl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(b.dataset.s));
+}
+function settingsHTML(){
+  const o=(on,lab,js)=>`<button class="opt ${on?'on':''}" onclick="${js}">${lab}</button>`;
+  const ANGS=[12,13,14,15,16,17,17.5,18,18.5,19,19.5,20];
+  const MET=[[12,'France — UOIF (12° / 12°)'],[3,'MWL (18° / 17°)'],[21,'Maroc (19° / 17°)'],[18,'Tunisie (18° / 18°)'],[19,'Algérie (18° / 17°)'],[13,'Diyanet (18° / 17°)'],[4,'Umm al-Qura (18,5° / 90 min)'],[5,'Égypte (19,5° / 17,5°)'],[2,'ISNA (15° / 15°)'],[1,'Karachi (18° / 18°)'],[0,tx('custom')]];
+  const sel=(opts,cur,js)=>`<select onchange="${js}">${opts.map(([v,l])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${l}</option>`).join('')}</select>`;
+  return `<div class="glass"><b>${tx('mosq')}</b><p>${SLUG?esc(M.name):tx('nomosq')}</p>${SLUG?`<button class="opt" onclick="removeMosque()">${tx('remove')}</button>`:`<a ${gbtn} href="#proche">${tx('findm')}</a>`}</div>
+  <div class="glass"><b>${tx('pos')}</b><p>${PR.pos?PR.pos.lat.toFixed(4)+', '+PR.pos.lng.toFixed(4):'—'}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button></div>
+  <div class="glass"><b>${tx('lang')}</b><p>${LANGS.map(([c,n])=>o(LG()===c,n,`setPref('lang','${c}')`)).join('')}</p></div>
+  <div class="glass"><b>${tx('hfmt')}</b><p>${o(!PR.h12,tx('h24'),"setPref('h12',false)")}${o(PR.h12,tx('h12'),"setPref('h12',true)")}</p></div>
+  <div class="glass"><b>${tx('calc')}</b><p style="font-size:.9rem;opacity:.8">${tx('calcnote')}</p>
+  <p>${tx('org')}</p>${sel(MET,PR.method,'applyPreset(this.value)')}
+  <p>${tx('fajrA')}</p>${sel(ANGS.map(x=>[x,x+'°']),PR.fa,"setAngle('fa',this.value)")}
+  <p>${tx('ishaA')}</p>${sel([['',tx('ishaMin')]].concat(ANGS.map(x=>[x,x+'°'])),PR.ia==null?'':PR.ia,"setAngle('ia',this.value)")}
+  <p>${tx('asr')}</p><p>${o(PR.asr==1,tx('asr1'),"setPref('asr',1)")}${o(PR.asr==2,tx('asr2'),"setPref('asr',2)")}</p></div>`;
+}
+function appView(n){
+  const h=location.hash, now=new Date(), esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const head=`<header class="top"><a class="rnd" href="admin.html">🔑</a><div class="brand"><b>Attawqit</b><span>التوقيت</span></div><div class="rnd">${now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hour:'2-digit',minute:'2-digit',hour12:PR.h12})}</div></header>`;
+  let body='';
+  if(h==='#qibla') body=qiblaHTML();
+  else if(h==='#proche') body=nearHTML();
+  else if(h==='#reglages') body=settingsHTML();
+  else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass">${esc(x)}</div>`).join(''):`<div class="glass">${tx('noann')}</div>`}
+  else if(h==='#mosquee') body=`<div class="glass"><b style="font-size:1.5rem">${esc(M.name)}</b><p>${esc(M.address)} ${esc(M.city)}</p>${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${M.website?`<p>🌐 <a href="${esc(M.website)}">${esc(M.website)}</a></p>`:''}</div>`;
+  else if(!T||!n||(!SLUG&&!PR.pos)) body=onboardHTML();
+  else {
+    const L=['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>{const [a,b]=T[p].split(':'),d=new Date();d.setHours(+a,+b,0,0);return{p,d}});
+    const i=L.findIndex(x=>x.d>now); let nx,pv;
+    if(i<0){nx={d:new Date(+L[0].d+864e5)};pv=L[4]}else{nx=L[i];pv=i>0?L[i-1]:{d:new Date(+L[4].d-864e5)}}
+    const pct=Math.min(100,Math.max(0,(now-pv.d)/(nx.d-pv.d)*100));
+    let hij='';try{hij=new Intl.DateTimeFormat((LOC[LG()]||'fr-FR').split('-u-')[0]+'-u-ca-islamic-umalqura'+(LG()==='ar'?'-nu-latn':''),{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH','')}catch(e){}
+    const greg=now.toLocaleDateString(LOC[LG()]||'fr-FR',{day:'numeric',month:'long',year:'numeric'});
+    const cards=[['Fajr','Fajr'],['Sunrise','Chourouq'],['Dhuhr','Dhuhr'],['Asr','Asr'],['Maghrib','Maghrib'],['Isha','Isha']].map(([k,l])=>
+      `<div class="pc ${k===n.p?'next':''}"><span>${PN(k)}</span><b>${fmt(T[k]||'--:--')}</b>${k!=='Sunrise'&&T[k]?`<div class="iq"><span>${tx('iqama')}</span><span>${fmt(hhmm(T[k],(M.iqama||{})[k]??10))}</span></div>`:'<div class="iq">&nbsp;</div>'}</div>`).join('');
+    body=`<div class="glass cd2"><small>${tx('remaining')} ${PN(n.p)}</small><b>${n.left}</b><div class="bar"><i style="left:${pct}%"></i></div>
+    <div class="pills"><div class="pill w" onclick="location.hash='#mosquee'">${esc(M.city||M.name)}<br>${esc(M.country)}</div><div class="pill">${hij}<br>${greg}</div></div></div><div class="grid2">${cards}</div>`;
+  }
+  const tabs=[['','🕌',tx('pray')],['#qibla','🧭',tx('qibla')],['#proche','📍',tx('near')],['#annonces','📢',tx('ann')],['#reglages','⚙️',tx('set')]].map(([k,ic,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}"><i>${ic}</i>${t}</a>`).join('');
+  $('#app').innerHTML=`<div class="mob">${head}${body}</div><nav class="tabs">${tabs}</nav>`;
+  if(h==='#qibla') bindQibla();
 }
 function view(){
-  const h=location.hash;
+  const h=location.hash; document.body.className=(h==='#admin'||h.startsWith('#tv'))?'':'app';
+  if(document.documentElement){document.documentElement.lang=LG();document.documentElement.dir=LG()==='ar'?'rtl':'ltr'}
   if(h==='#admin') return admin();
-  if(!T) return $('#app').innerHTML='<main><p>Chargement des horaires… Vérifie ta connexion.</p><nav><a href="#admin">Régler la mosquée</a></nav></main>';
-  const n=nextPrayer();
+  if(!T&&(h.startsWith('#tv')||SLUG)) return $('#app').innerHTML='<main><p>'+tx('loading')+'</p></main>';
+  const n=T?nextPrayer():null;
   if(h.startsWith('#tv')){ const xp=phase(); if(xp.k!=='main') return showPhase(xp);
-    const now=new Date(), d=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
-    $('#app').innerHTML=`<div class="tv"><h1>${M.name}</h1>
-    <section class="top"><div class="side"><span>Chourouq</span><b>${T.Sunrise}</b></div>
-    <div class="clock"><b>${now.toLocaleTimeString('fr-FR')}</b><span>${d.charAt(0).toUpperCase()+d.slice(1)}</span></div>
-    <div class="side"><span>Jumua</span><b>${M.jumua||'⊘'}</b></div></section>
-    <div class="cd">${FR[n.p]} dans ${n.left.slice(0,5)}</div>
-    <div class="grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="cell ${p===n.p?'on':''}"><span>${FR[p]}</span><b>${T[p]}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</div>
-    <footer><span>${M.assoc||''}${M.note?' — '+M.note:''}</span><span class="brand">Tawqit</span></footer></div>`;
-  } else {
-    $('#app').innerHTML=`<main><div class="mute">Tawqit</div><h1>${M.name}</h1><div class="mute">${M.city}, ${M.country}</div>
-    <div class="next">Prochaine prière<b>${FR[n.p]} · ${T[n.p]}</b>dans ${n.left}</div>
-    ${P.map(p=>`<div class="row ${p===n.p?'on':''}"><span>${FR[p]}</span><span>${T[p]}</span></div>`).join('')}
-    ${M.note?`<div class="note">${M.note}</div>`:''}
-    <nav><a href="#tv">Mode télé</a><a href="#admin">Espace mosquée</a></nav></main>`;
-  }
+    const now=new Date(), d=now.toLocaleDateString(LOC[LG()]||'fr-FR',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
+    $('#app').innerHTML=`<div class="tv"><h1>${esc(M.name)}</h1>
+    <section class="top"><div class="side"><span>${PN('Sunrise')}</span><b>${fmt(T.Sunrise)}</b></div>
+    <div class="clock"><b>${now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hourCycle:H12()?'h12':'h23'})}</b><span>${d.charAt(0).toUpperCase()+d.slice(1)}</span></div>
+    <div class="side"><span>${tx('jumua')}</span><b>${M.jumua?fmt(M.jumua):'⊘'}</b></div></section>
+    <div class="cd">${tx('cdin').replace('{p}',PN(n.p)).replace('{t}',n.left.slice(0,5))}</div>
+    <div class="grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="cell ${p===n.p?'on':''}"><span>${PN(p)}</span><b>${fmt(T[p])}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</div>
+    <footer><span>${esc(M.assoc)}${M.note?' — '+esc(M.note):''}</span><span class="brand">Attawqit</span></footer></div>`;
+  } else { appView(n); }
 }
 function admin(){
   $('#app').innerHTML=`<main><h1>Espace mosquée</h1>
@@ -162,14 +303,14 @@ async function loadRemote(slug){
   Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
   let cal; try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
     cal={};(await rc.json()).forEach(r=>cal[r.day]=r);localStorage.setItem('cal_'+slug,JSON.stringify(cal))}catch(e){cal=ls('cal_'+slug)}
-  Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',method:st.calc_method||12,
+  Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',method:st.calc_method||12,
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
     note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
 }
-const SLUG=new URLSearchParams(location.search).get('m');
+let SLUG=new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
 addEventListener('hashchange',view);
-(async()=>{if(SLUG)await loadRemote(SLUG);T=await getTimes();view();setInterval(()=>{if(location.hash!=='#admin'&&T)view()},1000)})();
-setInterval(async()=>{if(SLUG)await loadRemote(SLUG);const t=await getTimes();if(t)T=t},3600000);
+(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();T=await getTimes();view();setInterval(()=>{if((location.hash===''||location.hash.startsWith('#tv'))&&T)view()},1000)})();
+setInterval(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();const t=await getTimes();if(t)T=t},3600000);
 </script>
 </body>
 </html>
