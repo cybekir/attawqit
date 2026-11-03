@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#062f3a">
+<script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
+(function(){var B=1,H=(185+B*47)%360;
+function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
+var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
+r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
+window.BUILD=B;window.HUE=H;var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',c[0]);
+document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.id='verbadge';d.textContent='v'+B+' · '+H+'°';
+d.style.cssText='position:fixed;left:8px;bottom:6px;z-index:99999;font:11px/1 sans-serif;color:#fff;background:#00000066;padding:4px 7px;border-radius:9px;pointer-events:none;opacity:.8';document.body.appendChild(d)})})();
+</script>
+<title>Attawqit – Diagnostic de la base de données</title>
+<style>:root{--c1:#062f3a;--c2:#0b5a63;--c3:#14a5a3;--c4:#2ec4b6;--c1a:#062f3acc}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;color:#f3ecd8;font-family:Georgia,serif;background:linear-gradient(165deg,var(--c1) 0%,var(--c2) 45%,var(--c3) 100%) fixed}
+main{max-width:640px;margin:0 auto;padding:20px 20px 60px}h1{font-size:1.5rem}h2{font-size:1.1rem;margin:22px 0 6px;color:#ffe7b3}
+.row{display:flex;gap:10px;background:#ffffff1f;border-radius:14px;padding:10px 12px;margin:6px 0}.ic{font-size:1.2rem;min-width:1.4rem}.d{font-size:.85rem;opacity:.8;margin-top:2px;word-break:break-word}
+.ok .ic{color:#7dffb0}.ko .ic{color:#ff8a8a}.in .ic{color:#ffe7b3}
+button{margin:12px 8px 0 0;padding:11px 18px;font:inherit;background:#ffe7b3;border:0;border-radius:14px;color:#2a2200;font-weight:bold}button:disabled{opacity:.5}
+.verdict{border-radius:18px;padding:14px;margin:16px 0;font-size:1.05rem}.verdict.good{background:#1d6b3acc}.verdict.bad{background:#8a2a2acc}
+pre{white-space:pre-wrap;background:#00000040;border-radius:12px;padding:10px;font-size:.8rem}
+</style></head><body><main>
+<h1>Diagnostic de la base de données</h1>
+<p>Ce test s’exécute dans ton navigateur et interroge ta base Supabase comme le fait l’application. Il n’écrit rien.</p>
+<button id="go">Lancer le test</button><button id="cp" style="display:none">Copier le rapport</button>
+<div id="verdict"></div><div id="res"></div>
+</main>
+<script>
+const URL_='https://obnesncbmmfthxmkulof.supabase.co',KEY='sb_publishable_urKZCjcq3EpnhS9Ou074ew_69KYE-b9';
+const H={apikey:KEY};const $=s=>document.querySelector(s);
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TABLES=[['mosques','schema.sql'],['mosque_settings','schema.sql'],['prayer_calendar','schema.sql'],['announcements','schema.sql'],['mosque_users','schema.sql'],
+  ['mosque_directory','directory.sql'],['app_admins','directory.sql'],['mosque_suggestions','claims_and_suggestions.sql']];
+let REPORT=[],PROBLEMS=[];
+const row=(kind,title,detail)=>{REPORT.push((kind==='ok'?'OK  ':kind==='ko'?'ERREUR  ':'INFO  ')+title+(detail?' — '+detail:''));
+  $('#res').insertAdjacentHTML('beforeend',`<div class="row ${kind}"><span class="ic">${kind==='ok'?'✔':kind==='ko'?'✘':'ℹ'}</span><div>${esc(title)}${detail?`<div class="d">${esc(detail)}</div>`:''}</div></div>`)};
+const sec=t=>{REPORT.push('\n'+t);$('#res').insertAdjacentHTML('beforeend',`<h2>${esc(t)}</h2>`)};
+async function call(path,opt){try{const r=await fetch(URL_+path,Object.assign({headers:H},opt||{}));let b=null;const t=await r.text();try{b=JSON.parse(t)}catch(e){b=t}return{ok:r.ok,status:r.status,body:b,range:r.headers.get('content-range')}}catch(e){return{net:true,err:String(e&&e.message||e)}}}
+const msgOf=b=>b&&typeof b==='object'?(b.message||b.error||b.msg||JSON.stringify(b)):String(b||'');
+async function run(){REPORT=[];PROBLEMS=[];$('#res').innerHTML='';$('#verdict').innerHTML='';$('#go').disabled=true;
+  sec('1. Le serveur');
+  const a=await call('/auth/v1/settings');
+  if(a.net){row('ko','La base ne répond pas','Erreur réseau : '+a.err);PROBLEMS.push({fatal:1,t:'La base ne répond pas. Si ton projet Supabase est gratuit, il a sans doute été mis en pause après une semaine d’inactivité : ouvre supabase.com, entre dans ton projet et clique sur « Restore project ».'});finish();return}
+  if(a.status===401||a.status===403){row('ko','La clé publique est refusée','Code '+a.status+' : '+msgOf(a.body));PROBLEMS.push({fatal:1,t:'La clé publique (sb_publishable_…) est refusée. Recopie-la depuis Supabase > Project Settings > API Keys, puis dis-le-moi pour que je la mette à jour.'})}
+  else if(!a.ok){row('ko','Le serveur répond avec une erreur','Code '+a.status+' : '+msgOf(a.body));PROBLEMS.push({fatal:1,t:'Le serveur renvoie une erreur ('+a.status+'). Vérifie dans Supabase que le projet est bien actif.'})}
+  else{row('ok','Le serveur répond et le projet est actif');const s=a.body||{};
+    row('in','Création de compte',(s.disable_signup?'désactivée':'autorisée')+' · '+(s.mailer_autoconfirm?'sans confirmation par e-mail':'avec confirmation par e-mail (le lien reçu doit être cliqué avant de se connecter)'));
+    if(s.disable_signup)PROBLEMS.push({t:'La création de compte est désactivée dans Supabase (Authentication > Sign In / Providers). Les responsables ne pourront pas s’inscrire.'})}
+  sec('2. Les tables');
+  const missing=new Set();
+  for(const [t,f] of TABLES){const r=await call('/rest/v1/'+t+'?select=*&limit=1');
+    if(r.net){row('ko',t,'erreur réseau');continue}
+    if(r.ok||r.status===401||r.status===403){row('ok',t+' existe',r.ok?'lecture autorisée':'existe, lecture réservée (normal)')}
+    else if(r.status===404||/could not find|does not exist/i.test(msgOf(r.body))){row('ko',t+' est introuvable','À créer avec '+f);missing.add(f)}
+    else row('ko',t,'Code '+r.status+' : '+msgOf(r.body))}
+  missing.forEach(f=>PROBLEMS.push({t:'Il manque des tables : exécute le fichier '+f+' dans Supabase > SQL Editor.'}));
+  sec('3. Les fonctions et le stockage');
+  const rp=await call('/rest/v1/rpc/claim_directory',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},H),body:JSON.stringify({p_osm:'test',p_mosque:'00000000-0000-0000-0000-000000000000'})});
+  if(rp.net)row('ko','claim_directory','erreur réseau');
+  else if(rp.status===404||/could not find the function/i.test(msgOf(rp.body))){row('ko','Fonction claim_directory introuvable','À créer avec claims_and_suggestions.sql');PROBLEMS.push({t:'La fonction de revendication manque : exécute claims_and_suggestions.sql.'})}
+  else row('ok','Fonction claim_directory présente','réponse : '+(rp.status)+' (refus normal sans connexion)');
+  const st=await call('/storage/v1/object/public/mosque-photos/test.jpg');
+  if(st.net)row('ko','Stockage des photos','erreur réseau');
+  else if(/bucket not found/i.test(msgOf(st.body))){row('ko','Espace de photos « mosque-photos » introuvable','À créer avec photos_storage.sql');PROBLEMS.push({t:'L’espace des photos manque : exécute photos_storage.sql.'})}
+  else row('ok','Espace de photos « mosque-photos » présent');
+  sec('4. Le contenu');
+  for(const [t,l] of [['mosques','Mosquées inscrites'],['mosque_directory','Mosquées dans l’annuaire'],['prayer_calendar','Jours d’horaires enregistrés']]){
+    const r=await call('/rest/v1/'+t+'?select=*',{headers:Object.assign({Prefer:'count=exact',Range:'0-0'},H)});
+    const n=r.range?(r.range.split('/')[1]):null;
+    if(r.ok&&n!==null)row('in',l,n+(n==='0'&&t==='mosque_directory'?' → lance l’import (import.html)':''));
+    else if(!r.net&&r.status!==404)row('in',l,'non lisible ('+r.status+')')}
+  finish()}
+function finish(){$('#go').disabled=false;$('#cp').style.display='inline-block';
+  const bad=PROBLEMS.length;$('#verdict').innerHTML=bad?`<div class="verdict bad"><b>${bad} problème${bad>1?'s':''} trouvé${bad>1?'s':''}</b><br>${PROBLEMS.map(p=>'• '+esc(p.t)).join('<br>')}</div>`:'<div class="verdict good"><b>✔ La base de données est accessible et complète.</b><br>Si quelque chose ne marche pas dans l’app, le problème vient d’ailleurs : dis-moi ce que tu vois.</div>';
+  REPORT.unshift('Attawqit diagnostic '+(window.BUILD?'v'+window.BUILD:'')+' — '+new Date().toISOString(),bad?'PROBLÈMES : '+PROBLEMS.map(p=>p.t).join(' | '):'Aucun problème détecté')}
+$('#go').onclick=run;
+$('#cp').onclick=async()=>{const t=REPORT.join('\n');try{await navigator.clipboard.writeText(t);$('#cp').textContent='Copié ✔'}catch(e){$('#res').insertAdjacentHTML('beforeend','<pre>'+esc(t)+'</pre>')}};
+run();
+</script></body></html>
