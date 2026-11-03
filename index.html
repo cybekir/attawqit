@@ -4,10 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
+<script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
+(function(){var B=1,H=(185+B*47)%360;
+function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
+var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
+r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
+window.BUILD=B;window.HUE=H;var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',c[0]);
+document.addEventListener('DOMContentLoaded',function(){var d=document.createElement('div');d.id='verbadge';d.textContent='v'+B+' · '+H+'°';
+d.style.cssText='position:fixed;left:8px;bottom:6px;z-index:99999;font:11px/1 sans-serif;color:#fff;background:#00000066;padding:4px 7px;border-radius:9px;pointer-events:none;opacity:.8';document.body.appendChild(d)})})();
+</script>
 <title>Attawqit</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#062f3a;--card:rgba(255,255,255,.14);--ink:#fff;--mute:#bfeeea;--gold:#ffe7b3}
+<style>:root{--c1:#062f3a;--c2:#0b5a63;--c3:#14a5a3;--c4:#2ec4b6;--c1a:#062f3acc}
+
+:root{--bg:var(--c1);--card:rgba(255,255,255,.14);--ink:#fff;--mute:#bfeeea;--gold:#ffe7b3}
 *{box-sizing:border-box}
 html,body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif}
 body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
@@ -25,7 +35,7 @@ label{display:block;margin:14px 0 4px;color:var(--mute)}
 input,textarea{width:100%;padding:10px;font:inherit;background:#ffffff14;color:var(--ink);border:1px solid #ffffff33}
 button{margin-top:18px;padding:12px 20px;font:inherit;background:var(--gold);border:0;color:#2a2200;font-weight:bold}
 /* Affichage TV */
-.tv{width:100%;height:100vh;height:100dvh;padding:2vh 3vw;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:1.5vh;text-align:center;overflow:hidden;background:linear-gradient(165deg,#062f3a 0%,#0b5a63 45%,#14a5a3 100%);color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600}
+.tv{width:100%;height:100vh;height:100dvh;padding:2vh 3vw;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;gap:1.5vh;text-align:center;overflow:hidden;background:linear-gradient(165deg,var(--c1) 0%,var(--c2) 45%,var(--c3) 100%);color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600}
 .tv h1{font-size:min(3.8vw,7vh);color:var(--gold);margin:0;overflow-wrap:anywhere}
 .tv .top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.4fr) minmax(0,1fr);gap:1.5vw;align-items:center}
 .tv .side span{font-size:min(2.4vw,4vh)}.tv .side b{display:block;font-size:min(4.6vw,9vh)}
@@ -43,7 +53,7 @@ button{margin-top:18px;padding:12px 20px;font:inherit;background:var(--gold);bor
 .ph p{font-size:3.4vw;margin:0;max-width:85vw}.ph .ar{font-size:4.4vw;direction:rtl;line-height:1.7}
 
 /* Application mobile (turquoise) */
-body.app{background:linear-gradient(165deg,#062f3a 0%,#0b5a63 45%,#14a5a3 100%) fixed;min-height:100vh;color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-variant-numeric:lining-nums}
+body.app{background:linear-gradient(165deg,var(--c1) 0%,var(--c2) 45%,var(--c3) 100%) fixed;min-height:100vh;color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-variant-numeric:lining-nums}
 .mob{max-width:480px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px 110px}
 .top{display:flex;justify-content:space-between;align-items:center}
 .rnd{min-width:48px;height:48px;padding:0 14px;border-radius:24px;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:1.15rem}
@@ -70,7 +80,7 @@ body.app{background:linear-gradient(165deg,#062f3a 0%,#0b5a63 45%,#14a5a3 100%) 
 .tv .brand,.tv h1,.ph h2{color:#ffe7b3}
 .tv .clock span,.tv .side span{color:#d9f6f3}
 button{background:#fff;color:#0b4a52;border-radius:20px}
-.sw{display:inline-block;width:52px;height:30px;border-radius:15px;background:#ffffff33;position:relative;cursor:pointer;justify-self:center}.sw:after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:#2ec4b6}.sw.on:after{left:25px}
+.sw{display:inline-block;width:52px;height:30px;border-radius:15px;background:#ffffff33;position:relative;cursor:pointer;justify-self:center}.sw:after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:var(--c4)}.sw.on:after{left:25px}
 .nrow{display:grid;grid-template-columns:1fr 64px 64px;align-items:center;gap:6px;margin:10px 0}
 </style>
 </head>
@@ -205,7 +215,14 @@ function pick(s){try{localStorage.setItem('fav_slug',s)}catch(e){}location.href=
 function removeMosque(){try{localStorage.removeItem('fav_slug')}catch(e){}location.href=location.pathname+'#reglages'}
 const gbtn='class="opt on" style="text-decoration:none;display:inline-block"';
 function onboardHTML(){return `<div class="glass"><b style="font-size:1.4rem">${tx('welcome')}</b><p>${tx('onb')}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button> <a class="opt" style="text-decoration:none;display:inline-block" href="#proche">${tx('findm')}</a></div>`}
-const CTRY=['FR','PT','DE','IT','ES','BE','NL','GB','CH','AT','TR','MA','DZ','TN'];
+const CTRY=['FR','PT','DE','IT','ES','BE','NL','GB','CH','AT','CA','TR','MA','DZ','TN','SN'];
+const FAC=[["women", "👩"], ["wudu", "🚿"], ["parking", "🅿️"], ["bike", "🚲"], ["ev", "🔌"], ["access", "♿"], ["adults", "📚"], ["kids", "🧒"], ["library", "📖"], ["blind", "👁️"], ["janaza", "🕊️"], ["eid", "🌙"], ["iftar", "🍽️"]];
+const FACL={"fr": {"women": "Espace pour femmes", "wudu": "Salle d’ablutions", "parking": "Parking", "bike": "Stationnement vélo", "ev": "Recharge voiture électrique", "access": "Accès handicapés", "adults": "Cours pour adultes", "kids": "Cours pour enfants", "library": "Bibliothèque", "blind": "Coran pour les malvoyants", "janaza": "Salât al-Janaza", "eid": "Salat al-Aïd", "iftar": "Iftar Ramadan"}, "en": {"women": "Women’s area", "wudu": "Ablution room", "parking": "Parking", "bike": "Bike parking", "ev": "EV charging", "access": "Wheelchair access", "adults": "Adult classes", "kids": "Children’s classes", "library": "Library", "blind": "Quran for the visually impaired", "janaza": "Janaza prayer", "eid": "Eid prayer", "iftar": "Ramadan iftar"}, "ar": {"women": "مصلى للنساء", "wudu": "مكان الوضوء", "parking": "موقف سيارات", "bike": "موقف دراجات", "ev": "شحن السيارات الكهربائية", "access": "وصول لذوي الإعاقة", "adults": "دروس للكبار", "kids": "دروس للأطفال", "library": "مكتبة", "blind": "مصحف لضعاف البصر", "janaza": "صلاة الجنازة", "eid": "صلاة العيد", "iftar": "إفطار رمضان"}, "de": {"women": "Frauenbereich", "wudu": "Waschraum (Wudu)", "parking": "Parkplatz", "bike": "Fahrradstellplatz", "ev": "E-Auto-Ladestation", "access": "Barrierefreier Zugang", "adults": "Kurse für Erwachsene", "kids": "Kurse für Kinder", "library": "Bibliothek", "blind": "Koran für Sehbehinderte", "janaza": "Totengebet (Janaza)", "eid": "Eid-Gebet", "iftar": "Ramadan-Iftar"}, "es": {"women": "Espacio para mujeres", "wudu": "Sala de abluciones", "parking": "Aparcamiento", "bike": "Aparcabicis", "ev": "Carga de coche eléctrico", "access": "Acceso para discapacitados", "adults": "Clases para adultos", "kids": "Clases para niños", "library": "Biblioteca", "blind": "Corán para personas con discapacidad visual", "janaza": "Oración fúnebre (Yanaza)", "eid": "Oración del Eid", "iftar": "Iftar de Ramadán"}, "pt": {"women": "Espaço para mulheres", "wudu": "Sala de abluções", "parking": "Estacionamento", "bike": "Estacionamento de bicicletas", "ev": "Carregamento de carros elétricos", "access": "Acesso para pessoas com deficiência", "adults": "Aulas para adultos", "kids": "Aulas para crianças", "library": "Biblioteca", "blind": "Alcorão para pessoas com deficiência visual", "janaza": "Oração fúnebre (Janaza)", "eid": "Oração do Eid", "iftar": "Iftar do Ramadão"}, "tr": {"women": "Kadınlar bölümü", "wudu": "Abdest alanı", "parking": "Otopark", "bike": "Bisiklet park yeri", "ev": "Elektrikli araç şarjı", "access": "Engelli erişimi", "adults": "Yetişkin dersleri", "kids": "Çocuk dersleri", "library": "Kütüphane", "blind": "Görme engelliler için Kur’an", "janaza": "Cenaze namazı", "eid": "Bayram namazı", "iftar": "Ramazan iftarı"}};
+const fl=k=>(FACL[LG()]||FACL.fr)[k]||k;
+const safeUrl=u=>/^https?:\/\//i.test(String(u||''))?String(u):'';
+const imgOk=u=>String(u||'').startsWith(SB.replace('/rest/v1','')+'/storage/');
+function facHTML(){const on=FAC.filter(([k])=>M.fac&&M.fac[k]);return on.length?`<div class="glass"><b>${tx('facTitle')}</b><p>${on.map(([k,ic])=>`<span class="opt" style="display:inline-block;cursor:default">${ic} ${esc(fl(k))}</span>`).join('')}</p></div>`:''}
+function photosHTML(){const p=(M.photos||[]).filter(imgOk);return p.length?`<div class="glass">${p.map(u=>`<img src="${esc(u)}" alt="" loading="lazy" style="width:100%;border-radius:14px;margin:6px 0">`).join('')}</div>`:''}
 const cname=c=>{try{return new Intl.DisplayNames([LG()],{type:'region'}).of(c)}catch(e){return c}};
 const inpStyle='width:100%;padding:12px;border-radius:12px;background:#ffffff1f;color:#fff;border:1px solid #ffffff33;font:inherit';
 function nearHTML(){const cc=PR.cc||'FR';
@@ -276,6 +293,8 @@ const NX2={"fr": {"cityPh": "Ville (ex. Lyon)", "goSearch": "Chercher", "cityNF"
 Object.keys(NX2).forEach(l=>Object.assign(TX[l],NX2[l]));
 const NX3={"fr": {"sgBtn": "Une mosquée manque ? Suggère-la", "sgName": "Nom de la mosquée", "sgAddr": "Adresse", "sgCity": "Ville", "sgUsePos": "Utiliser ma position", "sgSend": "Envoyer la suggestion", "sgThanks": "Merci ! Ta suggestion sera vérifiée avant d’apparaître.", "sgErr": "Envoi impossible. Réessaie plus tard.", "claimBtn": "Je suis responsable de cette mosquée", "sgPosOk": "Position ajoutée ✔"}, "en": {"sgBtn": "A mosque is missing? Suggest it", "sgName": "Mosque name", "sgAddr": "Address", "sgCity": "City", "sgUsePos": "Use my location", "sgSend": "Send the suggestion", "sgThanks": "Thank you! Your suggestion will be reviewed before it appears.", "sgErr": "Could not send. Please try again later.", "claimBtn": "I manage this mosque", "sgPosOk": "Location added ✔"}, "ar": {"sgBtn": "مسجد غير موجود؟ اقترحه", "sgName": "اسم المسجد", "sgAddr": "العنوان", "sgCity": "المدينة", "sgUsePos": "استخدام موقعي", "sgSend": "إرسال الاقتراح", "sgThanks": "شكرًا لك! ستتم مراجعة اقتراحك قبل ظهوره.", "sgErr": "تعذّر الإرسال. حاول مرة أخرى لاحقًا.", "claimBtn": "أنا مسؤول عن هذا المسجد", "sgPosOk": "تمت إضافة الموقع ✔"}, "de": {"sgBtn": "Eine Moschee fehlt? Schlage sie vor", "sgName": "Name der Moschee", "sgAddr": "Adresse", "sgCity": "Stadt", "sgUsePos": "Meinen Standort verwenden", "sgSend": "Vorschlag senden", "sgThanks": "Danke! Dein Vorschlag wird geprüft, bevor er erscheint.", "sgErr": "Senden nicht möglich. Bitte später erneut versuchen.", "claimBtn": "Ich verwalte diese Moschee", "sgPosOk": "Standort hinzugefügt ✔"}, "es": {"sgBtn": "¿Falta una mezquita? Sugiérela", "sgName": "Nombre de la mezquita", "sgAddr": "Dirección", "sgCity": "Ciudad", "sgUsePos": "Usar mi ubicación", "sgSend": "Enviar la sugerencia", "sgThanks": "¡Gracias! Tu sugerencia se revisará antes de aparecer.", "sgErr": "No se pudo enviar. Inténtalo más tarde.", "claimBtn": "Soy responsable de esta mezquita", "sgPosOk": "Ubicación añadida ✔"}, "pt": {"sgBtn": "Falta uma mesquita? Sugere-a", "sgName": "Nome da mesquita", "sgAddr": "Morada", "sgCity": "Cidade", "sgUsePos": "Usar a minha localização", "sgSend": "Enviar a sugestão", "sgThanks": "Obrigado! A tua sugestão será verificada antes de aparecer.", "sgErr": "Não foi possível enviar. Tenta mais tarde.", "claimBtn": "Sou responsável por esta mesquita", "sgPosOk": "Localização adicionada ✔"}, "tr": {"sgBtn": "Bir cami eksik mi? Öner", "sgName": "Cami adı", "sgAddr": "Adres", "sgCity": "Şehir", "sgUsePos": "Konumumu kullan", "sgSend": "Öneriyi gönder", "sgThanks": "Teşekkürler! Önerin görünmeden önce incelenecek.", "sgErr": "Gönderilemedi. Lütfen daha sonra tekrar deneyin.", "claimBtn": "Bu caminin sorumlusuyum", "sgPosOk": "Konum eklendi ✔"}};
 Object.keys(NX3).forEach(l=>Object.assign(TX[l],NX3[l]));
+const NX4={"fr": {"facTitle": "Installations et services"}, "en": {"facTitle": "Facilities and services"}, "ar": {"facTitle": "المرافق والخدمات"}, "de": {"facTitle": "Einrichtungen und Angebote"}, "es": {"facTitle": "Instalaciones y servicios"}, "pt": {"facTitle": "Instalações e serviços"}, "tr": {"facTitle": "Tesisler ve hizmetler"}};
+Object.keys(NX4).forEach(l=>Object.assign(TX[l],NX4[l]));
 // ---- notifications + son de l’adhan ----
 const idb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('attawqit',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
 const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})};
@@ -332,7 +351,7 @@ function appView(n){
   else if(h==='#proche') body=nearHTML();
   else if(h==='#reglages') body=settingsHTML();
   else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass">${esc(x)}</div>`).join(''):`<div class="glass">${tx('noann')}</div>`}
-  else if(h==='#mosquee') body=`<div class="glass"><b style="font-size:1.5rem">${esc(M.name)}</b><p>${esc(M.address)} ${esc(M.city)}</p>${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${M.website?`<p>🌐 <a href="${esc(M.website)}">${esc(M.website)}</a></p>`:''}</div>`;
+  else if(h==='#mosquee') body=`<div class="glass"><b style="font-size:1.5rem">${esc(M.name)}</b><p>${esc(M.address)} ${esc(M.city)}</p>${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
   else if(!T||!n||(!SLUG&&!PR.pos)) body=onboardHTML();
   else {
     const L=['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>{const [a,b]=T[p].split(':'),d=new Date();d.setHours(+a,+b,0,0);return{p,d}});
@@ -395,7 +414,7 @@ async function loadRemote(slug,light){
   Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
   let cal=light?M.cal:undefined; if(!light)try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
     cal={};(await rc.json()).forEach(r=>cal[r.day]=r);localStorage.setItem('cal_'+slug,JSON.stringify(cal))}catch(e){cal=ls('cal_'+slug)}
-  Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',method:st.calc_method||12,
+  Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',info:m.other_info||'',fac:m.facilities||{},photos:m.photos||[],method:st.calc_method||12,
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
     note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
 }
