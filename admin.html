@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=1,H=(185+B*47)%360;
+(function(){var B=2,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -109,13 +109,41 @@ function login(){RE=login;
     data.session?init():msg(ta('created'))};
 }
 
+{const AY={"fr": {"searchAdd": "Rechercher et ajouter une mosquée", "searchM": "Rechercher ma mosquée", "goSearch": "Chercher", "notFound": "Ta mosquée n’est pas dans la liste ?", "createManual": "La créer à la main", "manageThis": "Gérer cette mosquée", "alreadyReg": "Déjà inscrite sur Attawqit", "searching": "Recherche en cours…", "cityNF": "Ville introuvable. Vérifie l’orthographe et le pays.", "noResult": "Aucune mosquée trouvée près de cette ville."}, "en": {"searchAdd": "Search and add a mosque", "searchM": "Find my mosque", "goSearch": "Search", "notFound": "Your mosque is not in the list?", "createManual": "Create it manually", "manageThis": "Manage this mosque", "alreadyReg": "Already registered on Attawqit", "searching": "Searching…", "cityNF": "City not found. Check the spelling and the country.", "noResult": "No mosque found near this city."}, "ar": {"searchAdd": "البحث عن مسجد وإضافته", "searchM": "البحث عن مسجدي", "goSearch": "بحث", "notFound": "مسجدك غير موجود في القائمة؟", "createManual": "إنشاؤه يدويًا", "manageThis": "إدارة هذا المسجد", "alreadyReg": "مسجّلة بالفعل في Attawqit", "searching": "جارٍ البحث…", "cityNF": "لم يتم العثور على المدينة. تحقق من الإملاء والبلد.", "noResult": "لم يتم العثور على مساجد قرب هذه المدينة."}, "de": {"searchAdd": "Moschee suchen und hinzufügen", "searchM": "Meine Moschee finden", "goSearch": "Suchen", "notFound": "Deine Moschee ist nicht in der Liste?", "createManual": "Manuell erstellen", "manageThis": "Diese Moschee verwalten", "alreadyReg": "Bereits auf Attawqit registriert", "searching": "Suche läuft…", "cityNF": "Stadt nicht gefunden. Prüfe die Schreibweise und das Land.", "noResult": "Keine Moschee in der Nähe dieser Stadt gefunden."}, "es": {"searchAdd": "Buscar y añadir una mezquita", "searchM": "Buscar mi mezquita", "goSearch": "Buscar", "notFound": "¿Tu mezquita no está en la lista?", "createManual": "Crearla a mano", "manageThis": "Gestionar esta mezquita", "alreadyReg": "Ya registrada en Attawqit", "searching": "Buscando…", "cityNF": "Ciudad no encontrada. Revisa la ortografía y el país.", "noResult": "No se encontró ninguna mezquita cerca de esta ciudad."}, "pt": {"searchAdd": "Pesquisar e adicionar uma mesquita", "searchM": "Procurar a minha mesquita", "goSearch": "Pesquisar", "notFound": "A tua mesquita não está na lista?", "createManual": "Criá-la manualmente", "manageThis": "Gerir esta mesquita", "alreadyReg": "Já registada no Attawqit", "searching": "A pesquisar…", "cityNF": "Cidade não encontrada. Verifica a ortografia e o país.", "noResult": "Nenhuma mesquita encontrada perto desta cidade."}, "tr": {"searchAdd": "Cami ara ve ekle", "searchM": "Camimi bul", "goSearch": "Ara", "notFound": "Camin listede yok mu?", "createManual": "Elle oluştur", "manageThis": "Bu camiyi yönet", "alreadyReg": "Attawqit’te zaten kayıtlı", "searching": "Aranıyor…", "cityNF": "Şehir bulunamadı. Yazımı ve ülkeyi kontrol edin.", "noResult": "Bu şehrin yakınında cami bulunamadı."}};Object.keys(TXA).forEach(l=>Object.assign(TXA[l],AY[l]))}
+const CTRYA=['FR','PT','DE','IT','ES','BE','NL','GB','CH','AT','CA','TR','MA','DZ','TN','SN'];
+const cnameA=c=>{try{return new Intl.DisplayNames([AL],{type:'region'}).of(c)}catch(e){return c}};
+const kmA=(a,b,c,e)=>{const R=Math.PI/180,x=(c-a)*R,y=(e-b)*R,h=Math.sin(x/2)**2+Math.cos(a*R)*Math.cos(c*R)*Math.sin(y/2)**2;return 6371*2*Math.asin(Math.sqrt(h))};
+async function nearRowsA(p){let reg=[],dir=[];
+  for(const d of [.15,.4,1.2,4]){
+    const q=t=>{let x=sb.from(t).select(t==='mosques'?'id,name,city,address,lat,lng':'osm_id,name,city,address,lat,lng,country').gte('lat',p.lat-d).lte('lat',p.lat+d).gte('lng',p.lng-d).lte('lng',p.lng+d);
+      if(t==='mosque_directory')x=x.is('claimed_mosque_id',null);return x.limit(300)};
+    const [a,b]=await Promise.all([q('mosques'),q('mosque_directory')]);reg=a.data||[];dir=b.data||[];if(reg.length+dir.length>=10)break}
+  reg.forEach(m=>m.reg=1);dir.forEach(m=>m.reg=0);
+  const all=reg.concat(dir.filter(x=>!reg.some(r=>kmA(r.lat,r.lng,x.lat,x.lng)<.08)));
+  all.forEach(m=>m.d=kmA(p.lat,p.lng,m.lat,m.lng));all.sort((a,b)=>a.d-b.d);return all.slice(0,10)}
+function searchScreen(){RE=searchScreen;
+  app.innerHTML=LB()+`<p><a href="#" id="back">${ta('back')}</a></p><h1>${ta('searchM')}</h1>
+  <div class="card"><label>${ta('city')}</label><input id="sc"><label>${ta('country').replace(' *','')}</label>
+  <select id="sk">${CTRYA.map(c=>`<option value="${c}" ${c==='FR'?'selected':''}>${esc(cnameA(c))}</option>`).join('')}</select>
+  <button id="sgo">${ta('goSearch')}</button></div><div id="sres"></div>
+  <div class="card">${ta('notFound')}<br><button id="manual" class="alt">${ta('createManual')}</button></div>`;
+  $('#back').onclick=e=>{e.preventDefault();list()};$('#manual').onclick=()=>{CLAIM=null;edit()};$('#sgo').onclick=doSearch;
+  $('#sc').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()})}
+async function doSearch(){const city=v('sc'),cc=v('sk'),out=$('#sres');if(!city)return;out.innerHTML=`<div class="card">${ta('searching')}</div>`;let p;
+  try{const j=await(await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(city)}&countrycodes=${cc.toLowerCase()}&accept-language=${AL}`)).json();if(!j[0])throw 0;p={lat:+j[0].lat,lng:+j[0].lon}}
+  catch(e){out.innerHTML=`<div class="card">${ta('cityNF')}</div>`;return}
+  const rows=await nearRowsA(p);
+  if(!rows.length){out.innerHTML=`<div class="card">${ta('noResult')}</div>`;return}
+  out.innerHTML=rows.map(m=>`<div class="card"><b>${esc(m.name)}</b><br>${esc([m.address,m.city].filter(Boolean).join(', '))}<br>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km<br>
+    ${m.reg?`<span style="opacity:.8">${ta('alreadyReg')}</span>`:`<button data-o="${esc(m.osm_id)}">${ta('manageThis')}</button>`}</div>`).join('');
+  document.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{CLAIM=b.dataset.o;edit()})}
 async function list(){RE=list;
   const {data,error}=await sb.from('mosque_users').select('mosques(id,name,city)').eq('user_id',U.id);
   if(error) return msg(error.message);
   const ms=data.map(r=>r.mosques).filter(Boolean);
-  app.innerHTML=LB()+`<h1>${ta('mymosques')}</h1>${ms.map(m=>`<div class="card"><b>${esc(m.name)}</b><br>${esc(m.city)}<br><button data-id="${m.id}">${ta('manage')}</button></div>`).join('')||`<p>${ta('nomosque')}</p>`}<button id="new">${ta('addm')}</button><button id="out" class="alt">${ta('logout')}</button>`;
+  app.innerHTML=LB()+`<h1>${ta('mymosques')}</h1>${ms.map(m=>`<div class="card"><b>${esc(m.name)}</b><br>${esc(m.city)}<br><button data-id="${m.id}">${ta('manage')}</button></div>`).join('')||`<p>${ta('nomosque')}</p>`}<button id="srch">🔍 ${ta('searchAdd')}</button><button id="new" class="alt">${ta('addm')}</button><button id="out" class="alt">${ta('logout')}</button>`;
   document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>edit(b.dataset.id));
-  $('#new').onclick=()=>edit(); $('#out').onclick=async()=>{await sb.auth.signOut();init()};
+  $('#srch').onclick=searchScreen; $('#new').onclick=()=>{CLAIM=null;edit()}; $('#out').onclick=async()=>{await sb.auth.signOut();init()};
 }
 
 async function edit(id){RE=()=>edit(id);
@@ -131,7 +159,7 @@ async function edit(id){RE=()=>edit(id);
   const c=(s.fixed_minutes||{}).calc||{}, pre=ANG[s.calc_method??12]||ANG[12], fa0=c.fa??pre[0], ia0=c.ia===undefined?pre[1]:c.ia;
   const w=(s.iqama||{}).wait_min||{fajr:30,dhuhr:10,asr:10,maghrib:10,isha:10};
   const f=(i,l,val,t='text')=>`<label>${l}</label><input id="${i}" type="${t}" value="${esc(val)}">`;
-  app.innerHTML=LB()+`<p><a href="#" id="back">${ta('back')}</a></p><h1>${esc(m.name)||ta('newm')}</h1>${claimNote?`<div class="card">${ta('claimNote')}</div>`:''}
+  app.innerHTML=LB()+`<p><a href="#" id="back">${ta('back')}</a></p><h1>${esc(m.name)||ta('newm')}</h1>${claimNote?`<div class="card">${ta('claimNote')}</div>`:''}${!id&&!claimNote?`<button class="alt" id="tosearch">🔍 ${ta('searchAdd')}</button>`:''}
   ${id?`<div class="card">${ta('tvscreen')} : <a href="/?m=${m.slug}#tv" target="_blank">/?m=${m.slug}#tv</a><br>${ta('mobilever')} : <a href="/?m=${m.slug}" target="_blank">/?m=${m.slug}</a></div>`:''}
   <h2>${ta('sheet')}</h2>
   ${f('n',ta('name'),m.name)}${f('ad',ta('address'),m.address)}
@@ -170,6 +198,7 @@ async function edit(id){RE=()=>edit(id);
     if(x==='official'){const k=OFF[v('co').toLowerCase()];if(k){$('#me').value=k;$('#me').onchange()}else msg(ta('officialNone'))}};
   $('#src').onchange=sync; {const x=v('src');$('#autoBox').style.display=x==='calendar'?'none':'block';const cb=$('#csvBox');if(cb)cb.style.display=x==='calendar'?'block':'none'}
   initMap();
+  if($('#tosearch'))$('#tosearch').onclick=searchScreen;
   if(id){let ph=[...(m.photos||[])];const bk='mosque-photos';
     const draw=()=>{$('#ph').innerHTML=ph.map(u=>`<span class="thumb"><img src="${esc(u)}" alt=""><button class="alt" data-pd="${esc(u)}">✕</button></span>`).join('');
       document.querySelectorAll('[data-pd]').forEach(b=>b.onclick=async()=>{const u=b.dataset.pd;try{await sb.storage.from(bk).remove([u.split('/'+bk+'/')[1]])}catch(e){}

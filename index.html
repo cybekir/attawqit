@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=1,H=(185+B*47)%360;
+(function(){var B=2,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -114,7 +114,7 @@ async function getTimes(){
   const now=new Date(), day=iso(now), row=(M.cal||{})[day]; let t=null;
   if(row) t={Fajr:row.fajr,Sunrise:row.sunrise,Dhuhr:row.dhuhr,Asr:row.asr,Maghrib:row.maghrib,Isha:row.isha};
   else if(M.lat!=null){try{const c=calcDay(now.getFullYear(),now.getMonth()+1,now.getDate(),+M.lat,+M.lng,M.tz||Intl.DateTimeFormat().resolvedOptions().timeZone,M.method,M.calc);t={Fajr:c.fajr,Sunrise:c.sunrise,Dhuhr:c.dhuhr,Asr:c.asr,Maghrib:c.maghrib,Isha:c.isha}}catch(e){}}
-  else if(!SLUG&&!PR.pos&&!location.hash.startsWith('#tv')){} // pas de position : écran de bienvenue
+  else if(!SLUG&&!PR.pos&&!PR.dir&&!location.hash.startsWith('#tv')){} // pas de position : écran de bienvenue
   else { // mode démo sans mosquée : service externe
     const ck='times_'+day+M.city+M.country+M.method;
     try{const r=await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(M.city)}&country=${encodeURIComponent(M.country)}&method=${M.method}`);t=(await r.json()).data.timings;localStorage.setItem(ck,JSON.stringify(t))}catch(e){try{t=JSON.parse(localStorage.getItem(ck))}catch(_){}}
@@ -203,16 +203,21 @@ const LOC={fr:'fr-FR',en:'en-GB',ar:'ar-u-nu-latn',de:'de-DE',es:'es-ES',pt:'pt-
 const LANGS=[['fr','Français'],['en','English'],['ar','العربية'],['de','Deutsch'],['es','Español'],['pt','Português'],['tr','Türkçe']];
 const fmt=s=>{if(!H12()||!s||s.indexOf(':')<0)return s;const [h,m]=s.split(':').map(Number);return ((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(LG()==='ar'?(h<12?'ص':'م'):(h<12?'AM':'PM'))};
 const km=(a,b,c,d)=>{const dl=(c-a)*R,dg=(d-b)*R,h=Math.sin(dl/2)**2+Math.cos(a*R)*Math.cos(c*R)*Math.sin(dg/2)**2;return 6371*2*Math.asin(Math.sqrt(h))};
-const getPos=()=>new Promise((ok,ko)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>ok({lat:p.coords.latitude,lng:p.coords.longitude}),ko,{enableHighAccuracy:true,timeout:15000}):ko(new Error('no geo')));
-function applyPersonal(){ if(SLUG||!PR.pos)return;
-  Object.assign(M,{name:tx('myloc'),city:'',country:'',address:'',lat:PR.pos.lat,lng:PR.pos.lng,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,method:PR.method,calc:{fa:PR.fa,ia:PR.ia,imin:PR.imin,asr:PR.asr},cal:{},manual:{},note:'',iqama:def.iqama}) }
+const getPos=()=>new Promise((ok,ko)=>{if(!navigator.geolocation)return ko(new Error('no geo'));
+  const good=p=>ok({lat:p.coords.latitude,lng:p.coords.longitude});
+  navigator.geolocation.getCurrentPosition(good,e=>{if(e&&e.code===1)return ko(e);navigator.geolocation.getCurrentPosition(good,ko,{enableHighAccuracy:true,timeout:15000,maximumAge:0})},{enableHighAccuracy:false,timeout:8000,maximumAge:600000})});
+const geoMsg=e=>tx(e&&e.code===1?'geoDenied':'geoOff');
+function applyPersonal(){const P=PR.dir||PR.pos;if(SLUG||!P)return;const D=PR.dir;
+  Object.assign(M,{name:D?D.name:tx('myloc'),city:D?D.city:'',country:D?cname(D.country):'',address:D?D.address:'',phone:'',email:'',website:'',info:'',association:'',fac:{},photos:[],
+    lat:P.lat,lng:P.lng,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,method:PR.method,calc:{fa:PR.fa,ia:PR.ia,imin:PR.imin,asr:PR.asr},cal:{},manual:{},note:'',iqama:def.iqama}) }
 async function refresh(){applyPersonal();T=await getTimes();view()}
-async function usePos(){try{PR.pos=await getPos();savePR();await refresh()}catch(e){alert(tx('noloc'))}}
+async function usePos(){try{PR.pos=await getPos();savePR();await refresh()}catch(e){alert(geoMsg(e))}}
+async function useCityPos(){if(!LASTCITY)return;PR.pos=LASTCITY;PR.dir=null;savePR();location.hash='';await refresh()}
 async function setPref(k,v){PR[k]=v;savePR();await refresh()}
-async function applyPreset(v){v=+v;PR.method=v;const p=ANG[v];if(p){PR.fa=p[0];PR.ia=p[1];PR.imin=p[1]==null?90:null}savePR();await refresh()}
-async function setAngle(k,v){PR[k]=v===''?null:+v;if(k==='ia')PR.imin=v===''?90:null;PR.method=0;savePR();await refresh()}
-function pick(s){try{localStorage.setItem('fav_slug',s)}catch(e){}location.href=location.pathname+'?m='+encodeURIComponent(s)}
-function removeMosque(){try{localStorage.removeItem('fav_slug')}catch(e){}location.href=location.pathname+'#reglages'}
+async function applyPreset(v){v=+v;PR.mset=1;PR.method=v;const p=ANG[v];if(p){PR.fa=p[0];PR.ia=p[1];PR.imin=p[1]==null?90:null}savePR();await refresh()}
+async function setAngle(k,v){PR.mset=1;PR[k]=v===''?null:+v;if(k==='ia')PR.imin=v===''?90:null;PR.method=0;savePR();await refresh()}
+function pick(s){PR.dir=null;savePR();try{localStorage.setItem('fav_slug',s)}catch(e){}location.href=location.pathname+'?m='+encodeURIComponent(s)}
+function removeMosque(){PR.dir=null;savePR();try{localStorage.removeItem('fav_slug')}catch(e){}location.href=location.pathname+'#reglages'}
 const gbtn='class="opt on" style="text-decoration:none;display:inline-block"';
 function onboardHTML(){return `<div class="glass"><b style="font-size:1.4rem">${tx('welcome')}</b><p>${tx('onb')}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button> <a class="opt" style="text-decoration:none;display:inline-block" href="#proche">${tx('findm')}</a></div>`}
 const CTRY=['FR','PT','DE','IT','ES','BE','NL','GB','CH','AT','CA','TR','MA','DZ','TN','SN'];
@@ -249,34 +254,44 @@ async function nearRows(p){
     const bb=`lat=gte.${p.lat-d}&lat=lte.${p.lat+d}&lng=gte.${p.lng-d}&lng=lte.${p.lng+d}`;
     try{const [a,b]=await Promise.all([
       fetch(`${SB}/mosques?select=slug,name,city,address,lat,lng&show_on_map=eq.true&${bb}&limit=500`,H).then(r=>r.json()),
-      fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng&claimed_mosque_id=is.null&${bb}&limit=500`,H).then(r=>r.json())]);
+      fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng,country&claimed_mosque_id=is.null&${bb}&limit=500`,H).then(r=>r.json())]);
       reg=Array.isArray(a)?a:[];dir=Array.isArray(b)?b:[]}catch(e){break}
     if(reg.length+dir.length>=10)break;
   }
   reg.forEach(m=>m.reg=1);dir.forEach(m=>m.reg=0);
   const all=reg.concat(dir.filter(x=>!reg.some(r=>km(r.lat,r.lng,x.lat,x.lng)<.08)));   // pas de doublon avec une mosquée inscrite
   all.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng));all.sort((a,b)=>a.d-b.d);return all.slice(0,10)}
-function renderRows(rows){const nl=$('#nl');
-  if(!rows.length){nl.innerHTML=`<div class="glass">${tx('none')}</div>`;return}
-  nl.innerHTML=rows.map(m=>`<div class="glass"><b>${esc(m.name)}</b><p>${esc([m.address,m.city].filter(Boolean).join(', '))}</p><p>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km</p>
-    ${m.reg?`<button class="opt on" data-s="${esc(m.slug)}">${tx('choose')}</button>`:`<p style="font-size:.85rem;opacity:.75">${tx('notOpen')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(m.osm_id)}">${tx('claimBtn')}</a>`}
-    <a class="opt" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${+m.lat},${+m.lng}">${tx('route')}</a></div>`).join('')
+function renderRows(rows,city){const nl=$('#nl');NEARROWS=rows;
+  const cb=city?`<div class="glass"><button class="opt" onclick="useCityPos()">${tx('useCity')}</button></div>`:'';
+  if(!rows.length){nl.innerHTML=cb+`<div class="glass">${tx('none')}</div>`;return}
+  nl.innerHTML=cb+rows.map((m,i)=>`<div class="glass"><b>${esc(m.name)}</b><p>${esc([m.address,m.city].filter(Boolean).join(', '))}</p><p>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km</p>
+    ${m.reg?'':`<p style="font-size:.85rem;opacity:.75">${tx('notOpen')}</p>`}
+    <button class="opt on" ${m.reg?`data-s="${esc(m.slug)}"`:`data-d="${i}"`}>${tx('saveMosque')}</button>
+    <a class="opt" style="text-decoration:none;display:inline-block" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${+m.lat},${+m.lng}">${tx('route')}</a>
+    ${m.reg?'':`<a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(m.osm_id)}">${tx('claimBtn')}</a>`}</div>`).join('')
     +`<p style="font-size:.8rem;opacity:.7;text-align:center">${tx('osmCredit')}</p>`;
-  nl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(b.dataset.s))}
+  nl.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>pick(b.dataset.s));
+  nl.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>pickDir(+b.dataset.d))}
+const CCM={FR:12,MA:21,TN:18,DZ:19,TR:13,EG:5,SA:4,GB:3,DE:3,PT:3,IT:3,ES:3,BE:12,NL:3,CH:3,AT:3,CA:2,SN:3};
+let NEARROWS=[],LASTCITY=null;
+function pickDir(i){const m=NEARROWS[i];if(!m)return;
+  PR.dir={id:m.osm_id,name:m.name,address:m.address||'',city:m.city||'',lat:+m.lat,lng:+m.lng,country:m.country||PR.cc||'FR'};
+  if(!PR.mset){const k=CCM[PR.dir.country]||3,p=ANG[k];PR.method=k;if(p){PR.fa=p[0];PR.ia=p[1];PR.imin=p[1]==null?90:null}}
+  try{localStorage.removeItem('fav_slug')}catch(e){}savePR();location.href=location.pathname}
 async function searchCity(){const city=$('#qc').value.trim(),cc=$('#qk').value,nl=$('#nl');if(!city)return;PR.city=city;PR.cc=cc;savePR();
   nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
   try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(city)}&countrycodes=${cc.toLowerCase()}&accept-language=${LG()}`);
     const j=await r.json();if(!j[0])throw 0;p={lat:+j[0].lat,lng:+j[0].lon}}catch(e){nl.innerHTML=`<div class="glass">${tx('cityNF')}</div>`;return}
-  renderRows(await nearRows(p))}
+  LASTCITY=p;renderRows(await nearRows(p),true)}
 async function findNear(){const nl=$('#nl');nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
-  try{p=PR.pos=await getPos();savePR()}catch(e){nl.innerHTML=`<div class="glass">${tx('noloc')}</div>`;return}
+  try{p=PR.pos=await getPos();savePR()}catch(e){nl.innerHTML=`<div class="glass">${geoMsg(e)}</div>`;return}
   renderRows(await nearRows(p))}
 function settingsHTML(){
   const o=(on,lab,js)=>`<button class="opt ${on?'on':''}" onclick="${js}">${lab}</button>`;
   const ANGS=[12,13,14,15,16,17,17.5,18,18.5,19,19.5,20];
   const MET=[[12,'France — UOIF (12° / 12°)'],[3,'MWL (18° / 17°)'],[21,'Maroc (19° / 17°)'],[18,'Tunisie (18° / 18°)'],[19,'Algérie (18° / 17°)'],[13,'Diyanet (18° / 17°)'],[4,'Umm al-Qura (18,5° / 90 min)'],[5,'Égypte (19,5° / 17,5°)'],[2,'ISNA (15° / 15°)'],[1,'Karachi (18° / 18°)'],[0,tx('custom')]];
   const sel=(opts,cur,js)=>`<select onchange="${js}">${opts.map(([v,l])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${l}</option>`).join('')}</select>`;
-  return `<div class="glass"><b>${tx('mosq')}</b><p>${SLUG?esc(M.name):tx('nomosq')}</p>${SLUG?`<button class="opt" onclick="removeMosque()">${tx('remove')}</button>`:`<a ${gbtn} href="#proche">${tx('findm')}</a>`}</div>
+  return `<div class="glass"><b>${tx('mosq')}</b><p>${SLUG||PR.dir?esc(M.name):tx('nomosq')}</p>${SLUG||PR.dir?`<button class="opt" onclick="removeMosque()">${tx('remove')}</button>`:`<a ${gbtn} href="#proche">${tx('findm')}</a>`}</div>
   <div class="glass"><b>${tx('pos')}</b><p>${PR.pos?PR.pos.lat.toFixed(4)+', '+PR.pos.lng.toFixed(4):'—'}</p><button class="opt on" onclick="usePos()">${tx('usepos')}</button></div>
   ${notifHTML()}<div class="glass"><b>${tx('lang')}</b><p>${LANGS.map(([c,n])=>o(LG()===c,n,`setPref('lang','${c}')`)).join('')}</p></div>
   <div class="glass"><b>${tx('hfmt')}</b><p>${o(!PR.h12,tx('h24'),"setPref('h12',false)")}${o(PR.h12,tx('h12'),"setPref('h12',true)")}</p></div>
@@ -295,6 +310,8 @@ const NX3={"fr": {"sgBtn": "Une mosquée manque ? Suggère-la", "sgName": "Nom d
 Object.keys(NX3).forEach(l=>Object.assign(TX[l],NX3[l]));
 const NX4={"fr": {"facTitle": "Installations et services"}, "en": {"facTitle": "Facilities and services"}, "ar": {"facTitle": "المرافق والخدمات"}, "de": {"facTitle": "Einrichtungen und Angebote"}, "es": {"facTitle": "Instalaciones y servicios"}, "pt": {"facTitle": "Instalações e serviços"}, "tr": {"facTitle": "Tesisler ve hizmetler"}};
 Object.keys(NX4).forEach(l=>Object.assign(TX[l],NX4[l]));
+const NX5={"fr": {"saveMosque": "Enregistrer cette mosquée", "notOpen": "Pas encore sur Attawqit : horaires calculés selon sa position.", "calcAuto": "Cette mosquée n’a pas encore sa page Attawqit : les horaires sont calculés automatiquement.", "noAnnPick": "Les annonces apparaissent quand tu enregistres une mosquée inscrite sur Attawqit.", "geoDenied": "Localisation refusée. Autorise-la dans les réglages du navigateur (cadenas près de l’adresse), puis réessaie. Ou tape ta ville.", "geoOff": "Position introuvable. Si tu as ouvert le lien depuis WhatsApp ou une autre appli, ouvre-le dans Chrome ou Safari. Ou tape ta ville.", "useCity": "Utiliser cette ville comme ma position"}, "en": {"saveMosque": "Save this mosque", "notOpen": "Not on Attawqit yet: times are calculated from its location.", "calcAuto": "This mosque has no Attawqit page yet: times are calculated automatically.", "noAnnPick": "Notices appear when you save a mosque registered on Attawqit.", "geoDenied": "Location denied. Allow it in your browser settings (padlock next to the address), then retry. Or type your city.", "geoOff": "Location not found. If you opened the link from WhatsApp or another app, open it in Chrome or Safari. Or type your city.", "useCity": "Use this city as my location"}, "ar": {"saveMosque": "حفظ هذا المسجد", "notOpen": "ليس على Attawqit بعد: تُحسب المواقيت حسب موقعه.", "calcAuto": "ليس لهذا المسجد صفحة على Attawqit بعد: تُحسب المواقيت تلقائيًا.", "noAnnPick": "تظهر الإعلانات عند حفظ مسجد مسجّل في Attawqit.", "geoDenied": "تم رفض الموقع. اسمح به من إعدادات المتصفح (القفل بجانب العنوان) ثم أعد المحاولة، أو اكتب اسم مدينتك.", "geoOff": "تعذّر تحديد الموقع. إذا فتحت الرابط من واتساب أو تطبيق آخر، افتحه في Chrome أو Safari، أو اكتب اسم مدينتك.", "useCity": "استخدام هذه المدينة كموقعي"}, "de": {"saveMosque": "Diese Moschee speichern", "notOpen": "Noch nicht auf Attawqit: Zeiten werden nach seinem Standort berechnet.", "calcAuto": "Diese Moschee hat noch keine Attawqit-Seite: Die Zeiten werden automatisch berechnet.", "noAnnPick": "Mitteilungen erscheinen, wenn du eine auf Attawqit registrierte Moschee speicherst.", "geoDenied": "Standort verweigert. Erlaube ihn in den Browsereinstellungen (Schloss neben der Adresse) und versuche es erneut. Oder gib deine Stadt ein.", "geoOff": "Standort nicht gefunden. Wenn du den Link aus WhatsApp oder einer anderen App geöffnet hast, öffne ihn in Chrome oder Safari. Oder gib deine Stadt ein.", "useCity": "Diese Stadt als meinen Standort verwenden"}, "es": {"saveMosque": "Guardar esta mezquita", "notOpen": "Aún no está en Attawqit: los horarios se calculan según su ubicación.", "calcAuto": "Esta mezquita aún no tiene página en Attawqit: los horarios se calculan automáticamente.", "noAnnPick": "Los anuncios aparecen cuando guardas una mezquita registrada en Attawqit.", "geoDenied": "Ubicación denegada. Permítela en los ajustes del navegador (candado junto a la dirección) y reinténtalo. O escribe tu ciudad.", "geoOff": "No se encontró la ubicación. Si abriste el enlace desde WhatsApp u otra app, ábrelo en Chrome o Safari. O escribe tu ciudad.", "useCity": "Usar esta ciudad como mi ubicación"}, "pt": {"saveMosque": "Guardar esta mesquita", "notOpen": "Ainda não está no Attawqit: os horários são calculados pela sua localização.", "calcAuto": "Esta mesquita ainda não tem página no Attawqit: os horários são calculados automaticamente.", "noAnnPick": "Os avisos aparecem quando guardas uma mesquita registada no Attawqit.", "geoDenied": "Localização recusada. Permite-a nas definições do navegador (cadeado junto ao endereço) e tenta de novo. Ou escreve a tua cidade.", "geoOff": "Localização não encontrada. Se abriste a ligação a partir do WhatsApp ou de outra app, abre-a no Chrome ou no Safari. Ou escreve a tua cidade.", "useCity": "Usar esta cidade como a minha localização"}, "tr": {"saveMosque": "Bu camiyi kaydet", "notOpen": "Henüz Attawqit’te yok: vakitler konumuna göre hesaplanır.", "calcAuto": "Bu caminin henüz Attawqit sayfası yok: vakitler otomatik hesaplanır.", "noAnnPick": "Duyurular, Attawqit’e kayıtlı bir camiyi kaydettiğinizde görünür.", "geoDenied": "Konum reddedildi. Tarayıcı ayarlarından (adresin yanındaki kilit) izin verip tekrar deneyin. Ya da şehrinizi yazın.", "geoOff": "Konum bulunamadı. Bağlantıyı WhatsApp veya başka bir uygulamadan açtıysanız Chrome ya da Safari’de açın. Ya da şehrinizi yazın.", "useCity": "Bu şehri konumum olarak kullan"}};
+Object.keys(NX5).forEach(l=>Object.assign(TX[l],NX5[l]));
 // ---- notifications + son de l’adhan ----
 const idb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('attawqit',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
 const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})};
@@ -350,9 +367,9 @@ function appView(n){
   if(h==='#qibla') body=qiblaHTML();
   else if(h==='#proche') body=nearHTML();
   else if(h==='#reglages') body=settingsHTML();
-  else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass">${esc(x)}</div>`).join(''):`<div class="glass">${tx('noann')}</div>`}
-  else if(h==='#mosquee') body=`<div class="glass"><b style="font-size:1.5rem">${esc(M.name)}</b><p>${esc(M.address)} ${esc(M.city)}</p>${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
-  else if(!T||!n||(!SLUG&&!PR.pos)) body=onboardHTML();
+  else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass">${esc(x)}</div>`).join(''):`<div class="glass">${tx(SLUG?'noann':'noAnnPick')}</div>`}
+  else if(h==='#mosquee') body=`<div class="glass"><b style="font-size:1.5rem">${esc(M.name)}</b><p>${esc(M.address)} ${esc(M.city)}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
+  else if(!T||!n||(!SLUG&&!PR.pos&&!PR.dir)) body=onboardHTML();
   else {
     const L=['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>{const [a,b]=T[p].split(':'),d=new Date();d.setHours(+a,+b,0,0);return{p,d}});
     const i=L.findIndex(x=>x.d>now); let nx,pv;
@@ -363,7 +380,7 @@ function appView(n){
     const cards=[['Fajr','Fajr'],['Sunrise','Chourouq'],['Dhuhr','Dhuhr'],['Asr','Asr'],['Maghrib','Maghrib'],['Isha','Isha']].map(([k,l])=>
       `<div class="pc ${k===n.p?'next':''}"><span>${PN(k)}</span><b>${fmt(T[k]||'--:--')}</b>${k!=='Sunrise'&&T[k]?`<div class="iq"><span>${tx('iqama')}</span><span>${fmt(hhmm(T[k],(M.iqama||{})[k]??10))}</span></div>`:'<div class="iq">&nbsp;</div>'}</div>`).join('');
     body=`<div class="glass cd2"><small>${tx('remaining')} ${PN(n.p)}</small><b>${n.left}</b><div class="bar"><i style="left:${pct}%"></i></div>
-    <div class="pills"><div class="pill w" onclick="location.hash='#mosquee'">${esc(M.city||M.name)}<br>${esc(M.country)}</div><div class="pill">${hij}<br>${greg}</div></div></div><div class="grid2">${cards}</div>`;
+    <div class="pills"><div class="pill w" onclick="location.hash='#mosquee'"><b>${esc(M.name)}</b><br><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></div><div class="pill">${hij}<br>${greg}</div></div></div><div class="grid2">${cards}</div>`;
   }
   const tabs=[['','🕌',tx('pray')],['#qibla','🧭',tx('qibla')],['#proche','📍',tx('near')],['#annonces','📢',tx('ann')],['#reglages','⚙️',tx('set')]].map(([k,ic,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}"><i>${ic}</i>${t}</a>`).join('');
   $('#app').innerHTML=`<div class="mob">${head}${body}</div><nav class="tabs">${tabs}</nav>`;
