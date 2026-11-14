@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=2,H=(185+B*47)%360;
+(function(){var B=4,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -60,6 +60,12 @@ async function loadSug(){const box=$('#sug');const r=await sb.from('mosque_sugge
   box.innerHTML=r.data.length?r.data.map(x=>`<div class="card"><b>${esc(x.name)}</b><br>${esc([x.address,x.city,x.country].filter(Boolean).join(', '))}<br>${x.lat!=null?x.lat.toFixed(4)+', '+x.lng.toFixed(4):'(sans position : sera géocodée)'}<br><button data-ok="${esc(x.id)}">Ajouter à l’annuaire</button><button data-no="${esc(x.id)}" style="background:#ffffff33;color:#fff">Rejeter</button></div>`).join(''):'<div class="card">Aucune suggestion en attente.</div>';
   box.querySelectorAll('[data-ok]').forEach(b=>b.onclick=()=>approve(r.data.find(x=>x.id===b.dataset.ok)));
   box.querySelectorAll('[data-no]').forEach(b=>b.onclick=async()=>{await sb.from('mosque_suggestions').delete().eq('id',b.dataset.no);loadSug()})}
+async function loadUnv(){const box=$('#unv');const r=await sb.from('mosque_directory').select('osm_id,name,address,city,country').eq('verified',false).order('imported_at',{ascending:false}).limit(50);
+  if(r.error){box.textContent=r.error.message+' (as-tu exécuté auto_add.sql ?)';return}
+  box.innerHTML=r.data.length?`<div class="card">${r.data.length} ajout(s) automatique(s) venant de l’application.<br><button id="vall">Tout valider</button></div>`+r.data.map(x=>`<div class="card"><b>${esc(x.name)}</b><br>${esc([x.address,x.city,x.country].filter(Boolean).join(', '))}<br><button data-v="${esc(x.osm_id)}">Valider</button><button data-x="${esc(x.osm_id)}" style="background:#ffffff33;color:#fff">Supprimer</button></div>`).join(''):'<div class="card">Rien à vérifier.</div>';
+  const va=box.querySelector('#vall');if(va)va.onclick=async()=>{for(const x of r.data)await sb.from('mosque_directory').update({verified:true}).eq('osm_id',x.osm_id);loadUnv()};
+  box.querySelectorAll('[data-v]').forEach(b=>b.onclick=async()=>{await sb.from('mosque_directory').update({verified:true}).eq('osm_id',b.dataset.v);loadUnv()});
+  box.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{await sb.from('mosque_directory').delete().eq('osm_id',b.dataset.x);loadUnv()})}
 async function approve(x){let lat=x.lat,lng=x.lng;
   if(lat==null){try{const q=[x.address,x.city].filter(Boolean).join(', ');const j=await(await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q='+encodeURIComponent(q)+(x.country?'&countrycodes='+x.country.toLowerCase():''))).json();if(!j[0])throw 0;lat=+j[0].lat;lng=+j[0].lon}catch(e){alert('Adresse introuvable : rejette la suggestion ou ajoute-la à la main.');return}}
   const r=await sb.from('mosque_directory').upsert({osm_id:'s-'+x.id,name:x.name,address:x.address,city:x.city,country:x.country,lat,lng},{onConflict:'osm_id'});
@@ -81,7 +87,7 @@ async function home(){const r=await sb.from('app_admins').select('user_id').eq('
   if(r.error||!r.data||!r.data.length){app.innerHTML=`<h1>Accès réservé</h1><div class="card">Ce compte n’est pas administrateur de l’annuaire.<br><br>Dans Supabase (SQL Editor), exécute :<br><code>insert into app_admins select id from auth.users where email = '${U.email}';</code><br><br>(après avoir exécuté <code>directory.sql</code>), puis recharge cette page.<br><button id="out">Déconnexion</button></div>`;
     $('#out').onclick=async()=>{await sb.auth.signOut();init()};return}
   app.innerHTML=`<h1>Importer les mosquées</h1><div class="card">Source : OpenStreetMap (données libres, © contributeurs OpenStreetMap). L’import peut durer plusieurs minutes : garde cette page ouverte.</div>
-  <div class="card">${Object.entries(C).map(([c,v])=>`<label class="ck"><input type="checkbox" name="c" value="${c}" ${['FR','PT','DE','IT'].includes(c)?'checked':''}> ${v[0]}</label>`).join('')}<br><button id="go">Lancer l’import</button></div><pre id="log"></pre><h1>Importer une seule ville</h1><div class="card"><label>Ville</label><input id="cq" placeholder="ex. Lyon" style="width:100%;padding:10px;font:inherit;background:#ffffff1f;color:#fff;border:1px solid #ffffff44;border-radius:12px"><label>Pays</label><select id="ck" style="width:100%;padding:10px;font:inherit;border-radius:12px">${Object.entries(C).map(([c,v])=>`<option value="${c}">${v[0]}</option>`).join('')}</select><button id="goc">Importer cette ville</button></div><h1>Suggestions des utilisateurs</h1><div id="sug"></div>`;
-  $('#go').onclick=run;$('#goc').onclick=runCity;loadSug()}
+  <div class="card">${Object.entries(C).map(([c,v])=>`<label class="ck"><input type="checkbox" name="c" value="${c}" ${['FR','PT','DE','IT'].includes(c)?'checked':''}> ${v[0]}</label>`).join('')}<br><button id="go">Lancer l’import</button></div><pre id="log"></pre><h1>Importer une seule ville</h1><div class="card"><label>Ville</label><input id="cq" placeholder="ex. Lyon" style="width:100%;padding:10px;font:inherit;background:#ffffff1f;color:#fff;border:1px solid #ffffff44;border-radius:12px"><label>Pays</label><select id="ck" style="width:100%;padding:10px;font:inherit;border-radius:12px">${Object.entries(C).map(([c,v])=>`<option value="${c}">${v[0]}</option>`).join('')}</select><button id="goc">Importer cette ville</button></div><h1>Suggestions des utilisateurs</h1><div id="sug"></div><h1>Ajouts automatiques à vérifier</h1><div id="unv"></div>`;
+  $('#go').onclick=run;$('#goc').onclick=runCity;loadSug();loadUnv()}
 init();
 </script></body></html>

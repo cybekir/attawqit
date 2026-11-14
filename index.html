@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=2,H=(185+B*47)%360;
+(function(){var B=4,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -82,6 +82,34 @@ body.app{background:linear-gradient(165deg,var(--c1) 0%,var(--c2) 45%,var(--c3) 
 button{background:#fff;color:#0b4a52;border-radius:20px}
 .sw{display:inline-block;width:52px;height:30px;border-radius:15px;background:#ffffff33;position:relative;cursor:pointer;justify-self:center}.sw:after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}.sw.on{background:var(--c4)}.sw.on:after{left:25px}
 .nrow{display:grid;grid-template-columns:1fr 64px 64px;align-items:center;gap:6px;margin:10px 0}
+body.app{background:radial-gradient(130% 70% at 50% -10%,var(--c2) 0%,var(--c1) 60%,#04030a 100%) fixed;min-height:100vh;color:#f4f2fb;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Noto Sans Arabic',sans-serif;font-weight:500}
+.mob{max-width:520px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px 130px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px}.cdn{font-size:1.9rem;line-height:1.15;font-weight:500}.cdn b{font-weight:800;font-variant-numeric:tabular-nums}
+.hb{display:flex;gap:10px}.rb{width:46px;height:46px;border-radius:50%;background:#ffffff14;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;flex:none}
+.sv{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sel{display:flex;align-items:center;gap:12px;margin-top:16px;padding:10px 14px;border:1px solid #ffffff2e;border-radius:22px;color:#fff;text-decoration:none}
+.av{width:42px;height:42px;border-radius:50%;background:linear-gradient(160deg,var(--c3),var(--c2));display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}.av img{width:100%;height:100%;object-fit:cover}
+.sn{display:flex;flex-direction:column;min-width:0;flex:1}.sn b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1.05rem}.sn small{opacity:.7}.chev{opacity:.7;font-size:1.3rem}
+.dts{display:flex;align-items:center;gap:12px;margin:14px 4px 0;opacity:.9}.dts i{width:1px;height:18px;background:#ffffff66}
+.seg{display:flex;gap:6px;margin:18px 0 14px;overflow-x:auto}.seg a{padding:10px 16px;border-radius:16px;color:#fff;text-decoration:none;white-space:nowrap;opacity:.85}.seg a.on{background:linear-gradient(160deg,var(--c3),var(--c2));opacity:1;font-weight:700}
+.pg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pc{background:#ffffff0f;border-radius:20px;padding:14px 4px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.pc .pn{font-size:1rem;opacity:.9}.pc .pt{font-size:1.65rem;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}.pc .pi{font-size:1.1rem;opacity:.85}
+.pc.next{background:linear-gradient(160deg,var(--c3),var(--c2));box-shadow:0 6px 24px #0006}
+.bl{width:44px;height:44px;border-radius:50%;border:0;background:#0000003a;color:#fff;display:flex;align-items:center;justify-content:center;margin-top:4px;cursor:pointer}.bl:not(.on){opacity:.55}
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-top:12px}.ex div{background:#ffffff0f;border-radius:18px;padding:14px 8px;text-align:center}.ex span{display:block;opacity:.85;font-size:.95rem}.ex b{display:block;font-size:1.45rem;margin-top:6px;font-variant-numeric:tabular-nums}
+.dk{margin-top:14px;overflow:hidden;white-space:nowrap;background:#ffffff0f;border-radius:16px;padding:12px 0;direction:ltr}.dk div{display:inline-block;animation:dk 90s linear infinite}@keyframes dk{to{transform:translateX(-50%)}}
+.bn{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:496px;margin:0 auto;display:flex;align-items:center;gap:10px;z-index:50}
+.lg{width:62px;height:62px;border-radius:50%;background:linear-gradient(160deg,var(--c3),var(--c2));display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-decoration:none;box-shadow:0 6px 20px #0008;flex:none;line-height:1.1}.lg b{font-size:.8rem}.lg small{font-size:.45rem;letter-spacing:.08em}
+.bi{flex:1;display:flex;justify-content:space-around;background:var(--c1a);backdrop-filter:blur(12px);border:1px solid #ffffff22;border-radius:30px;padding:8px 6px}
+.bi a{display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff;opacity:.6;text-decoration:none;padding:6px 10px;border-radius:20px;font-size:.62rem}.bi a.on{opacity:1;background:#ffffff1f}
+.ttl{font-size:1.6rem;font-weight:700;margin:6px 4px 4px}
+.wl{min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:14px;max-width:480px;margin:0 auto;padding:30px 22px;text-align:center}
+.lgb{width:96px;height:96px;border-radius:50%;margin:0 auto;background:linear-gradient(160deg,var(--c3),var(--c2));display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 40px #0009}.lgb b{font-size:1.4rem}.lgb small{font-size:.6rem;letter-spacing:.12em}
+.wl h1{font-size:1.9rem;margin:6px 0 0}.wl p{opacity:.85;line-height:1.5;margin:0}
+.big{padding:16px 22px;border:0;border-radius:22px;font:inherit;font-weight:700;font-size:1.1rem;color:#fff;background:linear-gradient(160deg,var(--c3),var(--c2));cursor:pointer}
+.ghost{padding:14px 22px;border-radius:22px;font:inherit;color:#fff;background:#ffffff14;border:1px solid #ffffff2e;cursor:pointer}
+.wst{background:#ffffff14;border-radius:16px;padding:12px}.wst.bad{background:#7a2a3acc}
 </style>
 </head>
 <body>
@@ -261,7 +289,7 @@ async function nearRows(p){
   reg.forEach(m=>m.reg=1);dir.forEach(m=>m.reg=0);
   const all=reg.concat(dir.filter(x=>!reg.some(r=>km(r.lat,r.lng,x.lat,x.lng)<.08)));   // pas de doublon avec une mosquée inscrite
   all.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng));all.sort((a,b)=>a.d-b.d);return all.slice(0,10)}
-function renderRows(rows,city){const nl=$('#nl');NEARROWS=rows;
+function renderRows(rows,city,tgt){const nl=$(tgt||'#nl');NEARROWS=rows;
   const cb=city?`<div class="glass"><button class="opt" onclick="useCityPos()">${tx('useCity')}</button></div>`:'';
   if(!rows.length){nl.innerHTML=cb+`<div class="glass">${tx('none')}</div>`;return}
   nl.innerHTML=cb+rows.map((m,i)=>`<div class="glass"><b>${esc(m.name)}</b><p>${esc([m.address,m.city].filter(Boolean).join(', '))}</p><p>${m.d<10?m.d.toFixed(1):Math.round(m.d)} km</p>
@@ -282,10 +310,10 @@ async function searchCity(){const city=$('#qc').value.trim(),cc=$('#qk').value,n
   nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
   try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(city)}&countrycodes=${cc.toLowerCase()}&accept-language=${LG()}`);
     const j=await r.json();if(!j[0])throw 0;p={lat:+j[0].lat,lng:+j[0].lon}}catch(e){nl.innerHTML=`<div class="glass">${tx('cityNF')}</div>`;return}
-  LASTCITY=p;renderRows(await nearRows(p),true)}
+  LASTCITY=p;renderRows(await smartRows(p),true)}
 async function findNear(){const nl=$('#nl');nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
   try{p=PR.pos=await getPos();savePR()}catch(e){nl.innerHTML=`<div class="glass">${geoMsg(e)}</div>`;return}
-  renderRows(await nearRows(p))}
+  renderRows(await smartRows(p))}
 function settingsHTML(){
   const o=(on,lab,js)=>`<button class="opt ${on?'on':''}" onclick="${js}">${lab}</button>`;
   const ANGS=[12,13,14,15,16,17,17.5,18,18.5,19,19.5,20];
@@ -312,6 +340,8 @@ const NX4={"fr": {"facTitle": "Installations et services"}, "en": {"facTitle": "
 Object.keys(NX4).forEach(l=>Object.assign(TX[l],NX4[l]));
 const NX5={"fr": {"saveMosque": "Enregistrer cette mosquée", "notOpen": "Pas encore sur Attawqit : horaires calculés selon sa position.", "calcAuto": "Cette mosquée n’a pas encore sa page Attawqit : les horaires sont calculés automatiquement.", "noAnnPick": "Les annonces apparaissent quand tu enregistres une mosquée inscrite sur Attawqit.", "geoDenied": "Localisation refusée. Autorise-la dans les réglages du navigateur (cadenas près de l’adresse), puis réessaie. Ou tape ta ville.", "geoOff": "Position introuvable. Si tu as ouvert le lien depuis WhatsApp ou une autre appli, ouvre-le dans Chrome ou Safari. Ou tape ta ville.", "useCity": "Utiliser cette ville comme ma position"}, "en": {"saveMosque": "Save this mosque", "notOpen": "Not on Attawqit yet: times are calculated from its location.", "calcAuto": "This mosque has no Attawqit page yet: times are calculated automatically.", "noAnnPick": "Notices appear when you save a mosque registered on Attawqit.", "geoDenied": "Location denied. Allow it in your browser settings (padlock next to the address), then retry. Or type your city.", "geoOff": "Location not found. If you opened the link from WhatsApp or another app, open it in Chrome or Safari. Or type your city.", "useCity": "Use this city as my location"}, "ar": {"saveMosque": "حفظ هذا المسجد", "notOpen": "ليس على Attawqit بعد: تُحسب المواقيت حسب موقعه.", "calcAuto": "ليس لهذا المسجد صفحة على Attawqit بعد: تُحسب المواقيت تلقائيًا.", "noAnnPick": "تظهر الإعلانات عند حفظ مسجد مسجّل في Attawqit.", "geoDenied": "تم رفض الموقع. اسمح به من إعدادات المتصفح (القفل بجانب العنوان) ثم أعد المحاولة، أو اكتب اسم مدينتك.", "geoOff": "تعذّر تحديد الموقع. إذا فتحت الرابط من واتساب أو تطبيق آخر، افتحه في Chrome أو Safari، أو اكتب اسم مدينتك.", "useCity": "استخدام هذه المدينة كموقعي"}, "de": {"saveMosque": "Diese Moschee speichern", "notOpen": "Noch nicht auf Attawqit: Zeiten werden nach seinem Standort berechnet.", "calcAuto": "Diese Moschee hat noch keine Attawqit-Seite: Die Zeiten werden automatisch berechnet.", "noAnnPick": "Mitteilungen erscheinen, wenn du eine auf Attawqit registrierte Moschee speicherst.", "geoDenied": "Standort verweigert. Erlaube ihn in den Browsereinstellungen (Schloss neben der Adresse) und versuche es erneut. Oder gib deine Stadt ein.", "geoOff": "Standort nicht gefunden. Wenn du den Link aus WhatsApp oder einer anderen App geöffnet hast, öffne ihn in Chrome oder Safari. Oder gib deine Stadt ein.", "useCity": "Diese Stadt als meinen Standort verwenden"}, "es": {"saveMosque": "Guardar esta mezquita", "notOpen": "Aún no está en Attawqit: los horarios se calculan según su ubicación.", "calcAuto": "Esta mezquita aún no tiene página en Attawqit: los horarios se calculan automáticamente.", "noAnnPick": "Los anuncios aparecen cuando guardas una mezquita registrada en Attawqit.", "geoDenied": "Ubicación denegada. Permítela en los ajustes del navegador (candado junto a la dirección) y reinténtalo. O escribe tu ciudad.", "geoOff": "No se encontró la ubicación. Si abriste el enlace desde WhatsApp u otra app, ábrelo en Chrome o Safari. O escribe tu ciudad.", "useCity": "Usar esta ciudad como mi ubicación"}, "pt": {"saveMosque": "Guardar esta mesquita", "notOpen": "Ainda não está no Attawqit: os horários são calculados pela sua localização.", "calcAuto": "Esta mesquita ainda não tem página no Attawqit: os horários são calculados automaticamente.", "noAnnPick": "Os avisos aparecem quando guardas uma mesquita registada no Attawqit.", "geoDenied": "Localização recusada. Permite-a nas definições do navegador (cadeado junto ao endereço) e tenta de novo. Ou escreve a tua cidade.", "geoOff": "Localização não encontrada. Se abriste a ligação a partir do WhatsApp ou de outra app, abre-a no Chrome ou no Safari. Ou escreve a tua cidade.", "useCity": "Usar esta cidade como a minha localização"}, "tr": {"saveMosque": "Bu camiyi kaydet", "notOpen": "Henüz Attawqit’te yok: vakitler konumuna göre hesaplanır.", "calcAuto": "Bu caminin henüz Attawqit sayfası yok: vakitler otomatik hesaplanır.", "noAnnPick": "Duyurular, Attawqit’e kayıtlı bir camiyi kaydettiğinizde görünür.", "geoDenied": "Konum reddedildi. Tarayıcı ayarlarından (adresin yanındaki kilit) izin verip tekrar deneyin. Ya da şehrinizi yazın.", "geoOff": "Konum bulunamadı. Bağlantıyı WhatsApp veya başka bir uygulamadan açtıysanız Chrome ya da Safari’de açın. Ya da şehrinizi yazın.", "useCity": "Bu şehri konumum olarak kullan"}};
 Object.keys(NX5).forEach(l=>Object.assign(TX[l],NX5[l]));
+const NX6={"fr": {"prayers": "Prières", "info": "Information", "midnight": "Minuit", "lastThird": "Dernier tiers", "wTitle": "Trouve ta mosquée", "wText": "Autorise ta position une seule fois : elle sert uniquement à chercher les mosquées autour de toi, puis tu choisis la tienne.", "wFind": "Trouver ma mosquée", "wCity": "Chercher par ville", "wLater": "Plus tard : utiliser seulement ma position", "wScanning": "Recherche des mosquées autour de toi…", "wFound": "Mosquées près de toi — touche la tienne :", "wNone": "Aucune mosquée trouvée ici. Essaie une ville proche."}, "en": {"prayers": "Prayers", "info": "Information", "midnight": "Midnight", "lastThird": "Last third", "wTitle": "Find your mosque", "wText": "Allow your location once: it is only used to look for mosques around you, then you pick yours.", "wFind": "Find my mosque", "wCity": "Search by city", "wLater": "Later: use my location only", "wScanning": "Looking for mosques around you…", "wFound": "Mosques near you — tap yours:", "wNone": "No mosque found here. Try a nearby city."}, "ar": {"prayers": "الصلوات", "info": "معلومات", "midnight": "منتصف الليل", "lastThird": "الثلث الأخير", "wTitle": "اعثر على مسجدك", "wText": "اسمح بالوصول إلى موقعك مرة واحدة: يُستخدم فقط للبحث عن المساجد حولك، ثم تختار مسجدك.", "wFind": "اعثر على مسجدي", "wCity": "البحث بالمدينة", "wLater": "لاحقًا: استخدام موقعي فقط", "wScanning": "جارٍ البحث عن المساجد حولك…", "wFound": "مساجد قريبة منك — اضغط على مسجدك:", "wNone": "لم يتم العثور على مساجد هنا. جرّب مدينة قريبة."}, "de": {"prayers": "Gebete", "info": "Info", "midnight": "Mitternacht", "lastThird": "Letztes Drittel", "wTitle": "Finde deine Moschee", "wText": "Erlaube deinen Standort einmalig: Er dient nur dazu, Moscheen in deiner Nähe zu suchen, dann wählst du deine.", "wFind": "Meine Moschee finden", "wCity": "Nach Stadt suchen", "wLater": "Später: nur meinen Standort verwenden", "wScanning": "Moscheen in deiner Nähe werden gesucht…", "wFound": "Moscheen in deiner Nähe — tippe auf deine:", "wNone": "Hier wurde keine Moschee gefunden. Versuche eine Stadt in der Nähe."}, "es": {"prayers": "Oraciones", "info": "Información", "midnight": "Medianoche", "lastThird": "Último tercio", "wTitle": "Encuentra tu mezquita", "wText": "Permite tu ubicación una sola vez: solo se usa para buscar mezquitas a tu alrededor y luego eliges la tuya.", "wFind": "Encontrar mi mezquita", "wCity": "Buscar por ciudad", "wLater": "Más tarde: usar solo mi ubicación", "wScanning": "Buscando mezquitas a tu alrededor…", "wFound": "Mezquitas cerca de ti — toca la tuya:", "wNone": "No se encontró ninguna mezquita aquí. Prueba una ciudad cercana."}, "pt": {"prayers": "Orações", "info": "Informação", "midnight": "Meia-noite", "lastThird": "Último terço", "wTitle": "Encontra a tua mesquita", "wText": "Permite a tua localização uma só vez: é usada apenas para procurar mesquitas à tua volta e depois escolhes a tua.", "wFind": "Encontrar a minha mesquita", "wCity": "Pesquisar por cidade", "wLater": "Mais tarde: usar só a minha localização", "wScanning": "A procurar mesquitas à tua volta…", "wFound": "Mesquitas perto de ti — toca na tua:", "wNone": "Nenhuma mesquita encontrada aqui. Tenta uma cidade próxima."}, "tr": {"prayers": "Namazlar", "info": "Bilgi", "midnight": "Gece yarısı", "lastThird": "Gecenin son üçte biri", "wTitle": "Camini bul", "wText": "Konumunuza bir kez izin verin: yalnızca çevrenizdeki camileri aramak için kullanılır, sonra kendinizinkini seçersiniz.", "wFind": "Camimi bul", "wCity": "Şehre göre ara", "wLater": "Daha sonra: yalnızca konumumu kullan", "wScanning": "Çevrenizdeki camiler aranıyor…", "wFound": "Yakınınızdaki camiler — kendinizinkine dokunun:", "wNone": "Burada cami bulunamadı. Yakın bir şehir deneyin."}};
+Object.keys(NX6).forEach(l=>Object.assign(TX[l],NX6[l]));
 // ---- notifications + son de l’adhan ----
 const idb=()=>new Promise((ok,ko)=>{const r=indexedDB.open('attawqit',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)});
 const idbSet=async(k,v)=>{const d=await idb();return new Promise((ok,ko)=>{const t=d.transaction('f','readwrite');t.objectStore('f').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error)})};
@@ -360,32 +390,79 @@ function notifHTML(){const nf=PR.nf,sw=(on,js)=>`<span class="sw ${on?'on':''}" 
   <label class="opt ${file?'on':''}" style="display:inline-block">${tx('soundFile')} — ${tx('chooseFile')}<input type="file" accept="audio/*" style="display:none" onchange="pickSound(this.files[0])"></label></p>
   ${file?`<p style="font-size:.9rem">🎵 ${esc(PR.sndName)} <button class="opt" onclick="removeSound()">${tx('removeFile')}</button></p>`:''}
   <p><button class="opt on" onclick="testAdhan()">${tx('testAdhan')}</button></p></div>`}
+// ============ Accueil : scan de la base, puis scan OpenStreetMap + ajout automatique ============
+const MIRR=['https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter'];
+function osmRow(el,cc){const t=el.tags||{},lat=el.lat??(el.center&&el.center.lat),lng=el.lon??(el.center&&el.center.lon);if(lat==null||lng==null)return null;
+  const city=t['addr:city']||t['addr:town']||t['addr:village']||t['addr:suburb']||null;
+  let name=String(t.name||t['name:fr']||t['name:ar']||t['name:en']||t.official_name||'').trim();
+  if(!name||/^(mosqu[ée]e?|مسجد|جامع)$/i.test(name)){const c=t['addr:street']||t.description||city;name=c?'Mosquée '+c:'Mosquée'}
+  return{osm_id:el.type[0]+el.id,name:name.slice(0,200),address:[t['addr:housenumber'],t['addr:street']].filter(Boolean).join(' ')||null,city,postcode:t['addr:postcode']||null,country:cc||null,lat,lng,phone:t.phone||t['contact:phone']||null,website:t.website||t['contact:website']||null}}
+async function countryOf(p){try{const j=await(await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=3&lat=${p.lat}&lon=${p.lng}`)).json();return String((j.address&&j.address.country_code)||'').toUpperCase()}catch(e){return ''}}
+async function liveScan(p){const cc=(await countryOf(p))||PR.cc||'';
+  for(const r of [3000,10000]){
+    const q=`[out:json][timeout:25];(nwr["amenity"="place_of_worship"]["religion"="muslim"](around:${r},${p.lat},${p.lng});nwr["building"="mosque"](around:${r},${p.lat},${p.lng}););out center tags;`;let data=null;
+    for(const u of MIRR){try{const res=await fetch(u,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(q)});if(res.ok){data=await res.json();break}}catch(e){}}
+    if(!data)continue;const rows=(data.elements||[]).map(el=>osmRow(el,cc)).filter(Boolean);if(rows.length>=3||r===10000)return rows}
+  return[]}
+function injectDir(rows){for(let i=0;i<rows.length;i+=60){try{fetch(`${SB}/rpc/add_directory_osm`,{method:'POST',headers:{apikey:KEYSB,'Content-Type':'application/json'},
+  body:JSON.stringify({p:rows.slice(i,i+60).map(r=>({osm_id:r.osm_id,name:r.name,address:r.address,city:r.city,postcode:r.postcode,country:r.country,lat:r.lat,lng:r.lng,phone:r.phone,website:r.website}))})}).catch(()=>{})}catch(e){}}}
+async function smartRows(p){let rows=await nearRows(p);
+  if(rows.length<3){try{const live=await liveScan(p);
+    if(live.length){injectDir(live);const add=live.filter(x=>!rows.some(r=>(r.osm_id&&r.osm_id===x.osm_id)||km(r.lat,r.lng,x.lat,x.lng)<.08)).map(x=>({...x,reg:0}));
+      rows=rows.concat(add);rows.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng));rows.sort((a,b)=>a.d-b.d);rows=rows.slice(0,10)}}catch(e){}}
+  return rows}
+async function geocode(city,cc){const j=await(await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(city)}&countrycodes=${cc.toLowerCase()}&accept-language=${LG()}`)).json();if(!j[0])throw 0;return{lat:+j[0].lat,lng:+j[0].lon}}
+function welcomeHTML(){return `<div class="wl"><div class="lgb"><b>التوقيت</b><small>ATTAWQIT</small></div><h1>${tx('wTitle')}</h1><p>${tx('wText')}</p>
+  <button class="big" onclick="autoFind()">📍 ${tx('wFind')}</button><button class="ghost" onclick="showCity()">🔍 ${tx('wCity')}</button>
+  <div id="wcity" style="display:none"><input id="wq" placeholder="${esc(tx('cityPh'))}" style="${inpStyle}" onkeydown="if(event.key==='Enter')wCitySearch()"><p><select id="wk">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${esc(cname(c))}</option>`).join('')}</select></p><button class="big" onclick="wCitySearch()">${tx('goSearch')}</button></div>
+  <div id="wst"></div><div id="wres" style="text-align:start"></div></div>`}
+function showCity(){const d=$('#wcity');if(d)d.style.display='block'}
+async function autoFind(){const st=$('#wst');st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
+  try{p=await getPos();PR.pos=p;savePR()}catch(e){st.innerHTML=`<div class="wst bad">${geoMsg(e)}</div>`;showCity();return}
+  const rows=await smartRows(p);wShow(rows,false)}
+async function wCitySearch(){const city=$('#wq').value.trim(),cc=$('#wk').value,st=$('#wst');if(!city)return;PR.city=city;PR.cc=cc;savePR();st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
+  try{p=await geocode(city,cc)}catch(e){st.innerHTML=`<div class="wst bad">${tx('cityNF')}</div>`;return}
+  LASTCITY=p;wShow(await smartRows(p),true)}
+function wShow(rows,city){$('#wst').innerHTML=`<div class="wst">${tx(rows.length?'wFound':'wNone')}</div>`;renderRows(rows,city,'#wres');
+  if(PR.pos||LASTCITY)$('#wres').insertAdjacentHTML('beforeend',`<p style="text-align:center"><button class="ghost" onclick="skipWelcome()">${tx('wLater')}</button></p>`)}
+async function skipWelcome(){if(!PR.pos&&LASTCITY){PR.pos=LASTCITY;savePR()}await refresh()}
+async function togglePN(k){if(!PR.nf.on){await toggleMaster();return}const on=PR.nf.n[k]||(k!=='Sunrise'&&PR.nf.a[k]);PR.nf.n[k]=!on;if(k!=='Sunrise')PR.nf.a[k]=!on;savePR();view()}
+// ============ Interface principale ============
+const IC={pray:'<path d="M12 3c-2.5 2-5 3.8-5 7h10c0-3.2-2.5-5-5-7zM5 10v10M19 10v10M3 20h18M9 20v-5a3 3 0 016 0v5"/>',qibla:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  near:'<path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',set:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  bell:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 004 0"/>',bell0:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 004 0M3 3l18 18"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
+const svg=k=>`<svg viewBox="0 0 24 24" class="sv">${IC[k]}</svg>`;
+const DHIKR='سبحان الله وبحمده · سبحان الله العظيم · لا إله إلا الله · أستغفر الله · ';
 function appView(n){
-  const h=location.hash, now=new Date(), esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const head=`<header class="top"><a class="rnd" href="admin.html">🔑</a><div class="brand"><b>Attawqit</b><span>التوقيت</span></div><div class="rnd">${now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hour:'2-digit',minute:'2-digit',hour12:PR.h12})}</div></header>`;
-  let body='';
-  if(h==='#qibla') body=qiblaHTML();
-  else if(h==='#proche') body=nearHTML();
-  else if(h==='#reglages') body=settingsHTML();
-  else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass">${esc(x)}</div>`).join(''):`<div class="glass">${tx(SLUG?'noann':'noAnnPick')}</div>`}
-  else if(h==='#mosquee') body=`<div class="glass"><b style="font-size:1.5rem">${esc(M.name)}</b><p>${esc(M.address)} ${esc(M.city)}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
-  else if(!T||!n||(!SLUG&&!PR.pos&&!PR.dir)) body=onboardHTML();
-  else {
-    const L=['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>{const [a,b]=T[p].split(':'),d=new Date();d.setHours(+a,+b,0,0);return{p,d}});
-    const i=L.findIndex(x=>x.d>now); let nx,pv;
-    if(i<0){nx={d:new Date(+L[0].d+864e5)};pv=L[4]}else{nx=L[i];pv=i>0?L[i-1]:{d:new Date(+L[4].d-864e5)}}
-    const pct=Math.min(100,Math.max(0,(now-pv.d)/(nx.d-pv.d)*100));
-    let hij='';try{hij=new Intl.DateTimeFormat((LOC[LG()]||'fr-FR').split('-u-')[0]+'-u-ca-islamic-umalqura'+(LG()==='ar'?'-nu-latn':''),{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH','')}catch(e){}
-    const greg=now.toLocaleDateString(LOC[LG()]||'fr-FR',{day:'numeric',month:'long',year:'numeric'});
-    const cards=[['Fajr','Fajr'],['Sunrise','Chourouq'],['Dhuhr','Dhuhr'],['Asr','Asr'],['Maghrib','Maghrib'],['Isha','Isha']].map(([k,l])=>
-      `<div class="pc ${k===n.p?'next':''}"><span>${PN(k)}</span><b>${fmt(T[k]||'--:--')}</b>${k!=='Sunrise'&&T[k]?`<div class="iq"><span>${tx('iqama')}</span><span>${fmt(hhmm(T[k],(M.iqama||{})[k]??10))}</span></div>`:'<div class="iq">&nbsp;</div>'}</div>`).join('');
-    body=`<div class="glass cd2"><small>${tx('remaining')} ${PN(n.p)}</small><b>${n.left}</b><div class="bar"><i style="left:${pct}%"></i></div>
-    <div class="pills"><div class="pill w" onclick="location.hash='#mosquee'"><b>${esc(M.name)}</b><br><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></div><div class="pill">${hij}<br>${greg}</div></div></div><div class="grid2">${cards}</div>`;
+  const h=location.hash,now=new Date(),lg=LG(),loc=LOC[lg]||'fr-FR';
+  const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces');
+  if(live&&!ready){$('#app').innerHTML=welcomeHTML();return}
+  let body='',head='';
+  const nav=`<nav class="bn"><a class="lg" href="#" aria-label="Attawqit"><b>التوقيت</b><small>ATTAWQIT</small></a><div class="bi">${[['','pray',tx('pray')],['#qibla','qibla',tx('qibla')],['#proche','near',tx('near')],['#reglages','set',tx('set')]]
+    .map(([k,i,t])=>`<a href="${k||'#'}" class="${(h===k||(k===''&&live))?'on':''}" aria-label="${t}">${svg(i)}<small>${t}</small></a>`).join('')}</div></nav>`;
+  if(!live){const ti={'#qibla':tx('qibla'),'#proche':tx('near'),'#reglages':tx('set')}[h]||'';
+    body=`<div class="ttl">${ti}</div>`+(h==='#qibla'?qiblaHTML():h==='#proche'?nearHTML():h==='#reglages'?settingsHTML():'')}
+  else{
+    let hij='';try{hij=new Intl.DateTimeFormat(loc.split('-u-')[0]+'-u-ca-islamic-umalqura'+(lg==='ar'?'-nu-latn':''),{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH','')}catch(e){}
+    const greg=now.toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'}),av=(M.photos||[]).filter(imgOk)[0];
+    const cdn=tx('cdin').replace('{p}',esc(PN(n.p))).replace('{t}','<b>'+n.left.slice(0,5)+'</b>');
+    head=`<div class="hd"><div class="cdn">${cdn}</div><div class="hb"><a class="rb" href="#reglages" aria-label="notifications">${svg(PR.nf&&PR.nf.on?'bell':'bell0')}</a><a class="rb" href="#proche" aria-label="search">${svg('search')}</a></div></div>
+    <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="chev">⌄</span></a>
+    <div class="dts"><span>${esc(hij)}</span><i></i><span>${esc(greg)}</span></div>
+    <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')]].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
+    if(h==='#mosquee')body=`<div class="glass" style="margin-top:0"><b style="font-size:1.4rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
+    else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass" style="margin-top:0">${esc(x)}</div>`).join(''):`<div class="glass" style="margin-top:0">${tx(SLUG?'noann':'noAnnPick')}</div>`}
+    else{
+      const cd=k=>{const t=T[k]||'--:--',isN=k===n.p,dl=(M.iqama||{})[k]??10,on=!!(PR.nf&&PR.nf.on&&(PR.nf.n[k]||(k!=='Sunrise'&&PR.nf.a[k])));
+        return `<div class="pc ${isN?'next':''}"><span class="pn">${esc(PN(k))}</span><b class="pt">${fmt(t)}</b><span class="pi">${k==='Sunrise'?'&nbsp;':(isN?fmt(hhmm(t,dl)):'+'+dl)}</span><button class="bl ${on?'on':''}" onclick="togglePN('${k}')" aria-label="notification">${svg(on?'bell':'bell0')}</button></div>`};
+      const mn=t=>{const [a,b]=t.split(':').map(Number);return a*60+b},mg=mn(T.Maghrib),nt=mn(T.Fajr)+1440-mg,hm2=x=>{x=Math.round(x)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
+      const ex=[...(M.jumua?[[tx('jumua'),fmt(M.jumua)]]:[]),[tx('midnight'),fmt(hm2(mg+nt/2))],[tx('lastThird'),fmt(hm2(mg+nt*2/3))]];
+      body=`<div class="pg">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div><div class="dk"><div>${DHIKR.repeat(6)}</div></div>`}
   }
-  const tabs=[['','🕌',tx('pray')],['#qibla','🧭',tx('qibla')],['#proche','📍',tx('near')],['#annonces','📢',tx('ann')],['#reglages','⚙️',tx('set')]].map(([k,ic,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}"><i>${ic}</i>${t}</a>`).join('');
-  $('#app').innerHTML=`<div class="mob">${head}${body}</div><nav class="tabs">${tabs}</nav>`;
-  if(h==='#qibla') bindQibla();
+  $('#app').innerHTML=`<div class="mob">${head}${body}</div>${nav}`;
+  if(h==='#qibla')bindQibla();
 }
+
 function view(){
   const h=location.hash; document.body.className=(h==='#admin'||h.startsWith('#tv'))?'':'app';
   if(document.documentElement){document.documentElement.lang=LG();document.documentElement.dir=LG()==='ar'?'rtl':'ltr'}
@@ -437,7 +514,7 @@ async function loadRemote(slug,light){
 }
 let SLUG=new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
 addEventListener('hashchange',view);
-(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();T=await getTimes();view();setInterval(()=>{if((location.hash===''||location.hash.startsWith('#tv'))&&T)view()},1000)})();
+(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();T=await getTimes();view();setInterval(()=>{if((location.hash===''||location.hash==='#mosquee'||location.hash==='#annonces'||location.hash.startsWith('#tv'))&&T)view()},1000)})();
 setInterval(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();const t=await getTimes();if(t)T=t},3600000);
 setInterval(async()=>{if(SLUG){await loadRemote(SLUG,true);const t=await getTimes();if(t)T=t}},60000);
 </script>

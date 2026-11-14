@@ -2,7 +2,7 @@
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=2,H=(185+B*47)%360;
+(function(){var B=4,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -59,6 +59,10 @@ async function run(){REPORT=[];PROBLEMS=[];$('#res').innerHTML='';$('#verdict').
   if(rp.net)row('ko','claim_directory','erreur réseau');
   else if(rp.status===404||/could not find the function/i.test(msgOf(rp.body))){row('ko','Fonction claim_directory introuvable','À créer avec claims_and_suggestions.sql');PROBLEMS.push({t:'La fonction de revendication manque : exécute claims_and_suggestions.sql.'})}
   else row('ok','Fonction claim_directory présente','réponse : '+(rp.status)+' (refus normal sans connexion)');
+  const ra=await call('/rest/v1/rpc/add_directory_osm',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},H),body:JSON.stringify({p:[]})});
+  if(ra.net)row('ko','add_directory_osm','erreur réseau');
+  else if(ra.status===404||/could not find the function/i.test(msgOf(ra.body))){row('ko','Fonction add_directory_osm introuvable','À créer avec auto_add.sql');PROBLEMS.push({t:'L’ajout automatique de mosquées manque : exécute auto_add.sql.'})}
+  else row('ok','Fonction add_directory_osm présente (ajout automatique des mosquées trouvées)');
   const st=await call('/storage/v1/object/public/mosque-photos/test.jpg');
   if(st.net)row('ko','Stockage des photos','erreur réseau');
   else if(/bucket not found/i.test(msgOf(st.body))){row('ko','Espace de photos « mosque-photos » introuvable','À créer avec photos_storage.sql');PROBLEMS.push({t:'L’espace des photos manque : exécute photos_storage.sql.'})}
