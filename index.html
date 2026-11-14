@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=4,H=(185+B*47)%360;
+(function(){var B=5,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -98,7 +98,7 @@ body.app{background:radial-gradient(130% 70% at 50% -10%,var(--c2) 0%,var(--c1) 
 .pc.next{background:linear-gradient(160deg,var(--c3),var(--c2));box-shadow:0 6px 24px #0006}
 .bl{width:44px;height:44px;border-radius:50%;border:0;background:#0000003a;color:#fff;display:flex;align-items:center;justify-content:center;margin-top:4px;cursor:pointer}.bl:not(.on){opacity:.55}
 .ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px;margin-top:12px}.ex div{background:#ffffff0f;border-radius:18px;padding:14px 8px;text-align:center}.ex span{display:block;opacity:.85;font-size:.95rem}.ex b{display:block;font-size:1.45rem;margin-top:6px;font-variant-numeric:tabular-nums}
-.dk{margin-top:14px;overflow:hidden;white-space:nowrap;background:#ffffff0f;border-radius:16px;padding:12px 0;direction:ltr}.dk div{display:inline-block;animation:dk 90s linear infinite}@keyframes dk{to{transform:translateX(-50%)}}
+
 .bn{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:496px;margin:0 auto;display:flex;align-items:center;gap:10px;z-index:50}
 .lg{width:62px;height:62px;border-radius:50%;background:linear-gradient(160deg,var(--c3),var(--c2));display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-decoration:none;box-shadow:0 6px 20px #0008;flex:none;line-height:1.1}.lg b{font-size:.8rem}.lg small{font-size:.45rem;letter-spacing:.08em}
 .bi{flex:1;display:flex;justify-content:space-around;background:var(--c1a);backdrop-filter:blur(12px);border:1px solid #ffffff22;border-radius:30px;padding:8px 6px}
@@ -432,7 +432,6 @@ const IC={pray:'<path d="M12 3c-2.5 2-5 3.8-5 7h10c0-3.2-2.5-5-5-7zM5 10v10M19 1
   near:'<path d="M12 21s-7-6.2-7-11a7 7 0 0114 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',set:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
   bell:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 004 0"/>',bell0:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7zM10 20a2 2 0 004 0M3 3l18 18"/>',search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'};
 const svg=k=>`<svg viewBox="0 0 24 24" class="sv">${IC[k]}</svg>`;
-const DHIKR='سبحان الله وبحمده · سبحان الله العظيم · لا إله إلا الله · أستغفر الله · ';
 function appView(n){
   const h=location.hash,now=new Date(),lg=LG(),loc=LOC[lg]||'fr-FR';
   const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces');
@@ -457,7 +456,7 @@ function appView(n){
         return `<div class="pc ${isN?'next':''}"><span class="pn">${esc(PN(k))}</span><b class="pt">${fmt(t)}</b><span class="pi">${k==='Sunrise'?'&nbsp;':(isN?fmt(hhmm(t,dl)):'+'+dl)}</span><button class="bl ${on?'on':''}" onclick="togglePN('${k}')" aria-label="notification">${svg(on?'bell':'bell0')}</button></div>`};
       const mn=t=>{const [a,b]=t.split(':').map(Number);return a*60+b},mg=mn(T.Maghrib),nt=mn(T.Fajr)+1440-mg,hm2=x=>{x=Math.round(x)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
       const ex=[...(M.jumua?[[tx('jumua'),fmt(M.jumua)]]:[]),[tx('midnight'),fmt(hm2(mg+nt/2))],[tx('lastThird'),fmt(hm2(mg+nt*2/3))]];
-      body=`<div class="pg">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div><div class="dk"><div>${DHIKR.repeat(6)}</div></div>`}
+      body=`<div class="pg">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div>`}
   }
   $('#app').innerHTML=`<div class="mob">${head}${body}</div>${nav}`;
   if(h==='#qibla')bindQibla();
