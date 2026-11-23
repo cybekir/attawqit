@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=23,H=(185+B*47)%360;
+(function(){var B=24,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -355,7 +355,7 @@ const inpStyle='width:100%;padding:12px;border-radius:12px;background:#ffffff1f;
 function nearHTML(){const cc=PR.cc||'FR';
   return `<div class="glass"><b style="font-size:1.4rem">${tx('nearT')}</b>
   <p><input id="qc" placeholder="${esc(tx('cityPh'))}" value="${esc(PR.city||'')}" style="${inpStyle}" onkeydown="if(event.key==='Enter')searchCity()"></p>
-  <p><select id="qk">${CTRY.map(c=>`<option value="${c}" ${c===cc?'selected':''}>${esc(cname(c))}</option>`).join('')}</select></p>
+  <p><select id="qk">${CTRY.map(c=>`<option value="${c}" ${c===cc?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></p>
   <button class="opt on" onclick="searchCity()">${tx('goSearch')}</button><button class="opt" onclick="findNear()">${tx('orGps')}</button></div><div id="nl"></div>
   <div class="glass"><button class="opt" onclick="toggleSg()">${tx('sgBtn')}</button>
   <div id="sg" style="display:none"><p><input id="sgn" placeholder="${esc(tx('sgName'))}" maxlength="200" style="${inpStyle}"></p>
@@ -564,6 +564,7 @@ async function geocode(city,cc){const C=String(cc||'').toUpperCase(),lc=C.toLowe
   const pick=(best,lat,lng,bb)=>({lat,lng,rel:best.osm_type==='relation'?+best.osm_id:0,bbox:bb&&bb.length===4&&bb.every(isFinite)?bb:null,cc:C});
   let j=await geocodeOne(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city)}&countrycodes=${lc}&accept-language=${LG()}`);
   if(!j)j=await geocodeOne(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city+', '+cn)}&accept-language=${LG()}`);
+  if(j){j=j.filter(x=>!(x.address&&x.address.country_code)||String(x.address.country_code).toUpperCase()===C);if(!j.length)j=null}
   if(j){const best=j.find(x=>x.osm_type==='relation'&&/administrative|city|town|village|municipality|suburb|borough/.test(String(x.type)+' '+String(x.category)))||j[0];
     const bb=(best.boundingbox||[]).map(Number);return pick(best,+best.lat,+best.lon,bb)}
   const ph=await geocodeOne(`https://photon.komoot.io/api/?q=${enc(city)}&limit=10&lang=${LG()}`);
@@ -574,19 +575,20 @@ async function geocode(city,cc){const C=String(cc||'').toUpperCase(),lc=C.toLowe
 const flagOf=c=>String.fromCodePoint(...[...String(c).toUpperCase()].map(x=>0x1F1E6+x.charCodeAt(0)-65));
 function welcomeHTML(){return `<div class="wl"><div class="lgb"><b>🕌</b><small>ATTAWQIT</small></div><h1>${tx('wTitle')}</h1><p>${tx('wText')}</p>
   <button class="big" onclick="autoFind()">📍 ${tx('wFind')}</button>
-  <div class="wsel"><select id="wk" onchange="cityDraw()">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></div>
   <div id="wcity"><input id="wq" placeholder="${esc(tx('cityPh'))}" style="${inpStyle}" onkeydown="if(event.key==='Enter')wCitySearch()"></div>
+  <div class="wsel"><select id="wk" onchange="cityDraw()">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></div>
   <button id="wgo" class="big" onclick="wCitySearch()">🔍 ${tx('goSearch')}</button>
   <div id="wst"></div><div id="wres" style="text-align:start"></div><div id="wsrc"></div></div>`}
 function cityDraw(){const k=$('#wk');if(k)PR.cc=k.value;savePR()}
 function showCity(){}
 async function autoFind(){const st=$('#wst');st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
   try{p=await getPos();PR.pos=p;savePR()}catch(e){st.innerHTML=`<div class="wst bad">${geoMsg(e)}</div>`;showCity();return}
-  const rows=await smartRows(p,r=>{if(r.length)wShow(r,false)});wShow(rows,false)}
+  const rows=await smartRows(p,r=>{if(r.length)wShow(r,false)});wShow(rows,false);if(rows.length)location.hash='#proche'}
 async function wCitySearch(){const city=$('#wq').value.trim(),cc=$('#wk').value,st=$('#wst');if(!city)return;PR.city=city;PR.cc=cc;savePR();st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
   try{p=await geocode(city,cc)}catch(e){const dbr=await cityDb(city,cc);if(dbr.length){const c0={lat:dbr[0].lat,lng:dbr[0].lng};dbr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(dbr.sort((a,b)=>a.d-b.d),true);return}const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(nr,true);return}
     st.innerHTML=`<div class="wst bad">${tx('cityNF')}</div>`;return}
-  LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true)}
+  LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true);if(rs.length)location.hash='#proche'}
+let SRESHTML='';
 function wShow(rows,city){$('#wst').innerHTML=`<div class="wst">${tx(rows.length?'wFound':'wNone')}</div>`;renderRows(rows,city,'#wres');
   if(PR.pos||LASTCITY)$('#wres').insertAdjacentHTML('beforeend',`<p style="text-align:center"><button class="ghost" onclick="skipWelcome()">${tx('wLater')}</button></p>`)}
 async function skipWelcome(){if(!PR.pos&&LASTCITY){PR.pos=LASTCITY;savePR()}await refresh()}
@@ -683,6 +685,9 @@ async function loadRemote(slug,light){
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
     note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
 }
+function restoreRes(){if(!LASTR||!LASTR[0]||!LASTR[0].length)return;const t=document.getElementById('wres')?'#wres':(document.getElementById('nl')?'#nl':null);
+  if(t)renderRows(LASTR[0],LASTR[1],t,true)}
+const _view0=view;view=function(){_view0();restoreRes()};
 let SLUG=new URLSearchParams(location.search).get('id')||new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
 addEventListener('hashchange',view);
 (async()=>{if(SLUG)await loadRemote(SLUG);else{applyPersonal();}T=await getTimes();if(!T&&(PR.dir||PR.pos)){applyPersonal();T=await getTimes()}view();setInterval(()=>{if(Date.now()-TOUCHAT<900)return;if((location.hash===''||location.hash==='#mosquee'||location.hash==='#annonces'||location.hash.startsWith('#tv'))&&T)view()},1000)})();
