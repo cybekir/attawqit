@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=7,H=(185+B*47)%360;
+(function(){var B=23,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -73,7 +73,7 @@ body.app{background:linear-gradient(165deg,var(--c1) 0%,var(--c2) 45%,var(--c3) 
 .mob button{margin-top:10px;padding:12px 20px;border:0;border-radius:20px;background:#fff;color:#0b4a52;font:inherit;font-weight:700}
 .mob a{color:#fff}.mob p{margin:8px 0}
 .opt{background:#ffffff1f;border:1px solid #ffffff33;color:#fff;border-radius:14px;padding:11px 14px;font:inherit;margin:4px 6px 0 0;cursor:pointer}.opt.on{background:#ffffff40;border-color:#fff}
-.glass select{width:100%;padding:12px;border-radius:12px;background:#ffffff1f;color:#fff;border:1px solid #ffffff33;font:inherit;margin-bottom:6px}.glass select option{color:#000}
+.glass select,.glass input[type=text],#wq,#wk,select.opt{width:100%;min-height:52px;padding:14px 16px;border-radius:16px;background:#ffffff1f;color:#fff;border:1px solid #ffffff33;font:inherit;font-size:1.05rem;margin:6px 0;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#fff 50%),linear-gradient(135deg,#fff 50%,transparent 50%);background-position:calc(100% - 22px) 52%,calc(100% - 16px) 52%;background-size:6px 6px,6px 6px;background-repeat:no-repeat}.glass select option{color:#000;font-size:1rem}
 .glass p{margin:8px 0}.tabs a{padding:8px 2px;font-size:.74rem;min-width:0}.tabs a i{font-style:normal}
 [dir=rtl] .pc b,[dir=rtl] .cd2 b,[dir=rtl] .rnd{direction:ltr;unicode-bidi:isolate}
 [dir=rtl] .tv b,[dir=rtl] .tv i,[dir=rtl] .big{direction:ltr;unicode-bidi:isolate}
@@ -147,6 +147,16 @@ body.app{background:radial-gradient(130% 70% at 50% -10%,var(--c2) 0%,var(--c1) 
 .mp-time{border-inline-start:2px solid currentColor;padding-inline-start:5px}.mp-min b{border-radius:0;height:3px;align-self:center;opacity:.5}.mp-min b:first-child{height:5px}
 .pw{width:42px;height:42px;border-radius:50%;border:2px solid #ffffff26;margin:4px 6px 0 0;cursor:pointer;color:#fff;font:inherit;font-size:.7rem;display:inline-flex;align-items:center;justify-content:center;padding:0}
 .pw.on{border-color:#fff;box-shadow:0 0 0 3px #ffffff55}
+button:disabled,.opt:disabled,.opt[aria-disabled=true],.pill:disabled{background:#ffffff1a!important;color:#8b90a0!important;border-color:#ffffff1f!important;cursor:not-allowed!important;box-shadow:none!important;opacity:.7}
+.opt.on,button.on{background:#fff!important;color:#14141c!important;border-color:#fff!important}
+.wsel{margin:10px 0}.wsel select{width:100%;min-height:52px;padding:14px 16px;border-radius:16px;font-size:1.05rem}
+#wcity{margin:10px 0}
+#wgo{width:100%;margin-top:8px}
+
+/* Sélections : non sélectionné = gris, sélectionné = blanc (règle finale, prioritaire) */
+.mob button:not(.big):not(.on):not(.pw):not(.sw),button:not(.big):not(.on):not(.pw):not(.sw):not(:disabled),.opt:not(.on),.seg a:not(.on),.lay:not(.on),.ghost:not(.on),.bi a:not(.on){background:#ffffff1f!important;color:#d7dae3!important;border-color:#ffffff33!important}
+.on:not(.pw):not(.sw),.opt.on,.seg a.on,.lay.on,.bi a.on,button.on{background:#fff!important;color:#14141c!important;border-color:#fff!important}
+.bi a.on svg,.lay.on svg{stroke:#14141c!important}
 </style>
 </head>
 <body>
@@ -223,20 +233,65 @@ function showPhase(x){
   $('#app').innerHTML=`<div class="tv ph"><h1>${esc(M.name)}</h1>${c}</div>`;
 }
 function hhmm(t,add){const [h,m]=t.split(':').map(Number),x=h*60+m+add;return String(Math.floor(x/60)%24).padStart(2,'0')+':'+String(x%60).padStart(2,'0')}
+function qiblaBearing(lat,lng){const r=Math.PI/180,f1=lat*r,f2=21.4225*r,dl=(39.8262-lng)*r;
+  return ((Math.atan2(Math.sin(dl)*Math.cos(f2),Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl))/r)+360)%360}
 function qiblaHTML(){
   const qp=PR.pos||(M.lat!=null?{lat:+M.lat,lng:+M.lng}:null);
   if(!qp) return `<div class="glass">${tx('needpos')}<br><button class="opt on" onclick="usePos()">${tx('usepos')}</button></div>`;
-  const r=Math.PI/180,f1=qp.lat*r,f2=21.4225*r,dl=(39.8262-qp.lng)*r;
-  const b=((Math.atan2(Math.sin(dl)*Math.cos(f2),Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl))/r)+360)%360;
-  return `<div class="glass" style="text-align:center"><small>${tx('qdir')}</small><b style="display:block;font-size:3rem">${Math.round(b)}°</b><small>${Math.round(km(qp.lat,qp.lng,21.4225,39.8262))} km ${tx('fromMecca')}</small>
-  <svg id="arr" viewBox="0 0 200 200" width="230" height="230" style="transition:transform .15s"><circle cx="100" cy="100" r="92" fill="none" stroke="#ffffff66" stroke-width="3"/><text x="100" y="26" text-anchor="middle" fill="#fff" font-size="20">N</text><g transform="rotate(${b} 100 100)"><path d="M100 34 L116 112 L100 102 L84 112 Z" fill="#fff3c4"/></g></svg>
-  <p>${tx('flat')}</p><button id="cmp">${tx('compass')}</button></div>`;
+  const b=qiblaBearing(qp.lat,qp.lng),dist=Math.round(km(qp.lat,qp.lng,21.4225,39.8262));
+  const ticks=Array.from({length:72},(_,k)=>{const a=k*5,big=a%30===0;return `<line x1="100" y1="${big?14:18}" x2="100" y2="${big?30:24}" stroke="#2a2f4a" stroke-width="${big?2:1}" transform="rotate(${a} 100 100)"/>`}).join('');
+  const star=Array.from({length:8},(_,k)=>`<polygon points="100,62 111,88 138,88 116,104 124,130 100,114 76,130 84,104 62,88 89,88" fill="none" stroke="#c9b27a" stroke-width="1.2" opacity=".55" transform="rotate(${k*45} 100 100)"/>`).join('');
+  const dirs=[['N',0],['E',90],['S',180],['W',270]].map(([t,a])=>`<text x="100" y="44" text-anchor="middle" font-size="17" font-weight="700" fill="#14141c" transform="rotate(${a} 100 100)">${t}</text>`).join('');
+  return `<div class="glass qb" style="text-align:center">
+  <div class="qwrap">
+    <svg viewBox="0 0 200 200" width="300" height="300" style="display:block;margin:0 auto">
+      <defs><radialGradient id="qg" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#eadfc4"/></radialGradient></defs>
+      <circle cx="100" cy="100" r="98" fill="#e9dcb8" stroke="#c9a85c" stroke-width="2"/>
+      <g id="qdial" style="transform-origin:100px 100px;transition:transform .25s linear">
+        <circle cx="100" cy="100" r="88" fill="url(#qg)" stroke="#c9a85c" stroke-width="1.5"/>
+        ${ticks}${star}${dirs}
+        <g transform="rotate(${b} 100 100)" id="qneedle">
+          <path d="M100 100 L100 36" stroke="#2c3e9a" stroke-width="5" stroke-linecap="round"/>
+          <path d="M100 100 L100 150" stroke="#e0b84c" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+          <g transform="translate(100 24)">
+            <rect x="-13" y="-13" width="26" height="26" rx="2" fill="#0b0b0f" stroke="#e0b84c" stroke-width="1.5"/>
+            <rect x="-13" y="-3" width="26" height="4" fill="#e0b84c"/>
+          </g>
+        </g>
+      </g>
+      <polygon points="100,-2 92,16 108,16" fill="#d9534f" transform="translate(0 4)"/>
+      <circle cx="100" cy="100" r="9" fill="#14141c" stroke="#e0b84c" stroke-width="2"/>
+    </svg>
+  </div>
+  <div style="font-size:2.6rem;font-weight:700;margin-top:6px">${Math.round(b)}°</div>
+  <small>${tx('qdir')} · ${dist} km ${tx('fromMecca')}</small>
+  <p id="qhint" style="margin:10px 0 4px">${tx('flat')}</p><div id="qdbg"></div>
+  <button id="cmp" class="opt on">${tx('compass')}</button>
+  </div>`;
 }
-function bindQibla(){const bt=$('#cmp');if(!bt)return;bt.onclick=async()=>{try{
-  if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission&&await DeviceOrientationEvent.requestPermission()!=='granted')return;
-  const fn=e=>{const a=$('#arr');if(!a)return;const h=e.webkitCompassHeading??(e.absolute?360-e.alpha:null);if(h!=null)a.style.transform=`rotate(${-h}deg)`};
-  addEventListener('deviceorientationabsolute',fn,true);addEventListener('deviceorientation',fn,true);bt.remove()}catch(e){alert(tx('nocompass'))}}}
-const PK='prefs_v1';
+let QB=null,QH=null;
+function qiblaTurn(){const d=document.getElementById('qdial'),n=document.getElementById('qneedle'),h=document.getElementById('qhint');if(!d)return;
+  if(QH==null){d.style.transform='rotate(0deg)';return}
+  d.style.transform=`rotate(${-QH}deg)`;
+  const b=+(QB||0),diff=((b-QH)%360+540)%360-180,hint=Math.abs(diff)<4?'✔ '+(tx('qOn')||'Qibla'):(diff>0?(tx('qRight')||'Tournez vers la droite'):(tx('qLeft')||'Tournez vers la gauche'));
+  if(h)h.textContent=hint}
+function goTo(h){if(location.hash!==h)location.hash=h;try{view()}catch(e){}}
+function bindQibla(){const bt=$('#cmp');
+  const pos=PR.pos||(M.lat!=null?{lat:+M.lat,lng:+M.lng}:null);if(pos)QB=qiblaBearing(pos.lat,pos.lng);
+  let got=false;
+  let nmes=0;const fn=e=>{nmes++;let h=null;
+    dbg('Capteur : '+(e.type)+' · alpha '+(e.alpha==null?'—':Math.round(e.alpha))+'° · absolu '+(e.absolute?'oui':'non')+' · mesures '+nmes);
+    if(typeof e.webkitCompassHeading==='number'&&e.webkitCompassHeading>=0)h=e.webkitCompassHeading;
+    else if(e.alpha!=null)h=(360-e.alpha)%360;
+    if(h!=null){got=true;QH=h;qiblaTurn()}};
+  if(bt)bt.onclick=async()=>{try{
+    if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission){if(await DeviceOrientationEvent.requestPermission()!=='granted'){alert(tx('nocompass'));return}}
+    addEventListener('deviceorientationabsolute',fn,true);addEventListener('deviceorientation',fn,true);
+    bt.textContent='✔';bt.disabled=true;qiblaTurn();
+    setTimeout(()=>{if(!got){dbg('Capteur : aucune mesure reçue. Ce navigateur ne fournit pas l’orientation du téléphone.');const hn=$('#qhint');if(hn)hn.textContent=tx('nocompass')}},2500);
+  }catch(e){alert(tx('nocompass'))}};
+  qiblaTurn()}
+
 let PR=Object.assign({lang:'fr',h12:false,method:12,fa:12,ia:12,imin:null,asr:1,pos:null,snd:'beep',sndName:'',nf:{on:false,n:{Fajr:true,Sunrise:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true},a:{Fajr:true,Dhuhr:true,Asr:true,Maghrib:true,Isha:true}}},(()=>{try{return JSON.parse(localStorage.getItem(PK))||{}}catch(e){return {}}})());
 const savePR=()=>{try{localStorage.setItem(PK,JSON.stringify(PR))}catch(e){}};
 const TX={
@@ -268,9 +323,11 @@ const LOC={fr:'fr-FR',en:'en-GB',ar:'ar-u-nu-latn',de:'de-DE',es:'es-ES',pt:'pt-
 const LANGS=[['fr','Français'],['en','English'],['ar','العربية'],['de','Deutsch'],['es','Español'],['pt','Português'],['tr','Türkçe']];
 const fmt=s=>{if(!H12()||!s||s.indexOf(':')<0)return s;const [h,m]=s.split(':').map(Number);return ((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(LG()==='ar'?(h<12?'ص':'م'):(h<12?'AM':'PM'))};
 const km=(a,b,c,d)=>{const dl=(c-a)*R,dg=(d-b)*R,h=Math.sin(dl/2)**2+Math.cos(a*R)*Math.cos(c*R)*Math.sin(dg/2)**2;return 6371*2*Math.asin(Math.sqrt(h))};
-const getPos=()=>new Promise((ok,ko)=>{if(!navigator.geolocation)return ko(new Error('no geo'));
-  const good=p=>ok({lat:p.coords.latitude,lng:p.coords.longitude});
-  navigator.geolocation.getCurrentPosition(good,e=>{if(e&&e.code===1)return ko(e);navigator.geolocation.getCurrentPosition(good,ko,{enableHighAccuracy:true,timeout:15000,maximumAge:0})},{enableHighAccuracy:false,timeout:8000,maximumAge:600000})});
+function dbg(t){['wsrc','qdbg'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML=`<div class="mute" style="font-size:.8rem;margin-top:8px;word-break:break-word">${t}</div>`})}
+const getPos=()=>new Promise((ok,ko)=>{if(!navigator.geolocation){dbg('GPS : non disponible sur ce navigateur');return ko(new Error('no geo'))}
+  const good=p=>{dbg('GPS : '+p.coords.latitude.toFixed(4)+', '+p.coords.longitude.toFixed(4)+' (précision '+Math.round(p.coords.accuracy)+' m)');ok({lat:p.coords.latitude,lng:p.coords.longitude})};
+  const bad=e=>{const m={1:'autorisation refusée',2:'position indisponible',3:'délai dépassé'}[e&&e.code]||'erreur '+(e&&e.message||'inconnue');dbg('GPS : '+m+' (code '+(e&&e.code)+')');ko(e)};
+  navigator.geolocation.getCurrentPosition(good,e=>{if(e&&e.code===1)return bad(e);navigator.geolocation.getCurrentPosition(good,bad,{enableHighAccuracy:true,timeout:15000,maximumAge:0})},{enableHighAccuracy:false,timeout:8000,maximumAge:600000})});
 const geoMsg=e=>tx(e&&e.code===1?'geoDenied':'geoOff');
 function applyPersonal(){const P=PR.dir||PR.pos;if(SLUG||!P)return;const D=PR.dir;
   Object.assign(M,{name:D?D.name:tx('myloc'),city:D?D.city:'',country:D?cname(D.country):'',address:D?D.address:'',phone:'',email:'',website:'',info:'',association:'',fac:{},photos:[],
@@ -348,7 +405,7 @@ function pickDir(i){const m=NEARROWS[i];if(!m)return;
   try{localStorage.removeItem('fav_slug')}catch(e){}savePR();location.href=location.pathname}
 async function searchCity(){const city=$('#qc').value.trim(),cc=$('#qk').value,nl=$('#nl');if(!city)return;PR.city=city;PR.cc=cc;savePR();
   nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
-  try{p=await geocode(city,cc)}catch(e){const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;renderRows(nr,true);return}
+  try{p=await geocode(city,cc)}catch(e){const dbr=await cityDb(city,cc);if(dbr.length){const c0={lat:dbr[0].lat,lng:dbr[0].lng};dbr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(dbr.sort((a,b)=>a.d-b.d),true);return}const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;renderRows(nr,true);return}
     nl.innerHTML=`<div class="glass">${tx('cityNF')}</div>`;return}
   LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)renderRows(r,true)});renderRows(rs,true)}
 async function findNear(){const nl=$('#nl');nl.innerHTML=`<div class="glass">${tx('searching')}</div>`;let p;
@@ -380,6 +437,8 @@ const NX4={"fr": {"facTitle": "Installations et services"}, "en": {"facTitle": "
 Object.keys(NX4).forEach(l=>Object.assign(TX[l],NX4[l]));
 const NX5={"fr": {"saveMosque": "Enregistrer cette mosquée", "notOpen": "Pas encore sur Attawqit : horaires calculés selon sa position.", "calcAuto": "Cette mosquée n’a pas encore sa page Attawqit : les horaires sont calculés automatiquement.", "noAnnPick": "Les annonces apparaissent quand tu enregistres une mosquée inscrite sur Attawqit.", "geoDenied": "Localisation refusée. Autorise-la dans les réglages du navigateur (cadenas près de l’adresse), puis réessaie. Ou tape ta ville.", "geoOff": "Position introuvable. Si tu as ouvert le lien depuis WhatsApp ou une autre appli, ouvre-le dans Chrome ou Safari. Ou tape ta ville.", "useCity": "Utiliser cette ville comme ma position"}, "en": {"saveMosque": "Save this mosque", "notOpen": "Not on Attawqit yet: times are calculated from its location.", "calcAuto": "This mosque has no Attawqit page yet: times are calculated automatically.", "noAnnPick": "Notices appear when you save a mosque registered on Attawqit.", "geoDenied": "Location denied. Allow it in your browser settings (padlock next to the address), then retry. Or type your city.", "geoOff": "Location not found. If you opened the link from WhatsApp or another app, open it in Chrome or Safari. Or type your city.", "useCity": "Use this city as my location"}, "ar": {"saveMosque": "حفظ هذا المسجد", "notOpen": "ليس على Attawqit بعد: تُحسب المواقيت حسب موقعه.", "calcAuto": "ليس لهذا المسجد صفحة على Attawqit بعد: تُحسب المواقيت تلقائيًا.", "noAnnPick": "تظهر الإعلانات عند حفظ مسجد مسجّل في Attawqit.", "geoDenied": "تم رفض الموقع. اسمح به من إعدادات المتصفح (القفل بجانب العنوان) ثم أعد المحاولة، أو اكتب اسم مدينتك.", "geoOff": "تعذّر تحديد الموقع. إذا فتحت الرابط من واتساب أو تطبيق آخر، افتحه في Chrome أو Safari، أو اكتب اسم مدينتك.", "useCity": "استخدام هذه المدينة كموقعي"}, "de": {"saveMosque": "Diese Moschee speichern", "notOpen": "Noch nicht auf Attawqit: Zeiten werden nach seinem Standort berechnet.", "calcAuto": "Diese Moschee hat noch keine Attawqit-Seite: Die Zeiten werden automatisch berechnet.", "noAnnPick": "Mitteilungen erscheinen, wenn du eine auf Attawqit registrierte Moschee speicherst.", "geoDenied": "Standort verweigert. Erlaube ihn in den Browsereinstellungen (Schloss neben der Adresse) und versuche es erneut. Oder gib deine Stadt ein.", "geoOff": "Standort nicht gefunden. Wenn du den Link aus WhatsApp oder einer anderen App geöffnet hast, öffne ihn in Chrome oder Safari. Oder gib deine Stadt ein.", "useCity": "Diese Stadt als meinen Standort verwenden"}, "es": {"saveMosque": "Guardar esta mezquita", "notOpen": "Aún no está en Attawqit: los horarios se calculan según su ubicación.", "calcAuto": "Esta mezquita aún no tiene página en Attawqit: los horarios se calculan automáticamente.", "noAnnPick": "Los anuncios aparecen cuando guardas una mezquita registrada en Attawqit.", "geoDenied": "Ubicación denegada. Permítela en los ajustes del navegador (candado junto a la dirección) y reinténtalo. O escribe tu ciudad.", "geoOff": "No se encontró la ubicación. Si abriste el enlace desde WhatsApp u otra app, ábrelo en Chrome o Safari. O escribe tu ciudad.", "useCity": "Usar esta ciudad como mi ubicación"}, "pt": {"saveMosque": "Guardar esta mesquita", "notOpen": "Ainda não está no Attawqit: os horários são calculados pela sua localização.", "calcAuto": "Esta mesquita ainda não tem página no Attawqit: os horários são calculados automaticamente.", "noAnnPick": "Os avisos aparecem quando guardas uma mesquita registada no Attawqit.", "geoDenied": "Localização recusada. Permite-a nas definições do navegador (cadeado junto ao endereço) e tenta de novo. Ou escreve a tua cidade.", "geoOff": "Localização não encontrada. Se abriste a ligação a partir do WhatsApp ou de outra app, abre-a no Chrome ou no Safari. Ou escreve a tua cidade.", "useCity": "Usar esta cidade como a minha localização"}, "tr": {"saveMosque": "Bu camiyi kaydet", "notOpen": "Henüz Attawqit’te yok: vakitler konumuna göre hesaplanır.", "calcAuto": "Bu caminin henüz Attawqit sayfası yok: vakitler otomatik hesaplanır.", "noAnnPick": "Duyurular, Attawqit’e kayıtlı bir camiyi kaydettiğinizde görünür.", "geoDenied": "Konum reddedildi. Tarayıcı ayarlarından (adresin yanındaki kilit) izin verip tekrar deneyin. Ya da şehrinizi yazın.", "geoOff": "Konum bulunamadı. Bağlantıyı WhatsApp veya başka bir uygulamadan açtıysanız Chrome ya da Safari’de açın. Ya da şehrinizi yazın.", "useCity": "Bu şehri konumum olarak kullan"}};
 Object.keys(NX5).forEach(l=>Object.assign(TX[l],NX5[l]));
+const NXQ={"fr": {"qRight": "Tournez vers la droite", "qLeft": "Tournez vers la gauche", "qOn": "Vous êtes face à la Qibla"}, "en": {"qRight": "Turn right", "qLeft": "Turn left", "qOn": "You are facing the Qibla"}, "ar": {"qRight": "استدر إلى اليمين", "qLeft": "استدر إلى اليسار", "qOn": "أنت متجه نحو القبلة"}, "de": {"qRight": "Nach rechts drehen", "qLeft": "Nach links drehen", "qOn": "Du zeigst zur Qibla"}, "es": {"qRight": "Gira a la derecha", "qLeft": "Gira a la izquierda", "qOn": "Estás orientado a la Qibla"}, "pt": {"qRight": "Vire à direita", "qLeft": "Vire à esquerda", "qOn": "Está virado para a Qibla"}, "tr": {"qRight": "Sağa dönün", "qLeft": "Sola dönün", "qOn": "Kıble yönüne bakıyorsunuz"}};
+Object.keys(NXQ).forEach(l=>Object.assign(TX[l],NXQ[l]));
 const NX6={"fr": {"more": "Afficher plus de mosquées"}, "en": {"more": "Show more mosques"}, "ar": {"more": "عرض المزيد من المساجد"}, "de": {"more": "Mehr Moscheen anzeigen"}, "es": {"more": "Mostrar más mezquitas"}, "pt": {"more": "Mostrar mais mesquitas"}, "tr": {"more": "Daha fazla cami göster"}};
 Object.keys(NX6).forEach(l=>Object.assign(TX[l],NX6[l]));
 const NX7={"fr": {"designT": "Présentation des horaires", "colorT": "Couleurs", "layGrid": "Grille", "layWide": "Cartes larges", "layList": "Liste", "layTime": "Chronologie", "layMin": "Minimal", "layGlass": "Verre"}, "en": {"designT": "Prayer times layout", "colorT": "Colors", "layGrid": "Grid", "layWide": "Wide cards", "layList": "List", "layTime": "Timeline", "layMin": "Minimal", "layGlass": "Glass"}, "ar": {"designT": "شكل عرض المواقيت", "colorT": "الألوان", "layGrid": "شبكة", "layWide": "بطاقات عريضة", "layList": "قائمة", "layTime": "خط زمني", "layMin": "بسيط", "layGlass": "زجاجي"}, "de": {"designT": "Darstellung der Gebetszeiten", "colorT": "Farben", "layGrid": "Raster", "layWide": "Große Karten", "layList": "Liste", "layTime": "Zeitleiste", "layMin": "Minimal", "layGlass": "Glas"}, "es": {"designT": "Presentación de los horarios", "colorT": "Colores", "layGrid": "Cuadrícula", "layWide": "Tarjetas anchas", "layList": "Lista", "layTime": "Cronología", "layMin": "Minimalista", "layGlass": "Cristal"}, "pt": {"designT": "Apresentação dos horários", "colorT": "Cores", "layGrid": "Grelha", "layWide": "Cartões largos", "layList": "Lista", "layTime": "Cronologia", "layMin": "Minimalista", "layGlass": "Vidro"}, "tr": {"designT": "Namaz vakitleri görünümü", "colorT": "Renkler", "layGrid": "Izgara", "layWide": "Geniş kartlar", "layList": "Liste", "layTime": "Zaman çizelgesi", "layMin": "Minimal", "layGlass": "Cam"}};
@@ -447,12 +506,15 @@ async function countryOf(p){try{const j=await(await fetch(`https://nominatim.ope
 const enc=encodeURIComponent,sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\u0600-\u06ff]/g,'');
 const sameName=(a,b)=>{a=norm(a);b=norm(b);return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a))};
-async function ovp(q,ms){ms=ms||OVMS;                       // 3 serveurs publics interrogés en même temps : le plus rapide gagne
-  return new Promise(res=>{let left=MIRR.length,done=false;const cs=[];
-    const fin=j=>{if(done)return;if(j){done=true;cs.forEach(c=>{try{c&&c.abort()}catch(e){}});res(j)}else if(--left===0)res(null)};
-    MIRR.forEach(u=>{const c=typeof AbortController!=='undefined'?new AbortController():null;cs.push(c);const t=c?setTimeout(()=>c.abort(),ms):0;
-      fetch(u,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+enc(q),signal:c?c.signal:undefined})
-        .then(r=>r.ok?r.json():null).then(j=>{clearTimeout(t);fin(j)}).catch(()=>{clearTimeout(t);fin(null)})})})}
+let SRCERR=[];const serr=m=>{if(SRCERR.length<6)SRCERR.push(m)};
+async function ovp(q,ms){ms=ms||OVMS;   // 3 serveurs publics en même temps, sans AbortSignal (non transmissible sur certains navigateurs)
+  return new Promise(res=>{let left=MIRR.length,done=false;
+    const fin=j=>{if(done)return;if(j){done=true;res(j)}else if(--left===0)res(null)};
+    const timeout=(u)=>new Promise((_,rj)=>setTimeout(()=>rj(new Error('délai dépassé')),ms));
+    MIRR.forEach(u=>{const host=(()=>{try{return new URL(u).host}catch(e){return u}})();
+      Promise.race([fetch(u,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+enc(q)}),timeout(u)])
+        .then(r=>{if(!r.ok){serr('Overpass '+host+' : erreur '+r.status);return null}return r.json()})
+        .then(j=>fin(j)).catch(e=>{serr('Overpass '+host+' : '+(e&&e.message||'réseau bloqué'));fin(null)})})})}
 // mosquées « bien étiquetées », bâtiments de mosquée, et lieux de culte dont le nom contient mosquée/masjid/مسجد… même sans l'étiquette religion
 const OVF=sel=>`nwr["amenity"="place_of_worship"]["religion"="muslim"]${sel};nwr["building"="mosque"]${sel};nwr["amenity"="place_of_worship"][!"religion"]["name"~"mosqu|masjid|moschee|mezquita|mesquita|cami|مسجد|جامع|مصلى",i]${sel};`;
 function nomRow(x,cc){const a=x.address||{},id=(x.osm_type&&x.osm_id)?x.osm_type[0]+x.osm_id:null;if(!id||x.lat==null)return null;
@@ -460,8 +522,11 @@ function nomRow(x,cc){const a=x.address||{},id=(x.osm_type&&x.osm_id)?x.osm_type
   return{osm_id:id,name:nm.slice(0,200),address:[a.house_number,a.road].filter(Boolean).join(' ')||null,city:a.city||a.town||a.village||a.suburb||a.municipality||null,postcode:a.postcode||null,
     country:String(a.country_code||cc||'').toUpperCase()||null,lat:+x.lat,lng:+x.lon,phone:null,website:null}}
 async function nomText(p,cc,q){let vb;if(p.bbox){const [s,n,w,e]=p.bbox;vb=`${w},${n},${e},${s}`}else{const d=.12;vb=`${p.lng-d},${p.lat+d},${p.lng+d},${p.lat-d}`}
-  const j=await(await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=40&q=${enc(q)}&viewbox=${vb}&bounded=1&accept-language=${LG()}`)).json();
+  let j;try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=40&q=${enc(q)}&viewbox=${vb}&accept-language=${LG()}`);if(!r.ok){serr('Nominatim : erreur '+r.status);return[]}j=await r.json()}catch(e){serr('Nominatim : réseau bloqué ('+(e&&e.message||'inconnu')+')');return[]}
   return(Array.isArray(j)?j:[]).filter(x=>/place_of_worship|mosque/.test(String(x.type)+' '+String(x.category))||/mosqu|masjid|moschee|مسجد|جامع/i.test(String(x.display_name||''))).map(x=>nomRow(x,cc)).filter(Boolean)}
+async function cityDb(q,cc){try{const C=String(cc||'').toUpperCase(),k=encodeURIComponent('*'+q+'*');
+  const r=await fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng,country&city=ilike.${k}&country=eq.${C}&limit=60`,{headers:{apikey:KEYSB}});
+  const j=await r.json();return Array.isArray(j)?j:[]}catch(e){return[]}}
 async function nameRows(q,cc){try{const j=await(await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=25&q=${enc('mosque '+q)}&countrycodes=${String(cc||'').toLowerCase()}&accept-language=${LG()}`)).json();
   return(Array.isArray(j)?j:[]).map(x=>nomRow(x,cc)).filter(Boolean)}catch(e){return[]}}
 async function liveOvp(p,ccP){const cc=p.cc||(await ccP)||PR.cc||'';const key='ms3_'+(p.rel||(p.lat.toFixed(2)+'_'+p.lng.toFixed(2)));
@@ -480,7 +545,7 @@ async function liveNom(p,ccP){const cc=p.cc||(await ccP)||PR.cc||'';const rows=[
 function injectDir(rows){for(let i=0;i<rows.length;i+=60){try{fetch(`${SB}/rpc/add_directory_osm`,{method:'POST',headers:{apikey:KEYSB,'Content-Type':'application/json'},
   body:JSON.stringify({p:rows.slice(i,i+60).map(r=>({osm_id:r.osm_id,name:r.name,address:r.address,city:r.city,postcode:r.postcode,country:r.country,lat:r.lat,lng:r.lng,phone:r.phone,website:r.website}))})}).catch(()=>{})}catch(e){}}}
 let SRCHTOK=0;
-async function smartRows(p,cb){const tok=++SRCHTOK,ccP=p.cc?Promise.resolve(p.cc):countryOf(p);let dbr=[],nomr=[],ovr=[];
+async function smartRows(p,cb){SRCERR=[];const tok=++SRCHTOK,ccP=p.cc?Promise.resolve(p.cc):countryOf(p);let dbr=[],nomr=[],ovr=[];
   const merge=()=>{const out=dbr.slice();
     for(const x of nomr.concat(ovr)){if(out.some(r=>(r.osm_id&&r.osm_id===x.osm_id)||(r.reg&&km(r.lat,r.lng,x.lat,x.lng)<.08)||(km(r.lat,r.lng,x.lat,x.lng)<.06&&sameName(r.name,x.name))))continue;out.push({...x,reg:0})}
     out.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng));out.sort((a,b)=>a.d-b.d);return out.slice(0,60)};
@@ -488,20 +553,38 @@ async function smartRows(p,cb){const tok=++SRCHTOK,ccP=p.cc?Promise.resolve(p.cc
   await Promise.all([nearRows(p).catch(()=>[]).then(r=>{dbr=r;push()}),liveNom(p,ccP).catch(()=>[]).then(r=>{nomr=r;push()}),liveOvp(p,ccP).catch(()=>[]).then(r=>{ovr=r;push()})]);
   const known=new Set(dbr.map(r=>r.osm_id).filter(Boolean)),fresh=nomr.concat(ovr).filter(x=>x.osm_id&&!known.has(x.osm_id));
   if(fresh.length)injectDir(fresh);                                   // les nouvelles mosquées entrent automatiquement dans la base
-  return merge()}
-async function geocode(city,cc){const j=await(await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city)}&countrycodes=${cc.toLowerCase()}&accept-language=${LG()}`)).json();if(!j[0])throw 0;
-  const best=j.find(x=>x.osm_type==='relation'&&/administrative|city|town|village|municipality|suburb|borough/.test(String(x.type)+' '+String(x.category)))||j[0],bb=(best.boundingbox||[]).map(Number);
-  return{lat:+best.lat,lng:+best.lon,rel:best.osm_type==='relation'?+best.osm_id:0,bbox:bb.length===4&&bb.every(isFinite)?bb:null,cc:cc.toUpperCase()}}
-function welcomeHTML(){return `<div class="wl"><div class="lgb"><b>التوقيت</b><small>ATTAWQIT</small></div><h1>${tx('wTitle')}</h1><p>${tx('wText')}</p>
-  <button class="big" onclick="autoFind()">📍 ${tx('wFind')}</button><button class="ghost" onclick="showCity()">🔍 ${tx('wCity')}</button>
-  <div id="wcity" style="display:none"><input id="wq" placeholder="${esc(tx('cityPh'))}" style="${inpStyle}" onkeydown="if(event.key==='Enter')wCitySearch()"><p><select id="wk">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${esc(cname(c))}</option>`).join('')}</select></p><button class="big" onclick="wCitySearch()">${tx('goSearch')}</button></div>
-  <div id="wst"></div><div id="wres" style="text-align:start"></div></div>`}
-function showCity(){const d=$('#wcity');if(d)d.style.display='block'}
+  const fin=merge();SRCERR=SRCERR;const el=document.getElementById('wsrc');if(el)el.innerHTML=`<div class="mute" style="font-size:.85rem;margin-top:10px">Base Attawqit : ${dbr.length} · OpenStreetMap (zones) : ${ovr.length} · OpenStreetMap (mots-clés) : ${nomr.length}${SRCERR.length?'<br>Erreurs : '+SRCERR.map(x=>x.replace(/[<>]/g,'')).join(' ; '):''}</div>`;
+  return fin}
+async function geocodeOne(url){try{const r=await fetch(url);if(!r.ok)return null;const j=await r.json();if(Array.isArray(j))return j.length?j:null;return j&&Array.isArray(j.features)&&j.features.length?j:null}catch(e){return null}}
+const GZ={"TN": {"Tunis": [36.8065, 10.1815], "Sousse": [35.8256, 10.6369], "Mahdia": [35.5047, 11.0622], "Sfax": [34.7406, 10.7603], "Kairouan": [35.6781, 10.0963], "Monastir": [35.7643, 10.8113], "Gabès": [33.8815, 10.0982], "Bizerte": [37.2746, 9.8739], "Nabeul": [36.4513, 10.7357], "Ariana": [36.8625, 10.1956], "Ben Arous": [36.7531, 10.2189], "Gafsa": [34.425, 8.7842], "Médenine": [33.3549, 10.5055], "Tataouine": [32.9297, 10.4518], "Béja": [36.7256, 9.1817], "Jendouba": [36.5011, 8.7802], "Kasserine": [35.1676, 8.8365], "Sidi Bouzid": [35.0382, 9.4849], "Zarzis": [33.5039, 11.112], "Hammamet": [36.4, 10.6167], "Djerba": [33.8075, 10.8451]}, "FR": {"Paris": [48.8566, 2.3522], "Lyon": [45.764, 4.8357], "Marseille": [43.2965, 5.3698], "Toulouse": [43.6047, 1.4442], "Nice": [43.7102, 7.262], "Nantes": [47.2184, -1.5536], "Strasbourg": [48.5734, 7.7521], "Montpellier": [43.6108, 3.8767], "Bordeaux": [44.8378, -0.5792], "Lille": [50.6292, 3.0573], "Rennes": [48.1173, -1.6778], "Reims": [49.2583, 4.0317], "Saint-Denis": [48.9362, 2.3574], "Noisy-le-Grand": [48.8485, 2.553], "Grenoble": [45.1885, 5.7245], "Dijon": [47.322, 5.0415], "Orléans": [47.9029, 1.9093], "Tours": [47.3941, 0.6848]}, "PT": {"Lisboa": [38.7223, -9.1393], "Porto": [41.1579, -8.6291], "Braga": [41.5454, -8.4265], "Coimbra": [40.2033, -8.4103], "Faro": [37.0194, -7.9322], "Setúbal": [38.5244, -8.8882], "Aveiro": [40.6443, -8.6455], "Leiria": [39.7436, -8.8071]}, "DE": {"Berlin": [52.52, 13.405], "Hamburg": [53.5511, 9.9937], "München": [48.1351, 11.582], "Köln": [50.9375, 6.9603], "Frankfurt": [50.1109, 8.6821], "Stuttgart": [48.7758, 9.1829], "Düsseldorf": [51.2277, 6.7735], "Leipzig": [51.3397, 12.3731], "Dortmund": [51.5136, 7.4653], "Essen": [51.4556, 7.0116], "Bremen": [53.0793, 8.8017], "Hannover": [52.3759, 9.732]}, "IT": {"Roma": [41.9028, 12.4964], "Milano": [45.4642, 9.19], "Napoli": [40.8518, 14.2681], "Torino": [45.0703, 7.6869], "Palermo": [38.1157, 13.3615], "Genova": [44.4056, 8.9463], "Bologna": [44.4949, 11.3426], "Firenze": [43.7696, 11.2558], "Bari": [41.1171, 16.8719]}, "ES": {"Madrid": [40.4168, -3.7038], "Barcelona": [41.3874, 2.1686], "Valencia": [39.4699, -0.3763], "Sevilla": [37.3891, -5.9845], "Zaragoza": [41.6488, -0.8891], "Málaga": [36.7213, -4.4214], "Bilbao": [43.263, -2.935], "Granada": [37.1773, -3.5986]}, "BE": {"Bruxelles": [50.8503, 4.3517], "Anvers": [51.2194, 4.4025], "Gand": [51.0543, 3.7174], "Charleroi": [50.4108, 4.4446], "Liège": [50.6326, 5.5797], "Namur": [50.4674, 4.872]}, "NL": {"Amsterdam": [52.3676, 4.9041], "Rotterdam": [51.9244, 4.4777], "Den Haag": [52.0705, 4.3007], "Utrecht": [52.0907, 5.1214], "Eindhoven": [51.4416, 5.4697], "Tilburg": [51.5555, 5.0913]}, "GB": {"London": [51.5072, -0.1276], "Birmingham": [52.4862, -1.8904], "Manchester": [53.4808, -2.2426], "Leeds": [53.8008, -1.5491], "Glasgow": [55.8642, -4.2518], "Bradford": [53.796, -1.7594], "Liverpool": [53.4084, -2.9916]}, "CH": {"Zürich": [47.3769, 8.5417], "Genève": [46.2044, 6.1432], "Bâle": [47.5596, 7.5886], "Lausanne": [46.5197, 6.6323], "Berne": [46.948, 7.4474]}, "AT": {"Wien": [48.2082, 16.3738], "Graz": [47.0707, 15.4395], "Linz": [48.3069, 14.2858], "Salzburg": [47.8095, 13.055], "Innsbruck": [47.2692, 11.4041]}, "CA": {"Montréal": [45.5017, -73.5673], "Toronto": [43.6532, -79.3832], "Vancouver": [49.2827, -123.1207], "Calgary": [51.0447, -114.0719], "Ottawa": [45.4215, -75.6972], "Québec": [46.8139, -71.208], "Edmonton": [53.5461, -113.4938]}, "TR": {"İstanbul": [41.0082, 28.9784], "Ankara": [39.9334, 32.8597], "İzmir": [38.4237, 27.1428], "Bursa": [40.195, 29.06], "Konya": [37.8746, 32.4932], "Antalya": [36.8969, 30.7133], "Gaziantep": [37.0662, 37.3833]}, "MA": {"Casablanca": [33.5731, -7.5898], "Rabat": [34.0209, -6.8416], "Marrakech": [31.6295, -7.9811], "Fès": [34.0331, -5.0003], "Tanger": [35.7595, -5.834], "Agadir": [30.4278, -9.5981], "Meknès": [33.8935, -5.5473], "Oujda": [34.6805, -1.9076], "Kénitra": [34.261, -6.5802]}, "DZ": {"Alger": [36.7538, 3.0588], "Oran": [35.6969, -0.6331], "Constantine": [36.365, 6.6147], "Annaba": [36.9, 7.7667], "Blida": [36.4703, 2.8277], "Sétif": [36.1898, 5.4107], "Batna": [35.5559, 6.1741], "Tlemcen": [34.8783, -1.315]}, "SN": {"Dakar": [14.7167, -17.4677], "Thiès": [14.791, -16.9359], "Touba": [14.85, -15.8833], "Saint-Louis": [16.0179, -16.4896], "Kaolack": [14.1459, -16.076], "Ziguinchor": [12.5681, -16.2719], "Rufisque": [14.7167, -17.2667]}};
+function gzNorm(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
+function gazetteer(city,cc){const C=String(cc||'').toUpperCase(),T=GZ[C]||{},q=gzNorm(city);if(!q)return null;
+  for(const k of Object.keys(T)){if(gzNorm(k)===q)return{lat:T[k][0],lng:T[k][1],rel:0,bbox:null,cc:C}}return null}
+async function geocode(city,cc){const C=String(cc||'').toUpperCase(),lc=C.toLowerCase(),cn=cname(C)||C;
+  const pick=(best,lat,lng,bb)=>({lat,lng,rel:best.osm_type==='relation'?+best.osm_id:0,bbox:bb&&bb.length===4&&bb.every(isFinite)?bb:null,cc:C});
+  let j=await geocodeOne(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city)}&countrycodes=${lc}&accept-language=${LG()}`);
+  if(!j)j=await geocodeOne(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city+', '+cn)}&accept-language=${LG()}`);
+  if(j){const best=j.find(x=>x.osm_type==='relation'&&/administrative|city|town|village|municipality|suburb|borough/.test(String(x.type)+' '+String(x.category)))||j[0];
+    const bb=(best.boundingbox||[]).map(Number);return pick(best,+best.lat,+best.lon,bb)}
+  const ph=await geocodeOne(`https://photon.komoot.io/api/?q=${enc(city)}&limit=10&lang=${LG()}`);
+  if(ph){const hit=(ph.features||[]).find(x=>String((x.properties||{}).countrycode||'').toUpperCase()===C);
+    if(hit){const [lng,lat]=hit.geometry.coordinates;return pick({osm_type:'node'},+lat,+lng,null)}}
+  const gz=gazetteer(city,cc);if(gz)return gz;
+  throw 0}
+const flagOf=c=>String.fromCodePoint(...[...String(c).toUpperCase()].map(x=>0x1F1E6+x.charCodeAt(0)-65));
+function welcomeHTML(){return `<div class="wl"><div class="lgb"><b>🕌</b><small>ATTAWQIT</small></div><h1>${tx('wTitle')}</h1><p>${tx('wText')}</p>
+  <button class="big" onclick="autoFind()">📍 ${tx('wFind')}</button>
+  <div class="wsel"><select id="wk" onchange="cityDraw()">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></div>
+  <div id="wcity"><input id="wq" placeholder="${esc(tx('cityPh'))}" style="${inpStyle}" onkeydown="if(event.key==='Enter')wCitySearch()"></div>
+  <button id="wgo" class="big" onclick="wCitySearch()">🔍 ${tx('goSearch')}</button>
+  <div id="wst"></div><div id="wres" style="text-align:start"></div><div id="wsrc"></div></div>`}
+function cityDraw(){const k=$('#wk');if(k)PR.cc=k.value;savePR()}
+function showCity(){}
 async function autoFind(){const st=$('#wst');st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
   try{p=await getPos();PR.pos=p;savePR()}catch(e){st.innerHTML=`<div class="wst bad">${geoMsg(e)}</div>`;showCity();return}
   const rows=await smartRows(p,r=>{if(r.length)wShow(r,false)});wShow(rows,false)}
 async function wCitySearch(){const city=$('#wq').value.trim(),cc=$('#wk').value,st=$('#wst');if(!city)return;PR.city=city;PR.cc=cc;savePR();st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
-  try{p=await geocode(city,cc)}catch(e){const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(nr,true);return}
+  try{p=await geocode(city,cc)}catch(e){const dbr=await cityDb(city,cc);if(dbr.length){const c0={lat:dbr[0].lat,lng:dbr[0].lng};dbr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(dbr.sort((a,b)=>a.d-b.d),true);return}const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(nr,true);return}
     st.innerHTML=`<div class="wst bad">${tx('cityNF')}</div>`;return}
   LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true)}
 function wShow(rows,city){$('#wst').innerHTML=`<div class="wst">${tx(rows.length?'wFound':'wNone')}</div>`;renderRows(rows,city,'#wres');
@@ -525,8 +608,8 @@ function appView(n){
   const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces');
   if(live&&!ready){$('#app').innerHTML=welcomeHTML();return}
   let body='',head='';
-  const nav=`<nav class="bn"><a class="lg" href="#" aria-label="Attawqit"><b>التوقيت</b><small>ATTAWQIT</small></a><div class="bi">${[['','pray',tx('pray')],['#qibla','qibla',tx('qibla')],['#proche','near',tx('near')],['#reglages','set',tx('set')]]
-    .map(([k,i,t])=>`<a href="${k||'#'}" class="${(h===k||(k===''&&live))?'on':''}" aria-label="${t}">${svg(i)}<small>${t}</small></a>`).join('')}</div></nav>`;
+  const nav=`<nav class="bn"><a class="lg" href="#" onclick="goTo('');return false" aria-label="Attawqit"><b>التوقيت</b><small>ATTAWQIT</small></a><div class="bi">${[['','pray',tx('pray')],['#qibla','qibla',tx('qibla')],['#proche','near',tx('near')],['#reglages','set',tx('set')]]
+    .map(([k,i,t])=>`<a href="${k||'#'}" onclick="goTo('${k}');return false" class="${(h===k||(k===''&&live))?'on':''}" aria-label="${t}">${svg(i)}<small>${t}</small></a>`).join('')}</div></nav>`;
   if(!live){const ti={'#qibla':tx('qibla'),'#proche':tx('near'),'#reglages':tx('set')}[h]||'';
     body=`<div class="ttl">${ti}</div>`+(h==='#qibla'?qiblaHTML():h==='#proche'?nearHTML():h==='#reglages'?settingsHTML():'')}
   else{
@@ -590,7 +673,7 @@ function admin(){
 const SB='https://obnesncbmmfthxmkulof.supabase.co/rest/v1', KEYSB='sb_publishable_urKZCjcq3EpnhS9Ou074ew_69KYE-b9';
 async function loadRemote(slug,light){
   const H={headers:{apikey:KEYSB}}, ls=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
-  let m; try{const r=await fetch(`${SB}/mosques?slug=eq.${encodeURIComponent(slug)}&select=*,mosque_settings(*),announcements(*)`,H);m=(await r.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){m=ls('m_'+slug)}
+  let m; try{const byId=/^\d{6}$/.test(String(slug)),filt=byId?`public_id=eq.${slug}`:`slug=eq.${encodeURIComponent(slug)}`;const r=await fetch(`${SB}/mosques?${filt}&select=*,mosque_settings(*),announcements(*)`,H);m=(await r.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){m=ls('m_'+slug)}
   if(!m) return;
   const st=[].concat(m.mosque_settings||{})[0]||{}, wait={};
   Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
@@ -600,9 +683,10 @@ async function loadRemote(slug,light){
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
     note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
 }
-let SLUG=new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
+let SLUG=new URLSearchParams(location.search).get('id')||new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
 addEventListener('hashchange',view);
-(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();T=await getTimes();view();setInterval(()=>{if((location.hash===''||location.hash==='#mosquee'||location.hash==='#annonces'||location.hash.startsWith('#tv'))&&T)view()},1000)})();
+(async()=>{if(SLUG)await loadRemote(SLUG);else{applyPersonal();}T=await getTimes();if(!T&&(PR.dir||PR.pos)){applyPersonal();T=await getTimes()}view();setInterval(()=>{if(Date.now()-TOUCHAT<900)return;if((location.hash===''||location.hash==='#mosquee'||location.hash==='#annonces'||location.hash.startsWith('#tv'))&&T)view()},1000)})();
+let TOUCHAT=0;['pointerdown','touchstart','mousedown'].forEach(ev=>document.addEventListener(ev,()=>{TOUCHAT=Date.now()},true));
 setInterval(async()=>{if(SLUG)await loadRemote(SLUG);else applyPersonal();const t=await getTimes();if(t)T=t},3600000);
 setInterval(async()=>{if(SLUG){await loadRemote(SLUG,true);const t=await getTimes();if(t)T=t}},60000);
 try{applyPal()}catch(e){}
