@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=38,H=(185+B*47)%360;
+(function(){var B=39,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -358,7 +358,7 @@ function yallHTML(){const ps=(M.photos||[]).filter(imgOk);const hasGps=M.lat!=nu
   return `<div class="glass" style="margin-top:0"><b style="font-size:1.3rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>`+
     (hasGps?`<p style="text-align:center;margin:14px 0"><a href="${gps}" target="_blank" rel="noopener" aria-label="GPS" title="Itinéraire GPS" style="display:inline-flex;align-items:center;justify-content:center;width:72px;height:72px;border-radius:50%;background:#ffffff26;border:1px solid #ffffff55;font-size:2rem;text-decoration:none">📍</a></p>`:'')+`</div>`+
     (ps.length?ps.map(u=>`<div class="glass" style="padding:6px"><img src="${esc(u)}" alt="" loading="lazy" style="width:100%;border-radius:14px;display:block"></div>`).join(''):`<div class="glass">Aucune photo pour le moment.</div>`)}
-function facHTML(){const rows=FAC.map(([k,ic])=>{const ok=!!(M.fac&&M.fac[k]);return `<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 10px;margin:4px 0;border-radius:12px;background:${ok?'#1e7a3e55':'#9a2a2a55'};border:1px solid ${ok?'#5fe08a':'#ff6b6b'}"><span style="color:${ok?'#b9f5cc':'#ffc2c2'}">${ic} ${esc(fl(k))}</span><b style="color:${ok?'#5fe08a':'#ff6b6b'}">${ok?'✔':'✘'}</b></div>`}).join('');
+function facHTML(){const rows=FAC.map(([k,ic])=>{const ok=!!(M.fac&&M.fac[k]);return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid #ffffff1a"><span>${ic} ${esc(fl(k))}</span><b style="font-size:1.25rem;color:${ok?'#5fe08a':'#ff6b6b'}">${ok?'✔':'✘'}</b></div>`}).join('');
   return `<div class="glass" style="margin-top:8px"><b>${tx('facTitle')}</b>${rows}</div>`}
 function photosHTML(){const p=(M.photos||[]).filter(imgOk);return p.length?`<div class="glass">${p.map(u=>`<img src="${esc(u)}" alt="" loading="lazy" style="width:100%;border-radius:14px;margin:6px 0">`).join('')}</div>`:''}
 const cname=c=>{try{return new Intl.DisplayNames([LG()],{type:'region'}).of(c)}catch(e){return c}};
@@ -638,7 +638,7 @@ function appView(n){
     <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="chev">⌄</span></a>
     <div class="dts"><span>${esc(hij)}</span><i></i><span>${esc(greg)}</span></div>
     <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')],['#y',tx('yGo')]].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
-    if(h==='#mosquee')body=`${SLUG&&!M.loaded?`<div class="glass" style="margin-top:0;border:1px solid #ff8a8a">Fiche non chargée depuis la base. Ouvre le site dans Chrome ou Safari (pas depuis l’aperçu du fichier) et vérifie la connexion.</div>`:''}<div class="glass" style="margin-top:8px"><b style="font-size:1.4rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
+    if(h==='#mosquee')body=`${SLUG&&!M.loaded?`<div class="glass" style="margin-top:0;border:1px solid #ff8a8a">Fiche non chargée depuis la base. Ouvre le site dans Chrome ou Safari (pas depuis l’aperçu du fichier) et vérifie la connexion.<br><button class="opt on" style="margin-top:8px" onclick="retryLoad()">Réessayer</button></div>`:''}<div class="glass" style="margin-top:8px"><b style="font-size:1.4rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
     else if(h==='#y')body=yallHTML();
     else if(h==='#annonces'){const a=(M.anns&&M.anns.length)?M.anns:(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass" style="margin-top:0">${esc(x)}</div>`).join(''):`<div class="glass" style="margin-top:0">${tx(SLUG?'noann':'noAnnPick')}</div>`}
     else{
@@ -722,6 +722,7 @@ function infoBlock(){if(!SLUG)return '';
   const nF=Object.values(M.fac||{}).filter(Boolean).length;
   return `${btns}${anns}${facs?`<div class="glass" style="margin-top:8px"><b>${tx('facTitle')}</b><p>${facs}</p></div>`:''}${M.info?`<div class="glass" style="margin-top:8px">${esc(M.info)}</div>`:''}`+
     `<div class="mute" style="font-size:.75rem;text-align:center;margin-top:10px">${M.loaded?'Fiche chargée depuis la base':'Fiche non chargée (hors ligne ou erreur)'} · ${(M.anns||[]).length} annonce(s) · ${nF} installation(s)</div>`}
+function retryLoad(){if(!SLUG)return;loadRemote(SLUG).then(()=>{T=null;getTimes().then(t=>{T=t;view()})})}
 function restoreRes(){if(!LASTR||!LASTR[0]||!LASTR[0].length)return;const t=document.getElementById('wres')?'#wres':(document.getElementById('nl')?'#nl':null);
   if(t)renderRows(LASTR[0],LASTR[1],t,true)}
 const _view0=view;view=function(){_view0();restoreRes()};
