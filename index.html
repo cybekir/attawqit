@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=33,H=(185+B*47)%360;
+(function(){var B=35,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -621,7 +621,7 @@ function appView(n){
   const nav=`<nav class="bn"><a class="lg" href="#" onclick="goTo('');return false" aria-label="Attawqit"><b>التوقيت</b><small>ATTAWQIT</small></a><div class="bi">${[['','pray',tx('pray')],['#qibla','qibla',tx('qibla')],['#proche','near',tx('near')],['#reglages','set',tx('set')]]
     .map(([k,i,t])=>`<a href="${k||'#'}" onclick="goTo('${k}');return false" class="${(h===k||(k===''&&live))?'on':''}" aria-label="${t}">${svg(i)}<small>${t}</small></a>`).join('')}</div></nav>`;
   if(!live){const ti={'#qibla':tx('qibla'),'#proche':tx('near'),'#reglages':tx('set')}[h]||'';
-    body=`<div class="ttl">${ti}</div>`+(h==='#qibla'?qiblaHTML():h==='#proche'?nearHTML():h==='#reglages'?settingsHTML():'')}
+    body=`<div class="ttl">${ti}</div>`+(h==='#qibla'?qiblaHTML():h==='#photos'?photosPage():h==='#proche'?nearHTML():h==='#reglages'?settingsHTML():'')}
   else{
     let hij='';try{hij=new Intl.DateTimeFormat(loc.split('-u-')[0]+'-u-ca-islamic-umalqura'+(lg==='ar'?'-nu-latn':''),{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH','')}catch(e){}
     const greg=now.toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'}),av=(M.photos||[]).filter(imgOk)[0];
@@ -640,7 +640,7 @@ function appView(n){
       const ex=[...(M.jumua?[[tx('jumua'),fmt(M.jumua)]]:[]),[tx('midnight'),fmt(hm2(mg+nt/2))],[tx('lastThird'),fmt(hm2(mg+nt*2/3))]];
       body=`<div class="pg l-${PR.lay||'grid'}">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div>`}
   }
-  $('#app').innerHTML=`<div class="mob">${head||((PR.dir||SLUG)?selBanner():'')}${body}</div>${nav}`;
+  $('#app').innerHTML=`<div class="mob">${head||((PR.dir||SLUG)?selBanner():'')}${body}${h===''?infoBlock():''}</div>${nav}`;
   if(h==='#qibla')bindQibla();
 }
 
@@ -697,8 +697,22 @@ async function loadRemote(slug,light){
     cal={};(await rc.json()).forEach(r=>cal[r.day]=r);localStorage.setItem('cal_'+slug,JSON.stringify(cal))}catch(e){cal=ls('cal_'+slug)}
   Object.assign(M,{pid:m.public_id,photos:m.photos||[],name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',info:m.other_info||'',fac:m.facilities||{},photos:m.photos||[],method:st.calc_method||12,
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
-    note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
+    note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • '),anns:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean),loaded:true});
 }
+function photosPage(){const ps=(M.photos||[]).filter(imgOk);
+  return `<div class="glass"><a href="#" style="color:#fff">← Retour</a><b style="display:block;font-size:1.2rem;margin:8px 0">🖼️ ${esc(M.name)}</b></div>`+
+    (ps.length?ps.map(u=>`<div class="glass" style="padding:6px"><img src="${esc(u)}" alt="" loading="lazy" style="width:100%;border-radius:14px;display:block"></div>`).join(''):`<div class="glass">Aucune photo pour cette mosquée pour le moment.</div>`)}
+function infoBlock(){if(!SLUG)return '';
+  const hasGps=M.lat!=null&&M.lng!=null&&isFinite(+M.lat)&&isFinite(+M.lng);
+  const nP=(M.photos||[]).filter(imgOk).length;
+  const btns=`<div style="display:flex;gap:8px;margin-top:8px">`+
+    (hasGps?`<a class="opt on" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${(+M.lat).toFixed(6)},${(+M.lng).toFixed(6)}" style="text-decoration:none;flex:1;text-align:center">🗺️ Itinéraire</a>`:'')+
+    `<a class="opt" href="#photos" style="text-decoration:none;flex:1;text-align:center">🖼️ Photos (${nP})</a></div>`;
+  const facs=FAC.filter(([k])=>M.fac&&M.fac[k]).map(([k,ic])=>`<span class="opt" style="display:inline-block;cursor:default;margin:3px">${ic} ${esc(fl(k))}</span>`).join('');
+  const anns=(M.anns||[]).map(x=>`<div class="glass" style="margin-top:8px">📢 ${esc(x)}</div>`).join('');
+  const nF=Object.values(M.fac||{}).filter(Boolean).length;
+  return `${btns}${anns}${facs?`<div class="glass" style="margin-top:8px"><b>${tx('facTitle')}</b><p>${facs}</p></div>`:''}${M.info?`<div class="glass" style="margin-top:8px">${esc(M.info)}</div>`:''}`+
+    `<div class="mute" style="font-size:.75rem;text-align:center;margin-top:10px">${M.loaded?'Fiche chargée depuis la base':'Fiche non chargée (hors ligne ou erreur)'} · ${(M.anns||[]).length} annonce(s) · ${nF} installation(s)</div>`}
 function restoreRes(){if(!LASTR||!LASTR[0]||!LASTR[0].length)return;const t=document.getElementById('wres')?'#wres':(document.getElementById('nl')?'#nl':null);
   if(t)renderRows(LASTR[0],LASTR[1],t,true)}
 const _view0=view;view=function(){_view0();restoreRes()};
