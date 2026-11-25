@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=28,H=(185+B*47)%360;
+(function(){var B=29,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -330,6 +330,8 @@ const getPos=()=>new Promise((ok,ko)=>{if(!navigator.geolocation){dbg('GPS : non
   const bad=e=>{const m={1:'autorisation refusée',2:'position indisponible',3:'délai dépassé'}[e&&e.code]||'erreur '+(e&&e.message||'inconnue');dbg('GPS : '+m+' (code '+(e&&e.code)+')');ko(e)};
   navigator.geolocation.getCurrentPosition(good,e=>{if(e&&e.code===1)return bad(e);navigator.geolocation.getCurrentPosition(good,bad,{enableHighAccuracy:true,timeout:15000,maximumAge:0})},{enableHighAccuracy:false,timeout:8000,maximumAge:600000})});
 const geoMsg=e=>tx(e&&e.code===1?'geoDenied':'geoOff');
+function selBanner(){const nm=M.name||(PR.dir&&PR.dir.name)||'';const ct=[M.city||(PR.dir&&PR.dir.city),M.country||(PR.dir&&cname(PR.dir.country))].filter(Boolean).join(', ');
+  return `<a class="sel" href="#proche"><span class="av">${svg('pray')}</span><span class="sn"><b>${esc(nm)}</b><small>${esc(ct)}</small></span><span class="chev">⌄</span></a>`}
 function applyPersonal(){const P=PR.dir||PR.pos;if(SLUG||!P)return;const D=PR.dir;
   Object.assign(M,{name:D?D.name:tx('myloc'),city:D?D.city:'',country:D?cname(D.country):'',address:D?D.address:'',phone:'',email:'',website:'',info:'',association:'',fac:{},photos:[],
     lat:P.lat,lng:P.lng,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,method:PR.method,calc:{fa:PR.fa,ia:PR.ia,imin:PR.imin,asr:PR.asr},cal:{},manual:{},note:'',iqama:def.iqama}) }
@@ -612,7 +614,7 @@ function designHTML(){const LY=[['grid','layGrid'],['wide','layWide'],['list','l
 function appView(n){
   const h=location.hash,now=new Date(),lg=LG(),loc=LOC[lg]||'fr-FR';
   const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces');
-  if(live&&!ready){$('#app').innerHTML=welcomeHTML();return}
+  if(live&&!ready){$('#app').innerHTML=((PR.dir||SLUG)?'<div class="mob" style="padding-bottom:0">'+selBanner()+'</div>':'')+welcomeHTML();return}
   let body='',head='';
   const nav=`<nav class="bn"><a class="lg" href="#" onclick="goTo('');return false" aria-label="Attawqit"><b>التوقيت</b><small>ATTAWQIT</small></a><div class="bi">${[['','pray',tx('pray')],['#qibla','qibla',tx('qibla')],['#proche','near',tx('near')],['#reglages','set',tx('set')]]
     .map(([k,i,t])=>`<a href="${k||'#'}" onclick="goTo('${k}');return false" class="${(h===k||(k===''&&live))?'on':''}" aria-label="${t}">${svg(i)}<small>${t}</small></a>`).join('')}</div></nav>`;
@@ -636,7 +638,7 @@ function appView(n){
       const ex=[...(M.jumua?[[tx('jumua'),fmt(M.jumua)]]:[]),[tx('midnight'),fmt(hm2(mg+nt/2))],[tx('lastThird'),fmt(hm2(mg+nt*2/3))]];
       body=`<div class="pg l-${PR.lay||'grid'}">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div>`}
   }
-  $('#app').innerHTML=`<div class="mob">${head}${body}</div>${nav}`;
+  $('#app').innerHTML=`<div class="mob">${head||((PR.dir||SLUG)?selBanner():'')}${body}</div>${nav}`;
   if(h==='#qibla')bindQibla();
 }
 
