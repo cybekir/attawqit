@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=35,H=(185+B*47)%360;
+(function(){var B=36,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -630,8 +630,8 @@ function appView(n){
     <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="chev">⌄</span></a>
     <div class="dts"><span>${esc(hij)}</span><i></i><span>${esc(greg)}</span></div>
     <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')]].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
-    if(h==='#mosquee')body=`<div class="glass" style="margin-top:0"><b style="font-size:1.4rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
-    else if(h==='#annonces'){const a=(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass" style="margin-top:0">${esc(x)}</div>`).join(''):`<div class="glass" style="margin-top:0">${tx(SLUG?'noann':'noAnnPick')}</div>`}
+    if(h==='#mosquee')body=`${SLUG&&!M.loaded?`<div class="glass" style="margin-top:0;border:1px solid #ff8a8a">Fiche non chargée depuis la base. Ouvre le site dans Chrome ou Safari (pas depuis l’aperçu du fichier) et vérifie la connexion.</div>`:''}<div class="glass" style="margin-top:8px"><b style="font-size:1.4rem">${esc(M.name)}</b>${(M.lat!=null&&isFinite(+M.lat))?`<p><a class="opt on" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${(+M.lat).toFixed(6)},${(+M.lng).toFixed(6)}" style="text-decoration:none;display:inline-block">🗺️ Itinéraire (GPS)</a></p>`:''}<p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
+    else if(h==='#annonces'){const a=(M.anns&&M.anns.length)?M.anns:(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass" style="margin-top:0">${esc(x)}</div>`).join(''):`<div class="glass" style="margin-top:0">${tx(SLUG?'noann':'noAnnPick')}</div>`}
     else{
       const nw=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
       const cd=k=>{const t=T[k]||'--:--',isN=k===n.p,past=!isN&&t!=='--:--'&&t<=nw,dl=(M.iqama||{})[k]??10,on=!!(PR.nf&&PR.nf.on&&(PR.nf.n[k]||(k!=='Sunrise'&&PR.nf.a[k])));
@@ -640,7 +640,7 @@ function appView(n){
       const ex=[...(M.jumua?[[tx('jumua'),fmt(M.jumua)]]:[]),[tx('midnight'),fmt(hm2(mg+nt/2))],[tx('lastThird'),fmt(hm2(mg+nt*2/3))]];
       body=`<div class="pg l-${PR.lay||'grid'}">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div>`}
   }
-  $('#app').innerHTML=`<div class="mob">${head||((PR.dir||SLUG)?selBanner():'')}${body}${h===''?infoBlock():''}</div>${nav}`;
+  $('#app').innerHTML=`<div class="mob">${head||((PR.dir||SLUG)?selBanner():'')}${body}</div>${nav}`;
   if(h==='#qibla')bindQibla();
 }
 
