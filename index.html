@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=45,H=(185+B*47)%360;
+(function(){var B=48,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -698,10 +698,12 @@ function admin(){
 const SB='https://obnesncbmmfthxmkulof.supabase.co/rest/v1', KEYSB='sb_publishable_urKZCjcq3EpnhS9Ou074ew_69KYE-b9';
 async function loadRemote(slug,light){
   const H={}, ls=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
-  let m; try{const byId=/^\d{6}$/.test(String(slug)),filt=byId?`public_id=eq.${slug}`:`slug=eq.${encodeURIComponent(slug)}`;const r=await fetch(`${SB}/mosques?${filt}&select=*,mosque_settings(*),announcements(*)&apikey=${KEYSB}`,H);if(r.status>=400)throw new Error('HTTP '+r.status);m=(await r.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){LOADERR=(e&&e.message)||'erreur réseau';m=ls('m_'+slug)}
-  if(!m){const fm0=ls('fav_meta');if(fm0&&fm0.id&&fm0.slug===slug){try{const r2=await fetch(`${SB}/mosques?id=eq.${encodeURIComponent(fm0.id)}&select=*,mosque_settings(*),announcements(*)&apikey=${KEYSB}`,H);m=(await r2.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){}}}
-  if(!m){const fm1=ls('fav_meta');if(fm1&&fm1.name){try{const q=`${SB}/mosques?name=eq.${encodeURIComponent(fm1.name)}`+(fm1.city?`&city=eq.${encodeURIComponent(fm1.city)}`:'')+`&select=*,mosque_settings(*),announcements(*)&apikey=${KEYSB}`;const r3=await fetch(q,H);m=(await r3.json())[0];if(m){slug=m.slug;SLUG=m.slug;localStorage.setItem('fav_slug',m.slug);localStorage.setItem('m_'+m.slug,JSON.stringify(m))}}catch(e){}}}
+  let m; try{const byId=/^\d{6}$/.test(String(slug)),filt=byId?`public_id=eq.${slug}`:`slug=eq.${encodeURIComponent(slug)}`;const r=await fetch(`${SB}/mosques?${filt}&select=*&apikey=${KEYSB}`,H);if(r.status>=400)throw new Error('HTTP '+r.status);m=(await r.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){LOADERR=(e&&e.message)||'erreur réseau';m=ls('m_'+slug)}
+  if(!m){const fm0=ls('fav_meta');if(fm0&&fm0.id&&fm0.slug===slug){try{const r2=await fetch(`${SB}/mosques?id=eq.${encodeURIComponent(fm0.id)}&select=*&apikey=${KEYSB}`,H);m=(await r2.json())[0];if(m)localStorage.setItem('m_'+slug,JSON.stringify(m))}catch(e){}}}
+  if(!m){const fm1=ls('fav_meta');if(fm1&&fm1.name){try{const q=`${SB}/mosques?name=eq.${encodeURIComponent(fm1.name)}`+(fm1.city?`&city=eq.${encodeURIComponent(fm1.city)}`:'')+`&select=*&apikey=${KEYSB}`;const r3=await fetch(q,H);m=(await r3.json())[0];if(m){slug=m.slug;SLUG=m.slug;localStorage.setItem('fav_slug',m.slug);localStorage.setItem('m_'+m.slug,JSON.stringify(m))}}catch(e){}}}
   if(!m){LOADERR=LOADERR||('mosquée introuvable : identifiant recherché « '+slug+' »');const fm=ls('fav_meta');if(fm&&fm.slug===slug){Object.assign(M,{name:fm.name,city:fm.city,address:fm.address,country:fm.country,lat:fm.lat,lng:fm.lng});M.tz=M.tz||Intl.DateTimeFormat().resolvedOptions().timeZone}return}
+  try{const [a1,a2]=await Promise.all([fetch(`${SB}/mosque_settings?mosque_id=eq.${m.id}&select=*&apikey=${KEYSB}`,H).then(r=>r.json()),fetch(`${SB}/announcements?mosque_id=eq.${m.id}&select=*&apikey=${KEYSB}`,H).then(r=>r.json())]);
+    m.mosque_settings=Array.isArray(a1)?a1:[];m.announcements=Array.isArray(a2)?a2:[]}catch(e){m.mosque_settings=m.mosque_settings||[];m.announcements=m.announcements||[]}
   const st=[].concat(m.mosque_settings||{})[0]||{}, wait={};
   Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
   let cal=light?M.cal:undefined; if(!light)try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
