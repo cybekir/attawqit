@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=47,H=(185+B*47)%360;
+(function(){var B=45,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -215,16 +215,9 @@ async function edit(id){RE=()=>edit(id);
   if(id&&$('#delm'))$('#delm').onclick=()=>delMosques([id]);
   if($('#tosearch'))$('#tosearch').onclick=searchScreen;
   if(id){let ph=[...(m.photos||[])];const bk='mosque-photos';
-    const delUrls=async urls=>{if(!urls.length)return;if(!confirm('Supprimer '+urls.length+' photo(s) de la fiche ? Action définitive.'))return;
-      for(const u of urls){try{await sb.storage.from(bk).remove([u.split('/'+bk+'/')[1]])}catch(e){}}
-      ph=ph.filter(x=>!urls.includes(x));const r=await sb.from('mosques').update({photos:ph}).eq('id',id);if(r.error)msg('Erreur : '+r.error.message);draw()};
-    const draw=()=>{const cnt=ph.length;
-      $('#ph').innerHTML=(cnt?`<p style="color:var(--mute)">${cnt} photo(s) sur 6 — coche celles à supprimer.</p>`:`<p style="color:var(--mute)">Aucune photo pour cette mosquée.</p>`)+
-        ph.map((u,k)=>`<div style="display:flex;align-items:center;gap:12px;background:#ffffff14;border-radius:14px;padding:8px;margin:8px 0"><img src="${esc(u)}" alt="" style="width:96px;height:72px;object-fit:cover;border-radius:10px"><div style="flex:1"><b>Photo ${k+1}</b><br><label style="cursor:pointer"><input type="checkbox" class="pcs" data-u="${esc(u)}" style="width:auto;margin-right:6px">Supprimer</label></div><button class="alt" data-pd="${esc(u)}" style="border-color:#ff8a8a;color:#ff8a8a">Supprimer</button></div>`).join('')+
-        (cnt?`<button id="pdel" class="alt" style="margin-top:6px;border-color:#ff8a8a;color:#ff8a8a">Supprimer les photos cochées</button>`:'');
-      document.querySelectorAll('[data-pd]').forEach(b=>b.onclick=()=>delUrls([b.dataset.pd]));
-      const pd=document.getElementById('pdel');if(pd)pd.onclick=()=>delUrls([...document.querySelectorAll('.pcs:checked')].map(c=>c.dataset.u));
-    };
+    const draw=()=>{$('#ph').innerHTML=ph.map(u=>`<span class="thumb"><img src="${esc(u)}" alt=""><button class="alt" data-pd="${esc(u)}">✕</button></span>`).join('');
+      document.querySelectorAll('[data-pd]').forEach(b=>b.onclick=async()=>{const u=b.dataset.pd;try{await sb.storage.from(bk).remove([u.split('/'+bk+'/')[1]])}catch(e){}
+        ph=ph.filter(x=>x!==u);await sb.from('mosques').update({photos:ph}).eq('id',id);draw()})};
     draw();
     const pst=(t,bad)=>{let p=document.getElementById('pst');if(!p){p=document.createElement('p');p.id='pst';const pf=document.getElementById('pf');if(pf)pf.insertAdjacentElement('afterend',p)}p.style.color=bad?'#ff8a8a':'#cfeee8';p.textContent=t};
     const withTimeout=(pr,ms)=>Promise.race([pr,new Promise((_,rj)=>setTimeout(()=>rj(new Error('délai dépassé (réseau trop lent ou bloqué)')),ms))]);
