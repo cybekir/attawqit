@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=26,H=(185+B*47)%360;
+(function(){var B=28,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -157,6 +157,7 @@ button:disabled,.opt:disabled,.opt[aria-disabled=true],.pill:disabled{background
 .mob button:not(.big):not(.on):not(.pw):not(.sw),button:not(.big):not(.on):not(.pw):not(.sw):not(:disabled),.opt:not(.on),.seg a:not(.on),.lay:not(.on),.ghost:not(.on),.bi a:not(.on){background:#ffffff1f!important;color:#d7dae3!important;border-color:#ffffff33!important}
 .on:not(.pw):not(.sw),.opt.on,.seg a.on,.lay.on,.bi a.on,button.on{background:#fff!important;color:#14141c!important;border-color:#fff!important}
 .bi a.on svg,.lay.on svg{stroke:#14141c!important}
+.tv2{height:100vh;height:100dvh;position:relative;display:flex;flex-direction:column;padding:2.2vh 2.5vw;color:#fff;overflow:hidden;background:linear-gradient(rgba(6,47,58,.78),rgba(3,14,18,.94)),var(--photo,none) center/cover;font-family:system-ui,sans-serif}.t2h{display:flex;align-items:center;gap:1.2vw;min-height:7vh}.t2logo{font-size:min(4vw,7vh)}.t2h h1{font-size:min(4.2vw,8vh);margin:0;text-shadow:0 2px 8px #000a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.t2top{display:grid;grid-template-columns:1fr 2.3fr 1fr;align-items:center;gap:2vw;margin-top:2vh}.t2side{text-align:center}.t2side small{font-size:min(2.2vw,4vh);opacity:.9}.t2side b{display:block;font-size:min(6vw,12vh);font-variant-numeric:tabular-nums}.t2clock{background:linear-gradient(160deg,rgba(224,184,76,.88),rgba(160,120,40,.78));border-radius:2vw;padding:2vh 1vw;text-align:center;color:#14141c;box-shadow:0 8px 30px #0008}.t2clock b{display:block;font-size:min(9vw,17vh);line-height:1;font-variant-numeric:tabular-nums}.t2clock span{font-size:min(2.4vw,4.4vh)}.t2cd{margin-top:1.2vh;background:rgba(10,12,18,.72);color:#fff;border-radius:1vw;padding:1vh 1vw;font-size:min(3vw,5.5vh);font-weight:700}.t2grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1.2vw;margin-top:auto;margin-bottom:2vh}.t2cell{background:rgba(10,12,18,.66);border-radius:1.6vw;padding:2.2vh 0;text-align:center}.t2cell.on{background:linear-gradient(160deg,rgba(224,184,76,.92),rgba(170,130,50,.88));color:#14141c}.t2cell span{display:block;font-size:min(2.6vw,4.8vh)}.t2cell b{display:block;font-size:min(6vw,12vh);font-variant-numeric:tabular-nums}.t2cell i{font-style:normal;font-size:min(3vw,5.5vh);opacity:.9}.t2foot{background:rgba(0,0,0,.62);border-radius:1vw;padding:1.2vh 1.5vw;display:flex;justify-content:space-between;gap:2vw;font-size:min(2.4vw,4.2vh);white-space:nowrap;overflow:hidden}.t2foot span:first-child{overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -647,13 +648,19 @@ function view(){
   const n=T?nextPrayer():null;
   if(h.startsWith('#tv')){ const xp=phase(); if(xp.k!=='main') return showPhase(xp);
     const now=new Date(), d=now.toLocaleDateString(LOC[LG()]||'fr-FR',{weekday:'long',day:'numeric',month:'short',year:'numeric'});
-    $('#app').innerHTML=`<div class="tv"><h1>${esc(M.name)}</h1>
-    <section class="top"><div class="side"><span>${PN('Sunrise')}</span><b>${fmt(T.Sunrise)}</b></div>
-    <div class="clock"><b>${now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hourCycle:H12()?'h12':'h23'})}</b><span>${d.charAt(0).toUpperCase()+d.slice(1)}</span></div>
-    <div class="side"><span>${tx('jumua')}</span><b>${M.jumua?fmt(M.jumua):'⊘'}</b></div></section>
-    <div class="cd">${tx('cdin').replace('{p}',PN(n.p)).replace('{t}',n.left.slice(0,5))}</div>
-    <div class="grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="cell ${p===n.p?'on':''}"><span>${PN(p)}</span><b>${fmt(T[p])}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</div>
-    <footer><span>${esc(M.assoc)}${M.note?' — '+esc(M.note):''}</span><span class="brand">Attawqit</span></footer></div>`;
+    const ph=(M.photos||[]).filter(imgOk)[0]||'';const bgUrl=ph?`url("${encodeURI(ph).replace(/"/g,'%22')}")`:'none';
+    const nowTxt=now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hourCycle:H12()?'h12':'h23'});
+    const ann=(M.note||M.assoc||'').replace(/[<>]/g,'');
+    $('#app').innerHTML=`<div class="tv2" style="--photo:${bgUrl}">
+    <header class="t2h"><span class="t2logo">🕌</span><h1>${esc(M.name)}</h1></header>
+    <section class="t2top">
+      <div class="t2side"><small>${PN('Sunrise')}</small><b>${fmt(T.Sunrise)}</b></div>
+      <div class="t2clock"><b>${nowTxt}</b><span>${d.charAt(0).toUpperCase()+d.slice(1)}</span>
+        <div class="t2cd">${tx('cdin').replace('{p}',PN(n.p)).replace('{t}',n.left.slice(0,5))}</div></div>
+      <div class="t2side"><small>${tx('jumua')}</small><b>${M.jumua?fmt(M.jumua):'—'}</b></div>
+    </section>
+    <section class="t2grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="t2cell ${p===n.p?'on':''}"><span>${PN(p)}</span><b>${fmt(T[p])}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</section>
+    <footer class="t2foot"><span>${esc(ann)}</span><span>${M.pid?'ID '+esc(M.pid):''} · Attawqit</span></footer></div>`;
   } else { appView(n); }
 }
 function admin(){
@@ -684,7 +691,7 @@ async function loadRemote(slug,light){
   Object.entries((st.iqama||{}).wait_min||{}).forEach(([k,x])=>wait[k[0].toUpperCase()+k.slice(1)]=x);
   let cal=light?M.cal:undefined; if(!light)try{const d=new Date(), rc=await fetch(`${SB}/prayer_calendar?mosque_id=eq.${m.id}&day=gte.${iso(d)}&day=lte.${iso(new Date(+d+40*864e5))}&select=*`,H);
     cal={};(await rc.json()).forEach(r=>cal[r.day]=r);localStorage.setItem('cal_'+slug,JSON.stringify(cal))}catch(e){cal=ls('cal_'+slug)}
-  Object.assign(M,{name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',info:m.other_info||'',fac:m.facilities||{},photos:m.photos||[],method:st.calc_method||12,
+  Object.assign(M,{pid:m.public_id,photos:m.photos||[],name:m.name,city:m.city||'',country:m.country,lat:m.lat,lng:m.lng,tz:st.timezone,dlang:(st.display||{}).lang,dh12:!!(st.display||{}).h12,calc:(st.fixed_minutes||{}).calc,cal:cal||{},assoc:m.association||'',address:m.address||'',phone:m.phone||'',email:m.email||'',website:m.website||'',info:m.other_info||'',fac:m.facilities||{},photos:m.photos||[],method:st.calc_method||12,
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
     note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
 }
