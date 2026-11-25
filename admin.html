@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=23,H=(185+B*47)%360;
+(function(){var B=26,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -143,7 +143,15 @@ async function list(){RE=list;
   const ms=data.map(r=>r.mosques).filter(Boolean);
   app.innerHTML=LB()+`<h1>${ta('mymosques')}</h1>${ms.map(m=>`<div class="card"><b>${esc(m.name)}</b><br>${esc(m.city)}<br><button data-id="${m.id}">${ta('manage')}</button></div>`).join('')||`<p>${ta('nomosque')}</p>`}<button id="srch">🔍 ${ta('searchAdd')}</button><button id="new" class="alt">${ta('addm')}</button><button id="out" class="alt">${ta('logout')}</button>`;
   document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>edit(b.dataset.id));
-  $('#srch').onclick=searchScreen; $('#new').onclick=()=>{CLAIM=null;edit()}; $('#out').onclick=async()=>{await sb.auth.signOut();init()};
+  $('#srch').onclick=searchScreen;
+  // Bouton réservé à l'administrateur de l'annuaire : vide la liste importée (pas les mosquées inscrites)
+  const adm=await sb.from('app_admins').select('user_id').eq('user_id',U.id);
+  if(adm.data&&adm.data.length){const b=document.createElement('button');b.className='alt';b.style.marginTop='18px';b.style.borderColor='#ff8a8a';b.style.color='#ff8a8a';
+    b.textContent='Vider la liste de l’annuaire (pour réimporter)';app.appendChild(b);
+    b.onclick=async()=>{if(!confirm('Supprimer TOUTES les mosquées de l’annuaire importé ? Les mosquées inscrites par leurs responsables ne sont pas touchées. Cette action est irréversible.'))return;
+      const r=await sb.from('mosque_directory').delete({count:'exact'}).not('osm_id','is',null);
+      if(r.error)return msg('Erreur : '+r.error.message);msg((r.count??'Toutes les')+' mosquée(s) supprimée(s) de l’annuaire. Tu peux relancer l’import.');list()};}
+ $('#new').onclick=()=>{CLAIM=null;edit()}; $('#out').onclick=async()=>{await sb.auth.signOut();init()};
 }
 
 async function edit(id){RE=()=>edit(id);

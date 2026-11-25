@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=23,H=(185+B*47)%360;
+(function(){var B=26,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -355,7 +355,7 @@ const inpStyle='width:100%;padding:12px;border-radius:12px;background:#ffffff1f;
 function nearHTML(){const cc=PR.cc||'FR';
   return `<div class="glass"><b style="font-size:1.4rem">${tx('nearT')}</b>
   <p><input id="qc" placeholder="${esc(tx('cityPh'))}" value="${esc(PR.city||'')}" style="${inpStyle}" onkeydown="if(event.key==='Enter')searchCity()"></p>
-  <p><select id="qk">${CTRY.map(c=>`<option value="${c}" ${c===cc?'selected':''}>${esc(cname(c))}</option>`).join('')}</select></p>
+  <p><select id="qk">${CTRY.map(c=>`<option value="${c}" ${c===cc?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></p>
   <button class="opt on" onclick="searchCity()">${tx('goSearch')}</button><button class="opt" onclick="findNear()">${tx('orGps')}</button></div><div id="nl"></div>
   <div class="glass"><button class="opt" onclick="toggleSg()">${tx('sgBtn')}</button>
   <div id="sg" style="display:none"><p><input id="sgn" placeholder="${esc(tx('sgName'))}" maxlength="200" style="${inpStyle}"></p>
@@ -370,14 +370,17 @@ async function sgSend(){const name=$('#sgn').value.trim();if(name.length<2||$('#
   const row={name:name.slice(0,200),address:$('#sga').value.trim().slice(0,300)||null,city:$('#sgc').value.trim().slice(0,120)||null,country:$('#qk').value||PR.cc||'FR',lat:SGPOS?SGPOS.lat:null,lng:SGPOS?SGPOS.lng:null};
   try{const r=await fetch(`${SB}/mosque_suggestions`,{method:'POST',headers:{apikey:KEYSB,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});
     if(!r.ok)throw 0;$('#sg').innerHTML=`<p>${tx('sgThanks')}</p>`}catch(e){alert(tx('sgErr'))}}
-async function nearRows(p){
+function matchesCountry(c,cc){if(!cc)return true;const v=String(c||'').trim();if(!v)return true;
+  if(v.toUpperCase()===String(cc).toUpperCase())return true;
+  return gzNorm(v)===gzNorm(cname(cc)||cc)}
+async function nearRows(p,cc){
   const H={headers:{apikey:KEYSB}};let reg=[],dir=[];
   for(const d of [.15,.4,1.2,4]){
     const bb=`lat=gte.${p.lat-d}&lat=lte.${p.lat+d}&lng=gte.${p.lng-d}&lng=lte.${p.lng+d}`;
     try{const [a,b]=await Promise.all([
-      fetch(`${SB}/mosques?select=slug,name,city,address,lat,lng&show_on_map=eq.true&${bb}&limit=500`,H).then(r=>r.json()),
-      fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng,country&claimed_mosque_id=is.null&${bb}&limit=500`,H).then(r=>r.json())]);
-      reg=Array.isArray(a)?a:[];dir=Array.isArray(b)?b:[]}catch(e){break}
+      fetch(`${SB}/mosques?select=slug,name,city,address,lat,lng,country&show_on_map=eq.true&${bb}&limit=500`,H).then(r=>r.json()),
+      fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng,country&claimed_mosque_id=is.null${cc?'&country=eq.'+encodeURIComponent(cc):''}&${bb}&limit=500`,H).then(r=>r.json())]);
+      reg=(Array.isArray(a)?a:[]).filter(m=>matchesCountry(m.country,cc));dir=(Array.isArray(b)?b:[]).filter(m=>matchesCountry(m.country,cc))}catch(e){break}
     if(reg.length+dir.length>=10)break;
   }
   reg.forEach(m=>m.reg=1);dir.forEach(m=>m.reg=0);
@@ -545,12 +548,12 @@ async function liveNom(p,ccP){const cc=p.cc||(await ccP)||PR.cc||'';const rows=[
 function injectDir(rows){for(let i=0;i<rows.length;i+=60){try{fetch(`${SB}/rpc/add_directory_osm`,{method:'POST',headers:{apikey:KEYSB,'Content-Type':'application/json'},
   body:JSON.stringify({p:rows.slice(i,i+60).map(r=>({osm_id:r.osm_id,name:r.name,address:r.address,city:r.city,postcode:r.postcode,country:r.country,lat:r.lat,lng:r.lng,phone:r.phone,website:r.website}))})}).catch(()=>{})}catch(e){}}}
 let SRCHTOK=0;
-async function smartRows(p,cb){SRCERR=[];const tok=++SRCHTOK,ccP=p.cc?Promise.resolve(p.cc):countryOf(p);let dbr=[],nomr=[],ovr=[];
+async function smartRows(p,cb){SRCERR=[];const tok=++SRCHTOK,ccP=p.cc?Promise.resolve(p.cc):countryOf(p);let dbr=[],nomr=[],ovr=[],CC=p.cc||null;ccP.then(c=>{CC=c||null});
   const merge=()=>{const out=dbr.slice();
-    for(const x of nomr.concat(ovr)){if(out.some(r=>(r.osm_id&&r.osm_id===x.osm_id)||(r.reg&&km(r.lat,r.lng,x.lat,x.lng)<.08)||(km(r.lat,r.lng,x.lat,x.lng)<.06&&sameName(r.name,x.name))))continue;out.push({...x,reg:0})}
+    for(const x of nomr.concat(ovr)){if(CC&&!matchesCountry(x.country,CC))continue;if(out.some(r=>(r.osm_id&&r.osm_id===x.osm_id)||(r.reg&&km(r.lat,r.lng,x.lat,x.lng)<.08)||(km(r.lat,r.lng,x.lat,x.lng)<.06&&sameName(r.name,x.name))))continue;out.push({...x,reg:0})}
     out.forEach(m=>m.d=km(p.lat,p.lng,m.lat,m.lng));out.sort((a,b)=>a.d-b.d);return out.slice(0,60)};
   const push=()=>{if(cb&&tok===SRCHTOK)cb(merge())};
-  await Promise.all([nearRows(p).catch(()=>[]).then(r=>{dbr=r;push()}),liveNom(p,ccP).catch(()=>[]).then(r=>{nomr=r;push()}),liveOvp(p,ccP).catch(()=>[]).then(r=>{ovr=r;push()})]);
+  await Promise.all([ccP.then(c=>nearRows(p,c)).catch(()=>[]).then(r=>{dbr=r;push()}),liveNom(p,ccP).catch(()=>[]).then(r=>{nomr=r;push()}),liveOvp(p,ccP).catch(()=>[]).then(r=>{ovr=r;push()})]);
   const known=new Set(dbr.map(r=>r.osm_id).filter(Boolean)),fresh=nomr.concat(ovr).filter(x=>x.osm_id&&!known.has(x.osm_id));
   if(fresh.length)injectDir(fresh);                                   // les nouvelles mosquées entrent automatiquement dans la base
   const fin=merge();SRCERR=SRCERR;const el=document.getElementById('wsrc');if(el)el.innerHTML=`<div class="mute" style="font-size:.85rem;margin-top:10px">Base Attawqit : ${dbr.length} · OpenStreetMap (zones) : ${ovr.length} · OpenStreetMap (mots-clés) : ${nomr.length}${SRCERR.length?'<br>Erreurs : '+SRCERR.map(x=>x.replace(/[<>]/g,'')).join(' ; '):''}</div>`;
@@ -564,6 +567,7 @@ async function geocode(city,cc){const C=String(cc||'').toUpperCase(),lc=C.toLowe
   const pick=(best,lat,lng,bb)=>({lat,lng,rel:best.osm_type==='relation'?+best.osm_id:0,bbox:bb&&bb.length===4&&bb.every(isFinite)?bb:null,cc:C});
   let j=await geocodeOne(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city)}&countrycodes=${lc}&accept-language=${LG()}`);
   if(!j)j=await geocodeOne(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q=${enc(city+', '+cn)}&accept-language=${LG()}`);
+  if(j){j=j.filter(x=>!(x.address&&x.address.country_code)||String(x.address.country_code).toUpperCase()===C);if(!j.length)j=null}
   if(j){const best=j.find(x=>x.osm_type==='relation'&&/administrative|city|town|village|municipality|suburb|borough/.test(String(x.type)+' '+String(x.category)))||j[0];
     const bb=(best.boundingbox||[]).map(Number);return pick(best,+best.lat,+best.lon,bb)}
   const ph=await geocodeOne(`https://photon.komoot.io/api/?q=${enc(city)}&limit=10&lang=${LG()}`);
@@ -574,19 +578,20 @@ async function geocode(city,cc){const C=String(cc||'').toUpperCase(),lc=C.toLowe
 const flagOf=c=>String.fromCodePoint(...[...String(c).toUpperCase()].map(x=>0x1F1E6+x.charCodeAt(0)-65));
 function welcomeHTML(){return `<div class="wl"><div class="lgb"><b>🕌</b><small>ATTAWQIT</small></div><h1>${tx('wTitle')}</h1><p>${tx('wText')}</p>
   <button class="big" onclick="autoFind()">📍 ${tx('wFind')}</button>
-  <div class="wsel"><select id="wk" onchange="cityDraw()">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></div>
   <div id="wcity"><input id="wq" placeholder="${esc(tx('cityPh'))}" style="${inpStyle}" onkeydown="if(event.key==='Enter')wCitySearch()"></div>
+  <div class="wsel"><select id="wk" onchange="cityDraw()">${CTRY.map(c=>`<option value="${c}" ${c===(PR.cc||'FR')?'selected':''}>${flagOf(c)} ${esc(cname(c))}</option>`).join('')}</select></div>
   <button id="wgo" class="big" onclick="wCitySearch()">🔍 ${tx('goSearch')}</button>
   <div id="wst"></div><div id="wres" style="text-align:start"></div><div id="wsrc"></div></div>`}
 function cityDraw(){const k=$('#wk');if(k)PR.cc=k.value;savePR()}
 function showCity(){}
 async function autoFind(){const st=$('#wst');st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
   try{p=await getPos();PR.pos=p;savePR()}catch(e){st.innerHTML=`<div class="wst bad">${geoMsg(e)}</div>`;showCity();return}
-  const rows=await smartRows(p,r=>{if(r.length)wShow(r,false)});wShow(rows,false)}
+  const rows=await smartRows(p,r=>{if(r.length)wShow(r,false)});wShow(rows,false);if(rows.length)location.hash='#proche'}
 async function wCitySearch(){const city=$('#wq').value.trim(),cc=$('#wk').value,st=$('#wst');if(!city)return;PR.city=city;PR.cc=cc;savePR();st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
   try{p=await geocode(city,cc)}catch(e){const dbr=await cityDb(city,cc);if(dbr.length){const c0={lat:dbr[0].lat,lng:dbr[0].lng};dbr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(dbr.sort((a,b)=>a.d-b.d),true);return}const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(nr,true);return}
     st.innerHTML=`<div class="wst bad">${tx('cityNF')}</div>`;return}
-  LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true)}
+  LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true);if(rs.length)location.hash='#proche'}
+let SRESHTML='';
 function wShow(rows,city){$('#wst').innerHTML=`<div class="wst">${tx(rows.length?'wFound':'wNone')}</div>`;renderRows(rows,city,'#wres');
   if(PR.pos||LASTCITY)$('#wres').insertAdjacentHTML('beforeend',`<p style="text-align:center"><button class="ghost" onclick="skipWelcome()">${tx('wLater')}</button></p>`)}
 async function skipWelcome(){if(!PR.pos&&LASTCITY){PR.pos=LASTCITY;savePR()}await refresh()}
@@ -683,6 +688,9 @@ async function loadRemote(slug,light){
     iqama:Object.assign({},def.iqama,wait),jumua:(st.jumua||{}).time||'',manual:{},
     note:(m.announcements||[]).filter(a=>a.active!==false).map(a=>a.content).filter(Boolean).join(' • ')});
 }
+function restoreRes(){if(!LASTR||!LASTR[0]||!LASTR[0].length)return;const t=document.getElementById('wres')?'#wres':(document.getElementById('nl')?'#nl':null);
+  if(t)renderRows(LASTR[0],LASTR[1],t,true)}
+const _view0=view;view=function(){_view0();restoreRes()};
 let SLUG=new URLSearchParams(location.search).get('id')||new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
 addEventListener('hashchange',view);
 (async()=>{if(SLUG)await loadRemote(SLUG);else{applyPersonal();}T=await getTimes();if(!T&&(PR.dir||PR.pos)){applyPersonal();T=await getTimes()}view();setInterval(()=>{if(Date.now()-TOUCHAT<900)return;if((location.hash===''||location.hash==='#mosquee'||location.hash==='#annonces'||location.hash.startsWith('#tv'))&&T)view()},1000)})();
