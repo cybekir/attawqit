@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=31,H=(185+B*47)%360;
+(function(){var B=33,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -183,7 +183,7 @@ async function edit(id){RE=()=>edit(id);
   <button class="alt" id="gps">${ta('gps')}</button><p style="color:var(--mute)">${ta('mapHint')}</p><div id="map"></div>
   ${f('as',ta('assoc'),m.association)}${f('ph',ta('phone'),m.phone,'tel')}${f('em',ta('email'),m.email,'email')}${f('web',ta('website'),m.website)}<label>${ta('otherInfo')}</label><input id="oi" maxlength="200" value="${esc(m.other_info)}">
   <h2>${ta('facTitle')}</h2><div>${FAC.map(([k,ic])=>`<label class="ck"><input type="checkbox" data-f="${k}" ${(m.facilities||{})[k]?'checked':''}> ${ic} ${esc(fl(k))}</label>`).join('')}</div>
-  <h2>${ta('photosT')}</h2>${id?`<div id="ph"></div><label class="alt" style="position:relative;display:inline-block;overflow:hidden;padding:11px 18px;border:1px solid var(--gold);border-radius:14px;color:var(--gold);cursor:pointer">${ta('addPhotos')}<input type="file" id="pf" accept="image/*" multiple style="position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px"></label><p style="color:var(--mute)">${ta('photoMax')}</p>`:`<p style="color:var(--mute)">${ta('savePhotoFirst')}</p>`}
+  <h2>${ta('photosT')}</h2>${id?`<div id="ph"></div><p style="margin:10px 0 4px;color:var(--gold)">${ta('addPhotos')} :</p><input type="file" id="pf" accept="image/*" multiple style="display:block;width:100%;padding:12px;background:#ffffff1f;color:#fff;border:1px solid #ffffff44;border-radius:12px"><p style="color:var(--mute)">${ta('photoMax')}</p>`:`<p style="color:var(--mute)">${ta('savePhotoFirst')}</p>`}
   <h2>${ta('schedules')}</h2>
   <label>${ta('source')}</label>
   <select id="src">${[['auto',ta('src_auto')],['calendar',ta('src_cal')],['official',ta('src_off')],['diyanet','Diyanet İşleri Başkanlığı']].map(([k,n])=>`<option value="${k}" ${(s.calc_source==='api'||!s.calc_source?'auto':s.calc_source)===k?'selected':''}>${n}</option>`).join('')}</select>
@@ -219,10 +219,28 @@ async function edit(id){RE=()=>edit(id);
       document.querySelectorAll('[data-pd]').forEach(b=>b.onclick=async()=>{const u=b.dataset.pd;try{await sb.storage.from(bk).remove([u.split('/'+bk+'/')[1]])}catch(e){}
         ph=ph.filter(x=>x!==u);await sb.from('mosques').update({photos:ph}).eq('id',id);draw()})};
     draw();
-    $('#pf').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length)return;msg('Envoi de '+files.length+' photo(s)…');for(const f of files){if(ph.length>=6){msg(ta('photoMax'));break}
-      try{const blob=await resizeImg(f,1280),path=id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg',up=await sb.storage.from(bk).upload(path,blob,{contentType:'image/jpeg'});
-        if(up.error)throw up.error;ph.push(sb.storage.from(bk).getPublicUrl(path).data.publicUrl)}catch(er){msg(ta('photoErr')+' '+((er&&er.message)||''))}}
-      const r=await sb.from('mosques').update({photos:ph}).eq('id',id);if(r.error)msg(r.error.message);draw()}}
+    const pst=(t,bad)=>{let p=document.getElementById('pst');if(!p){p=document.createElement('p');p.id='pst';const pf=document.getElementById('pf');if(pf)pf.insertAdjacentElement('afterend',p)}p.style.color=bad?'#ff8a8a':'#cfeee8';p.textContent=t};
+    const withTimeout=(pr,ms)=>Promise.race([pr,new Promise((_,rj)=>setTimeout(()=>rj(new Error('délai dépassé (réseau trop lent ou bloqué)')),ms))]);
+    $('#pf').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length){pst('Aucune photo choisie.',true);return}
+      pst('Préparation de '+files.length+' photo(s)…');
+      for(const f of files){
+        if(ph.length>=6){pst(ta('photoMax'),true);break}
+        try{
+          pst('Redimensionnement…');
+          const blob=await withTimeout(resizeImg(f,1280),20000);
+          if(!blob)throw new Error('image illisible');
+          pst('Envoi en cours…');
+          const path=id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
+          const up=await withTimeout(sb.storage.from(bk).upload(path,blob,{contentType:'image/jpeg'}),60000);
+          if(up.error)throw up.error;
+          ph.push(sb.storage.from(bk).getPublicUrl(path).data.publicUrl);
+          const r=await withTimeout(sb.from('mosques').update({photos:ph}).eq('id',id),30000);
+          if(r.error)throw r.error;
+          draw();pst('Photo ajoutée ✔ ('+ph.length+'/6)');alert('Photo ajoutée ✔ ('+ph.length+'/6)');
+        }catch(er){const t='Échec : '+((er&&er.message)||er);pst(t,true);alert(t)}
+      }
+      draw();
+    }}
   $('#back').onclick=e=>{e.preventDefault();list()};
   $('#gps').onclick=()=>navigator.geolocation.getCurrentPosition(p=>{$('#la').value=p.coords.latitude;$('#lo').value=p.coords.longitude;window.MAPSYNC&&window.MAPSYNC()},()=>msg(ta('geoFail')));
   $('#save').onclick=async()=>{
