@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=48,H=(185+B*47)%360;
+(function(){var B=49,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -145,7 +145,7 @@ async function list(){RE=list;
   const {data,error}=await sb.from('mosque_users').select('mosques(id,name,city)').eq('user_id',U.id);
   if(error) return msg(error.message);
   const ms=data.map(r=>r.mosques).filter(Boolean);
-  app.innerHTML=LB()+`<h1>${ta('mymosques')}</h1>${ms.map(m=>`<div class="card"><label style="cursor:pointer"><input type="checkbox" class="selm" data-cid="${m.id}" style="width:auto;margin-right:8px"><b>${esc(m.name)}</b></label><br>${esc(m.city)}<br><button data-id="${m.id}">${ta('manage')}</button></div>`).join('')||`<p>${ta('nomosque')}</p>`}<button id="srch">🔍 ${ta('searchAdd')}</button><button id="new" class="alt">${ta('addm')}</button><button id="out" class="alt">${ta('logout')}</button>`;
+  app.innerHTML=LB()+`<p style="opacity:.5;font-size:.75rem">Espace mosquée · v49</p><h1>${ta('mymosques')}</h1>${ms.map(m=>`<div class="card"><label style="cursor:pointer"><input type="checkbox" class="selm" data-cid="${m.id}" style="width:auto;margin-right:8px"><b>${esc(m.name)}</b></label><br>${esc(m.city)}<br><button data-id="${m.id}">${ta('manage')}</button></div>`).join('')||`<p>${ta('nomosque')}</p>`}<button id="srch">🔍 ${ta('searchAdd')}</button><button id="new" class="alt">${ta('addm')}</button><button id="out" class="alt">${ta('logout')}</button>`;
   document.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>edit(b.dataset.id));
   $('#srch').onclick=searchScreen;
   if(ms.length){const sb2=document.createElement('button');sb2.className='alt';sb2.style.cssText='margin-top:14px;border-color:#ff8a8a;color:#ff8a8a';sb2.textContent='Supprimer les mosquées cochées';app.appendChild(sb2);
@@ -226,6 +226,7 @@ async function edit(id){RE=()=>edit(id);
       const pd=document.getElementById('pdel');if(pd)pd.onclick=()=>delUrls([...document.querySelectorAll('.pcs:checked')].map(c=>c.dataset.u));
     };
     draw();
+    $('#ph').insertAdjacentHTML('beforeend','<p style="color:var(--mute)">Chargement des photos…</p>');
     (async()=>{try{const r=await sb.storage.from(bk).list(id,{limit:100});if(r.error)throw r.error;
       const files=(r.data||[]).filter(f=>f&&f.name&&!f.name.endsWith('/'));
       const urls=files.map(f=>sb.storage.from(bk).getPublicUrl(id+'/'+f.name).data.publicUrl);
