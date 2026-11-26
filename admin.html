@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=57,H=(185+B*47)%360;
+(function(){var B=58,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -196,7 +196,7 @@ async function edit(id){RE=()=>edit(id);
   const c=(s.fixed_minutes||{}).calc||{}, pre=ANG[s.calc_method??12]||ANG[12], fa0=c.fa??pre[0], ia0=c.ia===undefined?pre[1]:c.ia;
   const w=(s.iqama||{}).wait_min||{fajr:30,dhuhr:10,asr:10,maghrib:10,isha:10};
   const f=(i,l,val,t='text')=>`<label>${l}</label><input id="${i}" type="${t}" value="${esc(val)}">`;
-  app.innerHTML=LB()+`<p><a href="#" id="back">${ta('back')}</a></p><h1>${esc(m.name)||ta('newm')}</h1>${claimNote?`<div class="card">${ta('claimNote')}</div>`:''}${id&&m.public_id?`<div class="card" style="font-size:1.1rem">Identifiant de la mosquée : <b style="font-size:1.6rem;letter-spacing:.12em">${esc(m.public_id)}</b><br><small>Tapez ce numéro sur l’écran télé, ou utilisez-le dans l’adresse : ?id=${esc(m.public_id)}</small></div>`:''}${!id&&!claimNote?`<button class="alt" id="tosearch">🔍 ${ta('searchAdd')}</button>`:''}
+  app.innerHTML=LB()+`<p><a href="#" id="back">${ta('back')}</a></p><h1>${esc(m.name)||ta('newm')}</h1>${claimNote?`<div class="card">${ta('claimNote')}</div>`:''}${id&&m.public_id?`<div class="card" style="font-size:.9rem;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1;min-width:160px">Identifiant : <b style="font-size:1rem;letter-spacing:.08em">${esc(m.public_id)}</b><br><small>Scanne le QR code pour ouvrir directement cette mosquée.</small></div><img alt="QR code" width="110" height="110" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&data=${encodeURIComponent('https://attawqit.pages.dev/?id='+m.public_id)}" style="background:#fff;border-radius:8px"></div>`:''}${!id&&!claimNote?`<button class="alt" id="tosearch">🔍 ${ta('searchAdd')}</button>`:''}
   ${id?`<div class="card">${ta('tvscreen')} : <a href="/?m=${m.slug}#tv" target="_blank">/?m=${m.slug}#tv</a><br>${ta('mobilever')} : <a href="/?m=${m.slug}" target="_blank">/?m=${m.slug}</a></div>`:''}
   <h2>${ta('sheet')}</h2>
   ${f('n',ta('name'),m.name)}${f('ad',ta('address'),m.address)}

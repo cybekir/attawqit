@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=57,H=(185+B*47)%360;
+(function(){var B=58,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -199,6 +199,7 @@ body.app .mob .ex b{font-size:clamp(1rem,min(5vw,3.6vh),1.8rem)!important}
 .pg.l-time .pc .bl.on{background:#fff!important;color:#14141c!important;border-color:#fff!important}
 .pg.l-time .pc .bl:not(.on){color:#9a9fb0!important;opacity:.85}
 .pg.l-time .pc .bl svg{width:16px!important;height:16px!important}
+.wx{margin-left:auto;margin-right:8px;font-size:.95rem;opacity:.92;white-space:nowrap;font-weight:600}
 </style>
 </head>
 <body>
@@ -371,8 +372,13 @@ const getPos=()=>new Promise((ok,ko)=>{if(!navigator.geolocation){dbg('GPS : non
   const bad=e=>{const m={1:'autorisation refusée',2:'position indisponible',3:'délai dépassé'}[e&&e.code]||'erreur '+(e&&e.message||'inconnue');dbg('GPS : '+m+' (code '+(e&&e.code)+')');ko(e)};
   navigator.geolocation.getCurrentPosition(good,e=>{if(e&&e.code===1)return bad(e);navigator.geolocation.getCurrentPosition(good,bad,{enableHighAccuracy:true,timeout:15000,maximumAge:0})},{enableHighAccuracy:false,timeout:8000,maximumAge:600000})});
 const geoMsg=e=>tx(e&&e.code===1?'geoDenied':'geoOff');
-function selBanner(){const nm=M.name||(PR.dir&&PR.dir.name)||'';const ct=[M.city||(PR.dir&&PR.dir.city),M.country||(PR.dir&&cname(PR.dir.country))].filter(Boolean).join(', ');
-  return `<a class="sel" href="#proche"><span class="av">${svg('pray')}</span><span class="sn"><b>${esc(nm)}</b><small>${esc(ct)}</small></span><span class="chev">⌄</span></a>`}
+let WXC={};async function wxFill(){const el=document.getElementById('wx');if(!el)return;const lat=+(M.lat??(PR.dir&&PR.dir.lat)),lng=+(M.lng??(PR.dir&&PR.dir.lng));
+  if(!isFinite(lat)||!isFinite(lng))return;const key='wx_'+lat.toFixed(2)+'_'+lng.toFixed(2);
+  try{const c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.t<1800000){el.textContent=c.v;return}}catch(e){}
+  try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lng+'&current_weather=true');const j=await r.json();
+    if(j&&j.current_weather){const v=Math.round(j.current_weather.temperature)+'°C';el.textContent=v;localStorage.setItem(key,JSON.stringify({t:Date.now(),v}))}}catch(e){}}
+function selBanner(){setTimeout(wxFill,30);const nm=M.name||(PR.dir&&PR.dir.name)||'';const ct=[M.city||(PR.dir&&PR.dir.city),M.country||(PR.dir&&cname(PR.dir.country))].filter(Boolean).join(', ');
+  return `<a class="sel" href="#proche"><span class="av">${svg('pray')}</span><span class="sn"><b>${esc(nm)}</b><small>${esc(ct)}</small></span><span class="wx" id="wx"></span><span class="wx" id="wx"></span><span class="chev">⌄</span></a>`}
 function applyPersonal(){const P=PR.dir||PR.pos;if(SLUG||!P)return;const D=PR.dir;
   Object.assign(M,{name:D?D.name:tx('myloc'),city:D?D.city:'',country:D?cname(D.country):'',address:D?D.address:'',phone:'',email:'',website:'',info:'',association:'',fac:{},photos:[],
     lat:P.lat,lng:P.lng,tz:Intl.DateTimeFormat().resolvedOptions().timeZone,method:PR.method,calc:{fa:PR.fa,ia:PR.ia,imin:PR.imin,asr:PR.asr},cal:{},manual:{},note:'',iqama:def.iqama}) }
@@ -663,7 +669,7 @@ function designHTML(){const LY=[['grid','layGrid'],['wide','layWide'],['list','l
   const hs=(h,sa)=>`linear-gradient(135deg,hsl(${h},${sa}%,48%),hsl(${h},${Math.round(sa*.9)}%,16%))`;
   return `<div class="glass"><b>${tx('designT')}</b><p>${LY.map(([k,t])=>`<button class="lay ${cur===k?'on':''}" onclick="setPref('lay','${k}')"><i class="mp mp-${k}"><b></b><b></b><b></b><b></b><b></b><b></b></i><span>${tx(t)}</span></button>`).join('')}</p>
   <b>${tx('colorT')}</b><p><button class="pw ${pal==='auto'?'on':''}" style="background:conic-gradient(#e0457b,#e8a23a,#7fcf5a,#3ac4c0,#5a7be8,#a05ae8,#e0457b)" onclick="setPal('auto')" aria-label="Auto">Auto</button>${Object.entries(PALS).map(([k,[h,sa]])=>`<button class="pw ${pal===k?'on':''}" style="background:${hs(h,sa)}" onclick="setPal('${k}')" aria-label="${k}">${pal===k?'✓':''}</button>`).join('')}</p></div>`}
-function appView(n){
+function appView(n){setTimeout(wxFill,30);
   const h=location.hash,now=new Date(),lg=LG(),loc=LOC[lg]||'fr-FR';
   const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces'||h==='#y');
   if(live&&!ready){$('#app').innerHTML=((PR.dir||SLUG)?'<div class="mob" style="padding-bottom:0">'+selBanner()+'</div>':'')+welcomeHTML();return}
@@ -677,7 +683,7 @@ function appView(n){
     const greg=now.toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'}),av=(M.photos||[]).filter(imgOk)[0];
     const cdn=tx('cdin').replace('{p}',esc(PN(n.p))).replace('{t}','<b>'+n.left.slice(0,5)+'</b>');
     head=`<div class="hd"><div class="cdn">${cdn}</div><div class="hb"><a class="rb" href="#reglages" aria-label="notifications">${svg(PR.nf&&PR.nf.on?'bell':'bell0')}</a><a class="rb" href="#" onclick="goTo('');return false" aria-label="Attawqit" title="Attawqit">🕌</a><a class="rb" href="#proche" aria-label="search">${svg('search')}</a></div></div>
-    <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="chev">⌄</span></a>
+    <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="wx" id="wx"></span><span class="chev">⌄</span></a>
     <div class="dts"><span>${esc(hij)}</span><i></i><span>${esc(greg)}</span></div>
     <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')],['#y',tx('yGo')]].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
     if(h==='#mosquee')body=`${SLUG&&!M.loaded?`<div class="glass" style="margin-top:0;border:1px solid #ff8a8a">Fiche non chargée depuis la base. Ouvre le site dans Chrome ou Safari (pas depuis l’aperçu du fichier) et vérifie la connexion.<br><small>Détail : ${esc(LOADERR||'inconnu')}</small><br><button class="opt on" style="margin-top:8px" onclick="retryLoad()">Réessayer</button></div>`:''}<div class="glass" style="margin-top:8px"><b style="font-size:1.4rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
