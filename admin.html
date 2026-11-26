@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=51,H=(185+B*47)%360;
+(function(){var B=54,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -141,6 +141,29 @@ async function delMosques(ids){if(!ids||!ids.length){msg('Coche au moins une mos
   if(!confirm('Supprimer '+ids.length+' mosquée(s) ? Leur fiche, leurs horaires et leurs annonces seront effacés définitivement.'))return;
   let n=0;for(const id of ids){const r=await sb.from('mosques').delete({count:'exact'}).eq('id',id);if(r.error)return msg('Erreur : '+r.error.message);n+=r.count||0}
   msg(n+' mosquée(s) supprimée(s).');list()}
+async function showPhotoManager(mid){
+  const bk='mosque-photos';
+  document.querySelectorAll('#phmgr').forEach(e=>e.remove());
+  const h=[...document.querySelectorAll('h2')].find(x=>/Photos/i.test(x.textContent));
+  const box=document.createElement('div');box.id='phmgr';box.className='card';
+  box.innerHTML='<p style="color:var(--mute)">Chargement des photos…</p>';
+  if(h)h.insertAdjacentElement('afterend',box);else document.getElementById('app').prepend(box);
+  let r;try{r=await sb.storage.from(bk).list(mid,{limit:100})}catch(e){box.innerHTML='<p style="color:#ff8a8a">Erreur : '+esc(e.message)+'</p>';return}
+  if(r.error){box.innerHTML='<p style="color:#ff8a8a">Erreur : '+esc(r.error.message)+'</p>';return}
+  const files=(r.data||[]).filter(f=>f&&f.name&&!f.name.endsWith('/')).map(f=>({name:f.name,path:mid+'/'+f.name,url:sb.storage.from(bk).getPublicUrl(mid+'/'+f.name).data.publicUrl}));
+  box.innerHTML='<b>'+files.length+' photo(s) dans l’espace de cette mosquée</b><p style="color:var(--mute);font-size:.85rem">Touche une image pour l’agrandir. Coche celles à supprimer.</p>'+
+    (files.length?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+files.map(f=>'<div style="background:#ffffff14;border-radius:12px;padding:6px"><img data-zoom="'+esc(f.url)+'" src="'+esc(f.url)+'" alt="" style="width:100%;height:110px;object-fit:cover;border-radius:10px;cursor:zoom-in"><label style="display:block;margin-top:4px;cursor:pointer;font-size:.9rem"><input type="checkbox" class="phc" data-p="'+esc(f.path)+'" style="width:auto;margin-right:6px">Supprimer</label></div>').join('')+'</div><button id="phdel" class="alt" style="margin-top:10px;border-color:#ff8a8a;color:#ff8a8a">Supprimer les photos cochées</button>':'<p>Aucune photo trouvée dans l’espace de cette mosquée.</p>');
+  box.querySelectorAll('[data-zoom]').forEach(i=>i.onclick=()=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:#000d;display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px';o.innerHTML='<img src="'+i.dataset.zoom+'" style="max-width:100%;max-height:90vh;border-radius:12px"><button style="position:absolute;top:16px;right:16px;font-size:1.4rem">✕</button>';o.onclick=()=>o.remove();document.body.appendChild(o)});
+  const pd=box.querySelector('#phdel');
+  if(pd)pd.onclick=async()=>{const paths=[...box.querySelectorAll('.phc:checked')].map(c=>c.dataset.p);
+    if(!paths.length){alert('Coche au moins une photo.');return}
+    if(!confirm('Supprimer '+paths.length+' photo(s) ? Action définitive.'))return;
+    const d=await sb.storage.from(bk).remove(paths);if(d.error){alert('Erreur : '+d.error.message);return}
+    const mq=await sb.from('mosques').select('photos').eq('id',mid).single();
+    const cur=(mq.data&&mq.data.photos)||[];
+    await sb.from('mosques').update({photos:cur.filter(u=>!paths.some(p=>String(u).includes(p)))}).eq('id',mid);
+    showPhotoManager(mid)};
+}
 async function list(){RE=list;
   const {data,error}=await sb.from('mosque_users').select('mosques(id,name,city)').eq('user_id',U.id);
   if(error) return msg(error.message);
@@ -213,6 +236,7 @@ async function edit(id){RE=()=>edit(id);
   $('#src').onchange=sync; {const x=v('src');$('#autoBox').style.display=x==='calendar'?'none':'block';const cb=$('#csvBox');if(cb)cb.style.display=x==='calendar'?'block':'none'}
   try{initMap()}catch(e){alert("Erreur carte : "+((e&&e.message)||e))}
   if(id&&$('#delm'))$('#delm').onclick=()=>delMosques([id]);
+  if(id)setTimeout(()=>showPhotoManager(id),0);
   if($('#tosearch'))$('#tosearch').onclick=searchScreen;
   if(id){let ph=[...(m.photos||[])];const bk='mosque-photos';
     const delUrls=async urls=>{if(!urls.length)return;if(!confirm('Supprimer '+urls.length+' photo(s) de la fiche ? Action définitive.'))return;
@@ -257,7 +281,7 @@ async function edit(id){RE=()=>edit(id);
           ph.push(sb.storage.from(bk).getPublicUrl(path).data.publicUrl);
           const r=await withTimeout(sb.from('mosques').update({photos:ph}).eq('id',id),30000);
           if(r.error)throw r.error;
-          draw();pst('Photo ajoutée ✔ ('+ph.length+'/6)');alert('Photo ajoutée ✔ ('+ph.length+'/6)');
+          draw();pst('Photo ajoutée ✔ ('+ph.length+'/6)');if(typeof showPhotoManager==='function')showPhotoManager(id);alert('Photo ajoutée ✔ ('+ph.length+'/6)');
         }catch(er){const t='Échec : '+((er&&er.message)||er);pst(t,true);alert(t)}
       }
       draw();
