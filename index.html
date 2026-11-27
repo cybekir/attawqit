@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=63,H=(185+B*47)%360;
+(function(){var B=64,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -216,6 +216,9 @@ body.app .pc.next .bl{color:#ffffff!important}
 .hb{align-self:flex-end;order:1}
 .cdn{order:2;align-self:center;text-align:center}
 body.app .mob .cdn{font-size:clamp(1.1rem,min(5vw,3.6vh),1.6rem)!important;line-height:1.1!important}
+/* Toutes les tuiles de prière ont exactement la même taille */
+body.app .mob .pg .pc,body.app .mob .pg .pc.next{min-height:0!important;height:100%!important;transform:none!important;scale:1!important;box-sizing:border-box!important}
+body.app .mob .pg{grid-auto-flow:row!important}
 </style>
 </head>
 <body>
@@ -689,7 +692,7 @@ const svg=k=>`<svg viewBox="0 0 24 24" class="sv">${IC[k]}</svg>`;
 const PALS={emerald:[155,70],sapphire:[220,78],ruby:[350,72],amber:[38,80],violet:[268,70],turquoise:[183,75],rose:[322,70],graphite:[220,7]};
 function applyPal(){if(!window.applyHue)return;const p=PALS[PR.pal];p?window.applyHue(p[0],p[1]):window.applyHue(window.HUE,75)}
 async function setPal(p){PR.pal=p;savePR();applyPal();view()}
-function designHTML(){const LY=[['grid','layGrid'],['wide','layWide'],['list','layList'],['time','layTime'],['min','layMin'],['glass','layGlass']],cur=PR.lay||'grid',pal=PR.pal||'auto';
+function designHTML(){const LY=[['grid','layGrid'],['glass','layGlass']],cur=PR.lay||'grid',pal=PR.pal||'auto';
   const hs=(h,sa)=>`linear-gradient(135deg,hsl(${h},${sa}%,48%),hsl(${h},${Math.round(sa*.9)}%,16%))`;
   return `<div class="glass"><b>${tx('designT')}</b><p>${LY.map(([k,t])=>`<button class="lay ${cur===k?'on':''}" onclick="setPref('lay','${k}')"><i class="mp mp-${k}"><b></b><b></b><b></b><b></b><b></b><b></b></i><span>${tx(t)}</span></button>`).join('')}</p>
   <b>${tx('colorT')}</b><p><button class="pw ${pal==='auto'?'on':''}" style="background:conic-gradient(#e0457b,#e8a23a,#7fcf5a,#3ac4c0,#5a7be8,#a05ae8,#e0457b)" onclick="setPal('auto')" aria-label="Auto">Auto</button>${Object.entries(PALS).map(([k,[h,sa]])=>`<button class="pw ${pal===k?'on':''}" style="background:${hs(h,sa)}" onclick="setPal('${k}')" aria-label="${k}">${pal===k?'✓':''}</button>`).join('')}</p></div>`}
@@ -719,7 +722,7 @@ function appView(n){setTimeout(wxFill,30);
         return `<div class="pc ${isN?'next':''}${past?' past':''}"><span class="pn">${esc(PN(k))}</span><b class="pt">${fmt(t)}</b><span class="pi">${k==='Sunrise'?'&nbsp;':(isN?fmt(hhmm(t,dl)):'+'+dl)}</span>${k==='Sunrise'?'':`<button class="bl ${adOn?'on':''}" onclick="toggleAd('${k}')" aria-label="adhan">${svg(adOn?'bell':'bell0')}</button>`}</div>`};
       const mn=t=>{const [a,b]=t.split(':').map(Number);return a*60+b},mg=mn(T.Maghrib),nt=mn(T.Fajr)+1440-mg,hm2=x=>{x=Math.round(x)%1440;return String(Math.floor(x/60)).padStart(2,'0')+':'+String(x%60).padStart(2,'0')};
       const ex=[...(M.jumua?[[tx('jumua'),fmt(M.jumua)]]:[]),[tx('midnight'),fmt(hm2(mg+nt/2))],[tx('lastThird'),fmt(hm2(mg+nt*2/3))]];
-      body=`<div class="pg l-${PR.lay||'grid'}">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div>`}
+      body=`<div class="pg l-${(PR.lay==='glass'||PR.lay==='grid')?PR.lay:'grid'}">${['Fajr','Sunrise','Dhuhr','Asr','Maghrib','Isha'].map(cd).join('')}</div><div class="ex">${ex.map(([a,b])=>`<div><span>${esc(a)}</span><b>${b}</b></div>`).join('')}</div>`}
   }
   $('#app').innerHTML=`<div class="mob">${head||((PR.dir||SLUG)?selBanner():'')}${body}${h==='#mosquee'&&SLUG?`<div class="mute" style="font-size:.75rem;text-align:center;margin-top:10px">Fiche ${M.loaded?'chargée depuis la base':'NON chargée'} · annonces : ${(M.anns||[]).length} · photos : ${(M.photos||[]).filter(imgOk).length}</div>`:''}</div>${nav}`;
   if(h==='#qibla')bindQibla();
