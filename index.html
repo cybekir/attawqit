@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=62,H=(185+B*47)%360;
+(function(){var B=63,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -210,6 +210,12 @@ body.app .pc.next .bl{color:#ffffff!important}
 .qb.ok #qdial circle:first-of-type{stroke:#5fe08a!important}
 .qb.ok #qneedle path{stroke:#5fe08a!important;fill:#5fe08a!important}
 .qb.ok #qhint{color:#5fe08a!important;font-weight:700}
+.topLogo{display:flex;justify-content:center;margin:2px 0 4px}
+.topLogo img{height:clamp(54px,9vh,80px);width:auto;max-width:60vw;object-fit:contain;border-radius:50%}
+.hd{flex-direction:column!important;align-items:center!important;gap:4px!important}
+.hb{align-self:flex-end;order:1}
+.cdn{order:2;align-self:center;text-align:center}
+body.app .mob .cdn{font-size:clamp(1.1rem,min(5vw,3.6vh),1.6rem)!important;line-height:1.1!important}
 </style>
 </head>
 <body>
@@ -700,7 +706,7 @@ function appView(n){setTimeout(wxFill,30);
     let hij='';try{hij=new Intl.DateTimeFormat(loc.split('-u-')[0]+'-u-ca-islamic-umalqura'+(lg==='ar'?'-nu-latn':''),{day:'numeric',month:'long',year:'numeric'}).format(now).replace(' AH','')}catch(e){}
     const greg=now.toLocaleDateString(loc,{weekday:'short',day:'numeric',month:'short'}),av=(M.photos||[]).filter(imgOk)[0];
     const cdn=tx('cdin').replace('{p}',esc(PN(n.p))).replace('{t}','<b>'+n.left.slice(0,5)+'</b>');
-    head=`<div class="hd"><div class="cdn">${cdn}</div><div class="hb"><a class="rb" href="#reglages" aria-label="notifications">${svg(PR.nf&&PR.nf.on?'bell':'bell0')}</a><a class="rb" href="#" onclick="goTo('');return false" aria-label="Attawqit" title="Attawqit">🕌</a><a class="rb" href="#proche" aria-label="search">${svg('search')}</a></div></div>
+    head=`<div class="topLogo"><a href="#" onclick="goTo('');return false" aria-label="Attawqit"><img src="attawqit-logo.jpg" alt="Attawqit"></a></div><div class="hd"><div class="cdn">${cdn}</div><div class="hb"><a class="rb" href="#reglages" aria-label="notifications">${svg(PR.nf&&PR.nf.on?'bell':'bell0')}</a><a class="rb" href="#proche" aria-label="search">${svg('search')}</a></div></div>
     <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="wx" id="wx"></span><span class="chev">⌄</span></a>
     <div class="dts"><span>${esc(hij)}</span><i></i><span>${esc(greg)}</span></div>
     <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')],['#y',tx('yGo')]].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
