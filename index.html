@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=66,H=(185+B*47)%360;
+(function(){var B=67,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -429,6 +429,25 @@ const FACL={"fr": {"women": "Espace pour femmes", "wudu": "Salle d’ablutions",
 const fl=k=>(FACL[LG()]||FACL.fr)[k]||k;
 const safeUrl=u=>/^https?:\/\//i.test(String(u||''))?String(u):'';
 const imgOk=u=>String(u||'').startsWith(SB.replace('/rest/v1','')+'/storage/');
+const ISL_EVENTS=[
+{m:1,d:1,n:'Nouvel an hégirien (1 Muharram)'},
+{m:1,d:10,n:'Achoura (10 Muharram)'},
+{m:3,d:12,n:'Mawlid — naissance du Prophète ﷺ'},
+{m:7,d:27,n:'Isra et Mi\u2019raj'},
+{m:8,d:15,n:'Nuit de la mi-Chaabane'},
+{m:9,d:1,n:'Début du Ramadan'},
+{m:9,d:27,n:'Laylat al-Qadr (nuit du Destin, approx.)'},
+{m:10,d:1,n:'Aïd al-Fitr'},
+{m:12,d:9,n:'Jour d’Arafat'},
+{m:12,d:10,n:'Aïd al-Adha'}];
+function hijriOf(d){const f=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'numeric',year:'numeric'});const p={};f.formatToParts(d).forEach(x=>p[x.type]=x.value);return{day:+p.day,month:+p.month}}
+function nextIslamicEvents(){const out=[],start=new Date();start.setHours(0,0,0,0);
+  for(let i=0;i<370;i++){const d=new Date(+start+i*864e5),h=hijriOf(d);
+    for(const e of ISL_EVENTS){if(h.day===e.d&&h.month===e.m&&!out.some(x=>x.n===e.n))out.push({n:e.n,date:d,days:i})}}
+  return out.sort((a,b)=>a.days-b.days)}
+function calHTML(){const ev=nextIslamicEvents();const fr=d=>d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  return `<div class="glass" style="margin-top:0"><b style="font-size:1.3rem">Calendrier des fêtes et événements</b><p style="font-size:.85rem;opacity:.8;margin:6px 0 0">Dates calculées selon le calendrier hégirien (Umm al-Qura). Elles peuvent changer d’un jour selon l’observation de la lune dans chaque pays.</p></div>`+
+    ev.map(e=>`<div class="glass" style="margin-top:8px;display:flex;justify-content:space-between;gap:10px;align-items:center"><div><b>${esc(e.n)}</b><br><small style="opacity:.85">${esc(fr(e.date))}</small></div><span style="white-space:nowrap;font-weight:700">${e.days===0?'Aujourd’hui':e.days===1?'Demain':'dans '+e.days+' j'}</span></div>`).join('')}
 function yallHTML(){const ps=(M.photos||[]).filter(imgOk);const hasGps=M.lat!=null&&isFinite(+M.lat);
   const gps=hasGps?`https://www.google.com/maps/dir/?api=1&destination=${(+M.lat).toFixed(6)},${(+M.lng).toFixed(6)}`:'';
   return `<div class="glass" style="margin-top:0"><b style="font-size:1.3rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>`+
@@ -708,7 +727,7 @@ function designHTML(){const LY=[['grid','layGrid'],['glass','layGlass']],cur=PR.
   <b>${tx('colorT')}</b><p><button class="pw ${pal==='auto'?'on':''}" style="background:conic-gradient(#e0457b,#e8a23a,#7fcf5a,#3ac4c0,#5a7be8,#a05ae8,#e0457b)" onclick="setPal('auto')" aria-label="Auto">Auto</button>${Object.entries(PALS).map(([k,[h,sa]])=>`<button class="pw ${pal===k?'on':''}" style="background:${hs(h,sa)}" onclick="setPal('${k}')" aria-label="${k}">${pal===k?'✓':''}</button>`).join('')}</p></div>`}
 function appView(n){setTimeout(wxFill,30);
   const h=location.hash,now=new Date(),lg=LG(),loc=LOC[lg]||'fr-FR';
-  const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces'||h==='#y');
+  const ready=!!(T&&n&&(SLUG||PR.pos||PR.dir)),live=(h===''||h==='#mosquee'||h==='#annonces'||h==='#cal');
   if(live&&!ready){$('#app').innerHTML=((PR.dir||SLUG)?'<div class="mob" style="padding-bottom:0">'+selBanner()+'</div>':'')+welcomeHTML();return}
   let body='',head='';
   const nav=`<nav class="bn"><div class="bi">${[['','pray',tx('pray')],['#qibla','qibla',tx('qibla')],['#proche','near',tx('near')],['#reglages','set',tx('set')]]
@@ -722,9 +741,9 @@ function appView(n){setTimeout(wxFill,30);
     head=`<div class="hd"><div class="topLogo"><a href="#" onclick="goTo('');return false" aria-label="Attawqit"><img src="attawqit-logo.jpg" alt="Attawqit"></a></div><div class="cdn">${cdn}</div><div class="hb"><a class="rb" href="#reglages" aria-label="notifications">${svg(PR.nf&&PR.nf.on?'bell':'bell0')}</a><a class="rb" href="#proche" aria-label="search">${svg('search')}</a></div></div>
     <a class="sel" href="#proche"><span class="av">${av?`<img src="${esc(av)}" alt="">`:svg('pray')}</span><span class="sn"><b>${esc(M.name)}</b><small>${esc([M.city,M.country].filter(Boolean).join(', '))}</small></span><span class="wx" id="wx">${wxCached()}</span><span class="chev">⌄</span></a>
     <div class="dts"><span>${esc(hij)}</span><i></i><span>${esc(greg)}</span></div>
-    <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')],['#y',tx('yGo')]].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
-    if(h==='#mosquee')body=`${SLUG&&!M.loaded?`<div class="glass" style="margin-top:0;border:1px solid #ff8a8a">Fiche non chargée depuis la base. Ouvre le site dans Chrome ou Safari (pas depuis l’aperçu du fichier) et vérifie la connexion.<br><small>Détail : ${esc(LOADERR||'inconnu')}</small><br><button class="opt on" style="margin-top:8px" onclick="retryLoad()">Réessayer</button></div>`:''}<div class="glass" style="margin-top:8px"><b style="font-size:1.4rem">${esc(M.name)}</b><p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
-    else if(h==='#y')body=yallHTML();
+    <div class="seg">${[['',tx('prayers')],['#mosquee',tx('info')],['#annonces',tx('ann')],['#cal','Calendrier']].map(([k,t])=>`<a href="${k||'#'}" class="${h===k?'on':''}">${t}</a>`).join('')}</div>`;
+    if(h==='#mosquee')body=`${SLUG&&!M.loaded?`<div class="glass" style="margin-top:0;border:1px solid #ff8a8a">Fiche non chargée depuis la base. Ouvre le site dans Chrome ou Safari (pas depuis l’aperçu du fichier) et vérifie la connexion.<br><small>Détail : ${esc(LOADERR||'inconnu')}</small><br><button class="opt on" style="margin-top:8px" onclick="retryLoad()">Réessayer</button></div>`:''}<div class="glass" style="margin-top:8px"><b style="font-size:1.4rem">${esc(M.name)}</b>${(M.lat!=null&&isFinite(+M.lat))?`<a href="https://www.google.com/maps/dir/?api=1&destination=${(+M.lat).toFixed(6)},${(+M.lng).toFixed(6)}" target="_blank" rel="noopener" aria-label="GPS" title="Itinéraire GPS" style="display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#ffffff26;margin-left:8px;text-decoration:none;font-size:1.2rem;vertical-align:middle">📍</a>`:''}<p>${esc([M.address,M.city].filter(Boolean).join(', '))}</p>${PR.dir&&!SLUG?`<p style="font-size:.9rem;opacity:.85">${tx('calcAuto')}</p><a class="opt" style="text-decoration:none;display:inline-block" href="admin.html?claim=${encodeURIComponent(PR.dir.id)}">${tx('claimBtn')}</a>`:''}${M.association?`<p>${esc(M.association)}</p>`:''}${M.phone?`<p>📞 <a href="tel:${esc(M.phone)}">${esc(M.phone)}</a></p>`:''}${M.email?`<p>✉️ <a href="mailto:${esc(M.email)}">${esc(M.email)}</a></p>`:''}${safeUrl(M.website)?`<p>🌐 <a href="${esc(safeUrl(M.website))}" target="_blank" rel="noopener">${esc(M.website)}</a></p>`:''}${M.info?`<p>${esc(M.info)}</p>`:''}</div>${facHTML()}${photosHTML()}`;
+    else if(h==='#cal')body=calHTML();
     else if(h==='#annonces'){const a=(M.anns&&M.anns.length)?M.anns:(M.note||'').split(' • ').filter(Boolean);body=a.length?a.map(x=>`<div class="glass" style="margin-top:0">${esc(x)}</div>`).join(''):`<div class="glass" style="margin-top:0">${tx(SLUG?'noann':'noAnnPick')}</div>`}
     else{
       const nw=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
