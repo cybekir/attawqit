@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=61,H=(185+B*47)%360;
+(function(){var B=62,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -206,6 +206,10 @@ body.app .pc .bl.on{background:transparent!important;color:#ffffff!important;bor
 body.app .pc .bl:not(.on){color:#7c8194!important;opacity:.9!important}
 body.app .pc .bl svg{width:26px!important;height:26px!important;stroke:currentColor!important;fill:none!important}
 body.app .pc.next .bl{color:#ffffff!important}
+.qb.ok{background:#082a1c!important;box-shadow:inset 0 0 0 2px #5fe08a!important}
+.qb.ok #qdial circle:first-of-type{stroke:#5fe08a!important}
+.qb.ok #qneedle path{stroke:#5fe08a!important;fill:#5fe08a!important}
+.qb.ok #qhint{color:#5fe08a!important;font-weight:700}
 </style>
 </head>
 <body>
@@ -323,7 +327,7 @@ function qiblaTurn(){const d=document.getElementById('qdial'),n=document.getElem
   if(QH==null){d.style.transform='rotate(0deg)';return}
   d.style.transform=`rotate(${-QH}deg)`;
   const b=+(QB||0),diff=((b-QH)%360+540)%360-180,hint=Math.abs(diff)<4?'✔ '+(tx('qOn')||'Qibla'):(diff>0?(tx('qRight')||'Tournez vers la droite'):(tx('qLeft')||'Tournez vers la gauche'));
-  if(h)h.textContent=hint}
+  const qb=document.querySelector('.qb');if(qb)qb.classList.toggle('ok',Math.abs(diff)<4);if(h)h.textContent=hint}
 function goTo(h){if(location.hash!==h)location.hash=h;try{view()}catch(e){}}
 function bindQibla(){const bt=$('#cmp');
   const pos=PR.pos||(M.lat!=null?{lat:+M.lat,lng:+M.lng}:null);if(pos)QB=qiblaBearing(pos.lat,pos.lng);
@@ -789,9 +793,13 @@ function infoBlock(){if(!SLUG)return '';
   return `${btns}${anns}${facs?`<div class="glass" style="margin-top:8px"><b>${tx('facTitle')}</b><p>${facs}</p></div>`:''}${M.info?`<div class="glass" style="margin-top:8px">${esc(M.info)}</div>`:''}`+
     `<div class="mute" style="font-size:.75rem;text-align:center;margin-top:10px">${M.loaded?'Fiche chargée depuis la base':'Fiche non chargée (hors ligne ou erreur)'} · ${(M.anns||[]).length} annonce(s) · ${nF} installation(s)</div>`}
 function retryLoad(){if(!SLUG)return;loadRemote(SLUG).then(()=>{T=null;getTimes().then(t=>{T=t;view()})})}
+function fitPrayer(){const m=document.querySelector('.mob:has(>.pg)');if(!m)return;
+  m.style.zoom='';m.style.height='100dvh';let k=1;
+  for(let t=0;t<20&&m.scrollHeight>m.clientHeight+2&&k>0.55;t++){k=Math.round(k*93)/100;m.style.zoom=k;m.style.height=(100/k)+'dvh'}}
 function restoreRes(){if(!LASTR||!LASTR[0]||!LASTR[0].length)return;const t=document.getElementById('wres')?'#wres':(document.getElementById('nl')?'#nl':null);
   if(t)renderRows(LASTR[0],LASTR[1],t,true)}
-const _view0=view;view=function(){_view0();restoreRes()};
+const _view0=view;view=function(){_view0();restoreRes();try{fitPrayer()}catch(e){}};
+addEventListener('resize',()=>{try{fitPrayer()}catch(e){}});
 let SLUG=new URLSearchParams(location.search).get('id')||new URLSearchParams(location.search).get('m')||(()=>{try{return localStorage.getItem('fav_slug')}catch(e){return null}})();
 addEventListener('hashchange',view);
 (async()=>{if(SLUG)await loadRemote(SLUG);else{applyPersonal();}T=await getTimes();if(!T&&(PR.dir||PR.pos)){applyPersonal();T=await getTimes()}view();setInterval(()=>{if(Date.now()-TOUCHAT<900)return;if((location.hash===''||location.hash==='#mosquee'||location.hash==='#annonces'||location.hash.startsWith('#tv'))&&T)view()},1000)})();
