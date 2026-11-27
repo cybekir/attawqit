@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=59,H=(185+B*47)%360;
+(function(){var B=60,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -590,9 +590,13 @@ function nomRow(x,cc){const a=x.address||{},id=(x.osm_type&&x.osm_id)?x.osm_type
   const nm=String(x.name||a.amenity||String(x.display_name||'').split(',')[0]||'').trim()||'Mosquée';
   return{osm_id:id,name:nm.slice(0,200),address:[a.house_number,a.road].filter(Boolean).join(' ')||null,city:a.city||a.town||a.village||a.suburb||a.municipality||null,postcode:a.postcode||null,
     country:String(a.country_code||cc||'').toUpperCase()||null,lat:+x.lat,lng:+x.lon,phone:null,website:null}}
-async function nomText(p,cc,q){let vb;if(p.bbox){const [s,n,w,e]=p.bbox;vb=`${w},${n},${e},${s}`}else{const d=.12;vb=`${p.lng-d},${p.lat+d},${p.lng+d},${p.lat-d}`}
-  let j;try{const r=await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=40&q=${enc(q)}&viewbox=${vb}&accept-language=${LG()}`);if(!r.ok){serr('Nominatim : erreur '+r.status);return[]}j=await r.json()}catch(e){serr('Nominatim : réseau bloqué ('+(e&&e.message||'inconnu')+')');return[]}
+async function nomText(p,cc,q){let j;try{const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${enc(q)}&format=json&addressdetails=1&limit=25&accept-language=${LG()}`);if(!r.ok){serr('Nominatim : erreur '+r.status);return[]}j=await r.json()}catch(e){serr('Nominatim : réseau bloqué ('+(e&&e.message||'inconnu')+')');return[]}
   return(Array.isArray(j)?j:[]).filter(x=>/place_of_worship|mosque/.test(String(x.type)+' '+String(x.category))||/mosqu|masjid|moschee|مسجد|جامع/i.test(String(x.display_name||''))).map(x=>nomRow(x,cc)).filter(Boolean)}
+async function cityOf(p){if(p.cityName)return p.cityName;if(p._city!==undefined)return p._city;
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${p.lat}&lon=${p.lng}&format=json&addressdetails=1&accept-language=${LG()}`);const j=await r.json();const a=(j&&j.address)||{};
+    p._city=a.city||a.town||a.village||a.municipality||a.county||null}catch(e){p._city=null}
+  return p._city}
+
 async function cityDb(q,cc){try{const C=String(cc||'').toUpperCase(),k=encodeURIComponent('*'+q+'*');
   const r=await fetch(`${SB}/mosque_directory?select=osm_id,name,city,address,lat,lng,country&city=ilike.${k}&country=eq.${C}&limit=60`,{headers:{apikey:KEYSB}});
   const j=await r.json();return Array.isArray(j)?j:[]}catch(e){return[]}}
@@ -609,7 +613,11 @@ async function liveOvp(p,ccP){const cc=p.cc||(await ccP)||PR.cc||'';const key='m
   return rows}
 async function liveNom(p,ccP){const cc=p.cc||(await ccP)||PR.cc||'';const rows=[];
   const add=a=>{(a||[]).forEach(x=>{if(!rows.some(r=>r.osm_id===x.osm_id||(km(r.lat,r.lng,x.lat,x.lng)<.06&&sameName(r.name,x.name))))rows.push(x)})};
-  try{add(await nomText(p,cc,'mosque'));if(rows.length<10){await sleep(1100);add(await nomText(p,cc,'mosquée'))}}catch(e){}   // recherche par mots-clés (comme Gemini)
+  const ctry=cname(cc)||cc;const city=await cityOf(p);
+  try{
+    if(city){add(await nomText(p,cc,'mosque '+city+' '+ctry));if(rows.length<10){await sleep(900);add(await nomText(p,cc,'mosquée '+city+' '+ctry))}}
+    else{add(await nomText(p,cc,'mosque '+ctry))}
+  }catch(e){}
   return rows}
 function injectDir(rows){for(let i=0;i<rows.length;i+=60){try{fetch(`${SB}/rpc/add_directory_osm`,{method:'POST',headers:{apikey:KEYSB,'Content-Type':'application/json'},
   body:JSON.stringify({p:rows.slice(i,i+60).map(r=>({osm_id:r.osm_id,name:r.name,address:r.address,city:r.city,postcode:r.postcode,country:r.country,lat:r.lat,lng:r.lng,phone:r.phone,website:r.website}))})}).catch(()=>{})}catch(e){}}}
@@ -656,7 +664,7 @@ async function autoFind(){const st=$('#wst');st.innerHTML=`<div class="wst">${tx
 async function wCitySearch(){const city=$('#wq').value.trim(),cc=$('#wk').value,st=$('#wst');if(!city)return;PR.city=city;PR.cc=cc;savePR();st.innerHTML=`<div class="wst">${tx('wScanning')}</div>`;let p;
   try{p=await geocode(city,cc)}catch(e){const dbr=await cityDb(city,cc);if(dbr.length){const c0={lat:dbr[0].lat,lng:dbr[0].lng};dbr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(dbr.sort((a,b)=>a.d-b.d),true);return}const nr=await nameRows(city,cc);if(nr.length){injectDir(nr);const c0={lat:nr[0].lat,lng:nr[0].lng};nr.forEach(m=>{m.reg=0;m.d=km(c0.lat,c0.lng,m.lat,m.lng)});LASTCITY=c0;wShow(nr,true);return}
     st.innerHTML=`<div class="wst bad">${tx('cityNF')}</div>`;return}
-  LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true);if(rs.length)location.hash='#proche'}
+  p.cityName=city;LASTCITY=p;const rs=await smartRows(p,r=>{if(r.length)wShow(r,true)});wShow(rs,true);if(rs.length)location.hash='#proche'}
 let SRESHTML='';let LOADERR='';
 function wShow(rows,city){$('#wst').innerHTML=`<div class="wst">${tx(rows.length?'wFound':'wNone')}</div>`;renderRows(rows,city,'#wres');
   if(PR.pos||LASTCITY)$('#wres').insertAdjacentHTML('beforeend',`<p style="text-align:center"><button class="ghost" onclick="skipWelcome()">${tx('wLater')}</button></p>`)}
