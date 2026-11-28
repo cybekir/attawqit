@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=76,H=(185+B*47)%360;
+(function(){var B=77,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 var c=[hx(H,75,12),hx(H,65,22),hx(H,70,36),hx(H,58,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -188,6 +188,15 @@ async function showBgManager(mid){
       await saveBg(url);{const t='Photo de fond appliquée ✔ (visible sur l’écran télé après actualisation)';document.getElementById('bgst').textContent=t;alert(t)};
     }catch(er){document.getElementById('bgst').textContent='Échec : '+((er&&er.message)||er)}};
 }
+async function showEventsManager(mid){
+  const box=document.getElementById('evmgr');if(!box)return;
+  let rows=[];try{const r=await sb.from('announcements').select('*').eq('mosque_id',mid).eq('kind','event').order('sort');rows=r.data||[]}catch(e){}
+  box.innerHTML=rows.map(x=>'<div class="card" style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span>'+esc(x.content)+'</span><button data-ev="'+esc(x.id)+'" class="alt" style="border-color:#ff8a8a;color:#ff8a8a">Supprimer</button></div>').join('')+
+    '<label>Nouvel événement (visible sur le smartphone)</label><input id="evnew" maxlength="200" style="width:100%;padding:10px;border-radius:12px"><button id="evadd">Ajouter l’événement</button>';
+  document.getElementById('evadd').onclick=async()=>{const t=document.getElementById('evnew').value.trim();if(!t)return;
+    const r=await sb.from('announcements').insert({mosque_id:mid,content:t,kind:'event',active:true});if(r.error){alert('Erreur : '+r.error.message);return}showEventsManager(mid)};
+  box.querySelectorAll('[data-ev]').forEach(b=>b.onclick=async()=>{if(!confirm('Supprimer cet événement ?'))return;await sb.from('announcements').delete().eq('id',b.dataset.ev);showEventsManager(mid)});
+}
 async function list(){RE=list;
   const {data,error}=await sb.from('mosque_users').select('mosques(id,name,city)').eq('user_id',U.id);
   if(error) return msg(error.message);
@@ -215,7 +224,7 @@ async function edit(id){RE=()=>edit(id);
   if(id){
     m=(await sb.from('mosques').select('*').eq('id',id).single()).data;
     s=(await sb.from('mosque_settings').select('*').eq('mosque_id',id).single()).data||{};
-    a=(await sb.from('announcements').select('*').eq('mosque_id',id).order('sort')).data||[];
+    a=(await sb.from('announcements').select('*').eq('mosque_id',id).neq('kind','event').order('sort')).data||[];
   }
   const c=(s.fixed_minutes||{}).calc||{}, pre=ANG[s.calc_method??12]||ANG[12], fa0=c.fa??pre[0], ia0=c.ia===undefined?pre[1]:c.ia;
   const w=(s.iqama||{}).wait_min||{fajr:30,dhuhr:10,asr:10,maghrib:10,isha:10};
@@ -251,8 +260,8 @@ async function edit(id){RE=()=>edit(id);
   ${id?`<h2>${ta('calTitle')}</h2><p style="color:var(--mute)">Choisis le calcul automatique (par angle du soleil) ou importe ton propre fichier CSV. Les horaires sont enregistrés dans la base : l’écran les lit même sans internet.</p>
   <div id="csvBox"><label>${ta('csvLabel')}</label><input type="file" id="csv" accept=".csv,.txt">
   <button id="impcsv">${ta('csvImport')}</button><button class="alt" id="tpl">${ta('csvTpl')}</button></div><p id="st"></p>`:''}
-  ${id?`<h2>${ta('annT')}</h2>${a.map(x=>`<div class="card">${esc(x.content)}<br><button class="alt" data-del="${x.id}">${ta('del')}</button></div>`).join('')}
-  <label>${ta('newAnn')}</label><input id="an"><button id="adda">${ta('addAnn')}</button>`:''}`;
+  ${id?`<h2>${ta('annT')}</h2><p style="color:var(--mute);font-size:.9rem">Affichées sur l’écran télé uniquement.</p>${a.map(x=>`<div class="card">${esc(x.content)}<br><button class="alt" data-del="${x.id}">${ta('del')}</button></div>`).join('')}
+  <label>${ta('newAnn')}</label><input id="an"><button id="adda">${ta('addAnn')}</button><h2>Événements</h2><p style="color:var(--mute);font-size:.9rem">Affichés sur l’application smartphone uniquement (pas sur l’écran télé).</p><div id="evmgr"></div>`:''}`;
   $('#me').onchange=()=>{const p=ANG[+v('me')];if(p){$('#fa').value=p[0];$('#ia').value=p[1]??'';$('#im').value=p[1]==null?90:''}};
   const sync=()=>{const x=v('src');$('#autoBox').style.display=x==='calendar'?'none':'block';const cb=$('#csvBox');if(cb)cb.style.display=x==='calendar'?'block':'none';
     if(x==='diyanet'){$('#me').value=13;$('#me').onchange()}
@@ -262,6 +271,7 @@ async function edit(id){RE=()=>edit(id);
   if(id&&$('#delm'))$('#delm').onclick=()=>delMosques([id]);
   if(id)setTimeout(()=>showPhotoManager(id),0);
   if(id)setTimeout(()=>showBgManager(id),0);
+  if(id)setTimeout(()=>showEventsManager(id),0);
   if($('#tosearch'))$('#tosearch').onclick=searchScreen;
   if(id){let ph=[...(m.photos||[])];const bk='mosque-photos';
     const delUrls=async urls=>{if(!urls.length)return;if(!confirm('Supprimer '+urls.length+' photo(s) de la fiche ? Action définitive.'))return;
