@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=78,H=(185+B*47)%360;
+(function(){var B=79,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -266,6 +266,9 @@ body.app .mob .pg.l-hud .pc.next::before,body.app .mob .pg.l-hud .pc.next::after
 .t2run{display:inline-flex;white-space:nowrap;animation:t2roll linear infinite;will-change:transform;position:relative}
 .t2seg{display:inline-block;padding-right:0}
 .t2tk{flex:1}
+.t2h{position:relative}
+.t2h h1{flex:1;text-align:center!important;font-size:min(4.6vw,8.5vh)!important}
+.t2tick,.t2run,.t2seg{font-size:clamp(1.4rem,min(3.9vw,6.8vh),2.4rem)!important;font-weight:700!important;color:#ffffff!important;text-shadow:0 2px 8px #000c!important;letter-spacing:.01em}
 </style>
 </head>
 <body>
@@ -813,7 +816,7 @@ function view(){
     const nowTxt=now.toLocaleTimeString(LOC[LG()]||'fr-FR',{hourCycle:H12()?'h12':'h23'});
     const ann=(M.note||M.assoc||'').replace(/[<>]/g,'');
     $('#app').innerHTML=`<div class="tv2" style="--photo:${bgUrl};--ov:${tvIsPreset()?'linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0))':'linear-gradient(rgba(6,47,58,.78),rgba(3,14,18,.94))'};${tvVars()}">
-    <header class="t2h"><img class="t2logo" src="attawqit-logo.jpg" alt="Attawqit"><h1>${esc(M.name)}</h1></header>
+    <header class="t2h"><img class="t2logo" src="attawqit-logo.jpg" alt="Attawqit"><h1>${esc(M.name)}${M.city?' – '+esc(M.city):''}</h1></header>
     <section class="t2top">
       <div class="t2side"><small>${PN('Sunrise')}</small><b>${fmt(T.Sunrise)}</b></div>
       <div class="t2clock"><b>${nowTxt}</b><span>${d.charAt(0).toUpperCase()+d.slice(1)}</span>
