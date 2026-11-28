@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=73,H=(185+B*47)%360;
+(function(){var B=74,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -261,6 +261,11 @@ body.app .mob .pg.l-hud .pc.next::before,body.app .mob .pg.l-hud .pc.next::after
 .t2cell.on{background:linear-gradient(160deg,var(--acc1,#e0b84c),var(--acc2,#8a6418))!important;color:#fff!important;box-shadow:0 6px 22px #0007!important}
 .t2cd{background:rgba(0,0,0,.35)!important}
 .t2cell:not(.on){background:rgba(8,14,26,.55)!important;backdrop-filter:blur(4px)}
+@keyframes t2roll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.t2tick{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.t2run{display:inline-flex;white-space:nowrap;animation:t2roll linear infinite;will-change:transform}
+.t2seg{display:inline-block;padding-right:0}
+.t2tk{flex:1}
 </style>
 </head>
 <body>
@@ -814,7 +819,7 @@ function view(){
       <div class="t2side"><small>${tx('jumua')}</small><b>${M.jumua?fmt(M.jumua):'—'}</b></div>
     </section>
     <section class="t2grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="t2cell ${p===n.p?'on':''}"><span>${PN(p)}</span><b>${fmt(T[p])}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</section>
-    <footer class="t2foot"><span>${esc(ann)}</span>${M.pid?`<div class="t2idq"><span class="t2id">ID ${esc(M.pid)}</span><img class="t2qr" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent('https://attawqit.pages.dev/?id='+M.pid)}"></div>`:'<span></span>'}</footer></div>`;
+    <footer class="t2foot">${(()=>{const L=(M.anns&&M.anns.length)?M.anns:(ann?[ann]:[]);if(!L.length)return '<span class="t2tk"></span>';const seg='<span class="t2seg">'+L.map(x=>esc(x)).join('&nbsp;&nbsp;•&nbsp;&nbsp;')+'&nbsp;&nbsp;•&nbsp;&nbsp;</span>';const dur=Math.max(14,Math.round(L.join(' ').length*0.22));return `<div class="t2tick"><div class="t2run" style="animation-duration:${dur}s">${seg}${seg}</div></div>`})()}${M.pid?`<div class="t2idq"><span class="t2id">ID ${esc(M.pid)}</span><img class="t2qr" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent('https://attawqit.pages.dev/?id='+M.pid)}"></div>`:'<span></span>'}</footer></div>`;
   } else { appView(n); }
 }
 function admin(){
