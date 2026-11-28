@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#062f3a">
 <script>/* Attawqit : la teinte du décor change à chaque version (repère visuel du déploiement) */
-(function(){var B=77,H=(185+B*47)%360;
+(function(){var B=78,H=(185+B*47)%360;
 function hx(h,s,l){s/=100;l/=100;var a=s*Math.min(l,1-l);function f(n){var k=(n+h/30)%12,c=l-a*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(255*c).toString(16).padStart(2,'0')}return '#'+f(0)+f(8)+f(4)}
 function ap(h,sa){sa=sa==null?75:sa;var c=[hx(h,sa,12),hx(h,sa*.87,22),hx(h,sa*.93,36),hx(h,sa*.77,49)],r=document.documentElement.style;
 r.setProperty('--c1',c[0]);r.setProperty('--c2',c[1]);r.setProperty('--c3',c[2]);r.setProperty('--c4',c[3]);r.setProperty('--c1a',c[0]+'cc');
@@ -250,7 +250,7 @@ body.app .mob .pg.l-hud .pc span{text-transform:uppercase;letter-spacing:.2em;fo
 body.app .mob .pg.l-hud .pc.next{background:linear-gradient(135deg,#123d2a,#0a2418)!important;border-color:#5fe08a!important;color:#d8ffe8!important}
 body.app .mob .pg.l-hud .pc.next::before,body.app .mob .pg.l-hud .pc.next::after{border-color:#5fe08a}
 .t2logo{height:clamp(44px,8vh,72px);width:auto;border-radius:50%;object-fit:contain}
-.t2idq{display:flex;align-items:center;gap:10px;margin-left:auto}
+.t2idq{display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:auto}
 .t2id{font-size:min(1.6vw,2.6vh);font-weight:700;letter-spacing:.08em;opacity:.9}
 .t2qr{width:clamp(54px,11vh,96px);height:clamp(54px,11vh,96px);border-radius:8px;background:#fff;padding:4px}
 .t2foot{align-items:center!important}
@@ -821,7 +821,7 @@ function view(){
       <div class="t2side"><small>${tx('jumua')}</small><b>${M.jumua?fmt(M.jumua):'—'}</b></div>
     </section>
     <section class="t2grid">${['Fajr','Dhuhr','Asr','Maghrib','Isha'].map(p=>`<div class="t2cell ${p===n.p?'on':''}"><span>${PN(p)}</span><b>${fmt(T[p])}</b><i>+${(M.iqama||{})[p]??10}</i></div>`).join('')}</section>
-    <footer class="t2foot">${(()=>{const L=(M.anns&&M.anns.length)?M.anns:(ann?[ann]:[]);if(!L.length)return '<span class="t2tk"></span>';const seg='<span class="t2seg">'+L.map(x=>esc(x)).join('&nbsp;&nbsp;•&nbsp;&nbsp;')+'&nbsp;&nbsp;•&nbsp;&nbsp;</span>';const dur=Math.max(16,Math.round(L.join(' ').length*0.2+8));return `<div class="t2tick"><div class="t2run" style="animation-duration:${dur}s;animation-delay:-${((Date.now()/1000)%dur).toFixed(2)}s">${seg}${seg}</div></div>`})()}${M.pid?`<div class="t2idq"><span class="t2id">ID ${esc(M.pid)}</span><img class="t2qr" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent('https://attawqit.pages.dev/?id='+M.pid)}"></div>`:'<span></span>'}</footer></div>`;
+    <footer class="t2foot">${(()=>{const L=(M.anns&&M.anns.length)?M.anns:(ann?[ann]:[]);if(!L.length)return '<span class="t2tk"></span>';const seg='<span class="t2seg">'+L.map(x=>esc(x)).join('&nbsp;&nbsp;•&nbsp;&nbsp;')+'&nbsp;&nbsp;•&nbsp;&nbsp;</span>';const dur=Math.max(34,Math.round(L.join(' ').length*0.45+16));return `<div class="t2tick"><div class="t2run" style="animation-duration:${dur}s;animation-delay:-${((Date.now()/1000)%dur).toFixed(2)}s">${seg}</div></div>`})()}${M.pid?`<div class="t2idq"><img class="t2qr" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=4&data=${encodeURIComponent('https://attawqit.pages.dev/?id='+M.pid)}"><span class="t2id">ID ${esc(M.pid)}</span></div>`:'<span></span>'}</footer></div>`;
   } else { appView(n); }
 }
 function admin(){
